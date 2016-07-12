@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace NSSLServer
 {
@@ -14,6 +15,7 @@ namespace NSSLServer
     {
         public Startup(IHostingEnvironment env)
         {
+            Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -27,6 +29,7 @@ namespace NSSLServer
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -46,11 +49,26 @@ namespace NSSLServer
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
-
-            app.UseApplicationInsightsExceptionTelemetry();
-
+            app.Use(async (ctx, f) => {
+                StringValues originValues;
+                ctx.Response.Headers["Access-Control-Allow-Origin"] = ctx.Request.Headers.TryGetValue("Origin", out originValues) ? originValues[0] : "*";
+                ctx.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+                if (ctx.Request.Method == "OPTIONS")
+                {
+                    ctx.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE";
+                    ctx.Response.Headers["Access-Control-Allow-Headers"] = "Origin, X-Token, X-Requested-With, Content-Type, Accept";
+                    ctx.Response.Headers["Access-Control-Max-Age"] = "1728000";
+                }
+                else
+                {
+                    await f();
+                }
+            });
             app.UseMvc();
+
+            var foo = "bbq";
+            
+
         }
     }
 }

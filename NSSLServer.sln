@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NSSLServer", "src\NSSLServer\NSSLServer.xproj", "{88212EBE-0A4A-4B2D-B83A-472658CF58F0}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Shared", "..\..\Xamarin\ConsoleServer\Shared\Shared.xproj", "{A768287F-16AA-4541-8059-1B4FEA3A9A89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{88212EBE-0A4A-4B2D-B83A-472658CF58F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88212EBE-0A4A-4B2D-B83A-472658CF58F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88212EBE-0A4A-4B2D-B83A-472658CF58F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
