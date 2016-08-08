@@ -1,4 +1,5 @@
 ﻿using NSSLServer.Models;
+using NSSLServer.Sources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,20 +46,30 @@ namespace NSSLServer
             return new ProductResult { Success = false, Error = "Product was not found" };
         }
 
-        internal static async Task<List<BasicProduct>> FindProductsByName(string name)
+        internal static async Task<List<BasicProduct>> FindProductsByName(string name, int page = 1)
         {
             if (name == null)
-                return new List<BasicProduct>(); 
+                return new List<BasicProduct>();
 
             name = name.ToLower();
+            List<BasicProduct> products = new List<BasicProduct>();
             foreach (IProductSource source in ProductSources)
             {
-
-                var p =  await source.FindProductsByName(name);
-                if (p != null && p.Count > 0)
-                    return p;
+                var p =  await source.FindProductsByName(name, page);
+                if (p != null && p.Items?.Count > 0)
+                    products.AddRange(p.Items);
             }
-            return new List<BasicProduct>();
+            return products;
+        }
+
+        internal static async Task<Result> AddNewProduct(string gtin, string name)
+        {
+            if (string.IsNullOrWhiteSpace(gtin) || string.IsNullOrWhiteSpace(name))
+                return new Result {Success = false, Error = "The name or gtin was not properly inserted" };
+                  
+            await CommunityProductSource.AddProduct(name, gtin);
+            await OutpanProductSource.AddProduct(name, gtin);
+            return new Result { Success = true };
         }
 
         private static List<IProductSource> _productSources = new List<IProductSource>();

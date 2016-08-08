@@ -33,7 +33,7 @@ namespace NSSLServer.Features
         {
             Session.Expires = DateTime.UtcNow.AddDays(1);
             var token = JsonWebToken.Encode(new Dictionary<string, object>(), Session, ExtractJwtSessionFilterAttribute.JwtKeyBytes, JsonWebToken.JwtHashAlgorithm.HS512);
-            return Task.FromResult<IActionResult>(Json(new RefreshResult { Session = Session, Token = token }));
+            return Task.FromResult<IActionResult>(Json(new SessionRefreshResult { Token = token }));
         }
 
         [HttpGet]

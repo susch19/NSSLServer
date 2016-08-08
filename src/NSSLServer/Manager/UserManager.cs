@@ -26,7 +26,7 @@ namespace NSSLServer
 #endif
         public static async Task<CreateResult> CreateUser(string username, string email, string pwdhash)
         {
-            using (var cont = new DBContext())
+            using (var cont = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
 
                 var exists = await FindUserByName(cont.Connection, username);
@@ -52,7 +52,7 @@ namespace NSSLServer
 
         public static async Task<Result> ChangePassword(int id, string o, string n)
         {
-            using (var c = new DBContext())
+            using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
                 var k = c.Users.FirstOrDefault(x => x.Id == id);
                 if (k.PasswordHash.SequenceEqual(salting(o, k.Salt)))
@@ -62,7 +62,7 @@ namespace NSSLServer
                 }
                 else
                     return new Result { Success = false, Error = "old password was incorrect" };
-                return new Result { Success = true }; 
+                return new Result { Success = true };
             }
         }
 
@@ -137,9 +137,9 @@ namespace NSSLServer
         public static async Task<User> FindUserByEmail(DbConnection con, string email) =>
              await From(UT).Where(UT.Email.Eq(P("sad", email.ToLower()))).FirstOrDefault<User>(con);
 
-        public static async Task<User> FindUserById(DbConnection con, int id) =>
-           await From(UT).Where(UT.Id.Eq(Q.P("id", id))).FirstOrDefault<User>(con);
-
+        public static async Task<User> FindUserById(DbConnection con, int id) => 
+            await From(UT).Where(UT.Id.Eq(Q.P("id", id))).FirstOrDefault<User>(con);
+        
 
         #region Unused code
         //public static async Task<UserInfo2> GetUserInfo(int id)

@@ -11,6 +11,7 @@ namespace NSSLServer.Sources
     {
         public bool islocal { get; } = true;
 
+        public long Total { get; set; } = 0;
 
         public LocalOutpanProductSource()
         {
@@ -30,8 +31,9 @@ namespace NSSLServer.Sources
         {
         }
 
-        public static void AddProduct(string name, string gtin)
+        public static async void AddProductFromOutpan(string name, string gtin)
         {
+            //TODO Implement saving from Outpan
         }
 
         async Task<BasicProduct> IProductSource.FindProductByCode(string code)
@@ -39,9 +41,10 @@ namespace NSSLServer.Sources
             return null;            
         }
 
-        async Task<List<BasicProduct>> IProductSource.FindProductsByName(string name)
+        async Task<Paged<BasicProduct>> IProductSource.FindProductsByName(string name, int i)
         {
-            return new List<BasicProduct>();
+            return new Paged<BasicProduct>();
         }
+
     }
 }

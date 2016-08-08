@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using NSSLServer.Models.DatabaseConnection;
 using Microsoft.AspNetCore.Mvc;
+using static Shared.RequestClasses;
 
 namespace NSSLServer.Module
 {
@@ -14,7 +15,7 @@ namespace NSSLServer.Module
     public class ProductModule : AuthenticatingController
     {
         [HttpGet,Route("{id}")]
-        public async Task<IActionResult> GetProduct([FromRoute]string id, CancellationToken token)
+        public async Task<IActionResult> GetProduct([FromRoute]string id, [FromQuery]int page)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return new BadRequestResult();
@@ -22,8 +23,19 @@ namespace NSSLServer.Module
             if ((id.Length == 8 || id.Length == 13) && long.TryParse(id, out i))
                 return Json((await ProductSourceManager.FindProductByCode(id)));
             else
-                return Json((await ProductSourceManager.FindProductsByName(id)));
+                return Json((await ProductSourceManager.FindProductsByName(id, page)));
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> AddProduct([FromBody]AddNewProductArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(args.Gtin) || string.IsNullOrWhiteSpace(args.Name))
+                return new BadRequestResult();
+            long i;
+            if ((args.Gtin.Length == 8 || args.Gtin.Length == 13) && long.TryParse(args.Gtin, out i))
+                return Json((await ProductSourceManager.AddNewProduct(args.Gtin, args.Name)));
+            else
+                return new BadRequestResult();
         }
     }
 }

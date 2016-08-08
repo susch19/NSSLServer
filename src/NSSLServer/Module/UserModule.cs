@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace NSSLServer.Module
 {
+    [Route("users")]
     public class UserModule : AuthenticatingController 
     {
         private List<string> unauthorizedEndpoints = new List<string> { "/users/create", "/users/login" };

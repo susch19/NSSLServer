@@ -17,14 +17,25 @@ namespace NSSLServer
 
         public static void Main(string[] args)
         {
+            Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls("http://localhost:4344", "http://suschpc.noip.me:4344")
                 .UseContentRoot(Directory.GetCurrentDirectory())               
                 .UseStartup<Startup>()
                 .Build();
-
+            DoStuff();
             host.Run();
         }
+        private async static void DoStuff()
+        {
+            var k = new Sources.EdekaProductSource();
+            var z = await k.FindProductsByName("nudel soße",1);
+            var z1 = await k.FindProductsByName("käse",2);
+
+
+        }
+        
     }
+
 }

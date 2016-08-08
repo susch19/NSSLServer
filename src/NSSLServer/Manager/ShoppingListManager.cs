@@ -64,28 +64,6 @@ namespace NSSLServer
 
     public static class ShoppingListManager
     {
-        public static string SaveShoppingList(DBContext c, int listId, int id, List<ListItem> products) //TODO Wtf mache ich hier?
-        {
-            var shoppinglist = c.ShoppingLists.FirstOrDefault(x => x.Id == listId);
-            if (shoppinglist == null)
-            {
-                return "List not found, please create before saving";
-                //save new List completely
-            }
-            shoppinglist.Products = products;
-            c.SaveChanges();
-            return "success";
-        }
-        //public static async Task<ShoppingList> LoadShoppingList(DBContext c, int listId, int userId)
-        //=> (await c.Contributors.Include(a => a.ShoppingList).FirstOrDefaultAsync(x => x.UserId == userId && x.ListId ==listId))?.ShoppingList;
-
-        // public static async Task<ShoppingList> LoadShoppingList(DBContext c, int listId, int userId)
-        //=> await Q.From(ShoppingList.SLT)
-        //     .InnerJoin(Contributor.CT).On(ShoppingList.SLT.Id.Eq(Contributor.CT.ListId))
-        //     .Where(Contributor.CT.UserId.Eq(Q.P("uid", userId)), ShoppingList.SLT.Id.Eq(Q.P("lid", listId)))
-        //     .Select(new RawSql(ShoppingList.SLT.TableAlias + ".*"))
-        //     .FirstOrDefault<ShoppingList>(c.Database.Connection);
-        //(await c.Contributors.Include(a => a.ShoppingList).FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId))?.ShoppingList;
 
         public static async Task<ShoppingList> LoadShoppingList(int listId, int userId)
         {
@@ -117,7 +95,7 @@ namespace NSSLServer
 
 
                 if (list == null)
-                    return new ShoppingList { };
+                    return new ShoppingList { }; //TODO Nicht leere Liste zurückgeben
                 list.Products = await Q.From(ListItem.LIT).Where(l => l.ListId.Eq(list.Id))
                         .Where(l => l.Amount.Neq(Q.P("a", 0)))
                         .OrderBy(t => t.Id.Asc())
@@ -138,7 +116,7 @@ namespace NSSLServer
             return new Result { Success = true };
         }
 
-        public static async Task<string> DeleteContributor(DBContext c, int listId, int adminId, int contributorId) // TODO Vernünftig implementieren
+        public static async Task<string> DeleteContributor(DBContext c, int listId, int adminId, int contributorId) // TODO Überhaupt implementieren
         {
             var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == adminId && x.ListId == listId))?.IsAdmin;
             if (!admin.HasValue || !admin.Value)
@@ -192,10 +170,11 @@ namespace NSSLServer
         public static async Task<Result> DeleteList(DBContext c, int listId, int userId)
         {
             var shoppinglist = c.ShoppingLists.Include(x=>x.Owner).FirstOrDefault(x => x.Id == listId);
+                       
+            if (shoppinglist == null)
+                return new Result { Success = false, Error = "The List could not be found. Maybe it was deleted already." };
             if (shoppinglist.Owner.Id != userId)
                 return new Result { Success = false, Error = "Only owner is able to delete the list" };
-            if (shoppinglist == null)
-                return new Result { Success = false, Error = "list not found" };
             c.ShoppingLists.Remove(shoppinglist);
             await c.SaveChangesAsync();
             return new Result { Success = true };
@@ -257,13 +236,16 @@ namespace NSSLServer
 
         public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, User user)
         {
+            var cont = con.Contributors.Include(x=>x.ShoppingList).Where(x => x.User == user);
             
+            var lists = new List<ShoppingList>();
+            foreach (var item in cont)
+                lists.Add(item.ShoppingList);
+            
+            return lists;//  con.ShoppingLists.Where(x=>x.Contributors.Contains()).ToList();
 
-            con.Users.Include(x=>x.IsContributors).Include(x=>x.ShoppingLists);
-            
             //await con.Entry(user).Collection(m => m.ShoppingLists).LoadAsync();
             //await con.Entry(user).Collection(x => x.IsContributors).LoadAsync();
-            return user.IsContributors.Select(x => x.ShoppingList).ToList();
         }
     }
 }

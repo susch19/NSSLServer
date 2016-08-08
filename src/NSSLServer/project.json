@@ -1,10 +1,9 @@
-﻿{
+{
     "dependencies": {
-        "Microsoft.NETCore.App": {
-            "version": "1.0.0",
-            "type": "platform"
-        },
+        "NETStandard.Library": "1.6.0",
         "Microsoft.ApplicationInsights.AspNetCore": "1.0.0",
+        "Microsoft.NETCore.DotNetHostPolicy": "1.0.1",
+        "Microsoft.NETCore.Runtime.CoreCLR": "1.0.2",
         "Microsoft.AspNetCore.Mvc": "1.0.0",
         "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
         "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
@@ -14,23 +13,34 @@
         "Microsoft.Extensions.Logging.Console": "1.0.0",
         "Microsoft.Extensions.Logging.Debug": "1.0.0",
         "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
-        "Npgsql.EntityFrameworkCore.PostgreSQL": "1.0.0",
         "Microsoft.AspNetCore.Cryptography.KeyDerivation": "1.0.0",
-        "Deviax.QueryBuilder.Postgres": "1.0.0",
-        "Shared": "1.0.0-*"    },
+        "Deviax.QueryBuilder.Postgres": "0.1.0",
+        "Shared": "1.0.0-*",
+        "System.Net.Requests": "4.0.11",
+        "Npgsql": "3.1.6",
+        "Npgsql.EntityFrameworkCore.PostgreSQL": "1.0.0"
+    },
 
-  "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "dotnet5.6",
-        "portable-net45+win8"
-      ]
-    }
-  },
+    "frameworks": {
+        "netcoreapp1.0": {
+            "imports": [
+                "dotnet5.6",
+                "portable-net45+win8"
+            ]
+        }
+    },
+
+    "runtimes": {
+        "win10-x64": {},
+        "ubuntu.16.04-x64": {},
+        "ubuntu.15.04-x64": {},
+        "ubuntu.14.04-x64": {}
+    },
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "optimize": false
   },
 
   "runtimeOptions": {
@@ -39,17 +49,15 @@
     }
   },
 
-  "publishOptions": {
-    "include": [
-      "wwwroot",
-      "Views",
-      "Areas/**/Views",
-      "appsettings.json",
-      "web.config"
-    ]
-  },
+    "publishOptions": {
+        "include": [
+            "wwwroot",
+            "Views",
+            "Areas/**/Views",
+            "appsettings.json",
+            "web.config"
+        ]
+    },
+    "userSecretsId": "aspnet-NSSLServer-20160715030852"
 
-  "scripts": {
-    "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
-  }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NSSLServer.Sources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,6 @@ namespace NSSLServer.Models
     {
         bool islocal { get; }
         Task<BasicProduct> FindProductByCode(string code);
-        Task<List<BasicProduct>> FindProductsByName(string name);
+        Task<Paged<BasicProduct>> FindProductsByName(string name, int page = 1);
     }
 }

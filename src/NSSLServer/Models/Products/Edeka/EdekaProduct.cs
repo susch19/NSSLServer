@@ -73,7 +73,7 @@ namespace NSSLServer.Models
         }
 
         public BasicProduct ConvertToProduct()=>
-            new BasicProduct { Name = Name, Quantity = Quantity??0 , Unit = Unit??"", Gtin = Gtins?.Where(x=>x.Gtin.Length == 8 || x.Gtin.Length == 13).FirstOrDefault()?.Gtin };
+            new BasicProduct { Name = string.IsNullOrWhiteSpace(LongDescription) ? Name : LongDescription, Quantity = Quantity??0 , Unit = Unit??"", Gtin = Gtins?.Where(x=>x.Gtin.Length == 8 || x.Gtin.Length == 13).FirstOrDefault()?.Gtin };
         
         //public static implicit operator Product(EdekaProduct p)=>
         //    

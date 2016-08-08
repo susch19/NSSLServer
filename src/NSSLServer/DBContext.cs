@@ -22,17 +22,10 @@ namespace NSSLServer
         public DbConnection Connection;
         private bool _disposeConnection;
 
-        public DBContext() : this(new NpgsqlConnection("User Id=shoppinglist;Server=localhost;Port=5432;Password=shoppinglist;Database=shoppinglist;"), true)
-        {
-            //Database.SetInitializer<DBContext>(null);
-            //var bbq = "";
 
-            
-
-        }
         public DBContext(DbConnection con, bool disposeConnection)
         {
-            Connection = new NpgsqlConnection("User Id=shoppinglist;Server=localhost;Port=5432;Password=shoppinglist;Database=shoppinglist;");
+            Connection = con;
             _disposeConnection = disposeConnection;
         }
 
@@ -70,7 +63,7 @@ namespace NSSLServer
                 .HasMany(t => t.Gtins)
                 .WithOne(x => x.Product)
                 .IsRequired()
-                .HasForeignKey(t => t.ProductId);//TODO Will ich da vielleicht was anderes?                
+                .HasForeignKey(t => t.ProductId);            
 
             modelBuilder.Entity<EdekaProductRegion>()
                .ToTable("product_regions", "edeka")
@@ -109,7 +102,7 @@ namespace NSSLServer
             modelBuilder.Entity<Contributor>()
                 .ToTable("contributors", "public")
                 .HasKey(t => t.Id);
-            modelBuilder.Entity<BasicProduct>().HasKey(t => t.Gtin);
+            modelBuilder.Entity<BasicProduct>().ToTable("products","public").HasKey(t => t.Gtin);
             modelBuilder.Entity<ListItem>()
                 .ToTable("list_item", "public")
                 .HasKey(t => t.Id);

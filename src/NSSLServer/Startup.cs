@@ -15,7 +15,7 @@ namespace NSSLServer
     {
         public Startup(IHostingEnvironment env)
         {
-            Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
+            
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -65,10 +65,6 @@ namespace NSSLServer
                 }
             });
             app.UseMvc();
-
-            var foo = "bbq";
-            
-
         }
     }
 }

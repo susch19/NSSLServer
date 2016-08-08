@@ -27,7 +27,7 @@ namespace NSSLServer.Features
         [HttpGet]
         [Route("{listId}")]
         public async Task<IActionResult> GetList(int listId)
-        => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, Session.Id))) : new BadRequestResult();
+            => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, Session.Id))) : new BadRequestResult();
 
         [HttpPut]
         [Route("{listId}/contributors")]
@@ -96,8 +96,8 @@ namespace NSSLServer.Features
             return Json((await ShoppingListManager.DeleteList(Context, listId, Session.Id)));
         }
 
-        [HttpPost, Route("{listId}")]
-        public async Task<IActionResult> AddList(int listId, [FromBody]AddListArgs args)
+        [HttpPost]
+        public async Task<IActionResult> AddList([FromBody]AddListArgs args)
         => Json((await ShoppingListManager.AddList(Context, args.Name, Session.Id)));
 
 

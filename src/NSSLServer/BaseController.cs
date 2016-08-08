@@ -18,7 +18,7 @@ namespace NSSLServer
 #if DEBUG
         public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=5432;Password=shoppinglist;Database=shoppinglist;";
 #else
-        public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=5432;Password=shoppinglist;Database=shoppinglist;";
+        public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=110;Password=shoppinglist;Database=shoppinglist;";
 #endif
         public static async Task<DbConnection> OpenConnectionAsync()
         {
@@ -149,7 +149,7 @@ namespace NSSLServer
         {
 
             var controller = (BaseController)context.Controller;
-            using (controller.Context = new DBContext())
+            using (controller.Context = new DBContext(await NsslEnvironment.OpenConnectionAsync(),true))
                 await next.Invoke();
             
             //await controller.Context.SaveChangesAsync();
