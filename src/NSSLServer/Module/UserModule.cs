@@ -21,7 +21,7 @@ namespace NSSLServer.Module
         public async Task<IActionResult> DeleteUser()
         => null;
         
-
+        
         [HttpPut]
         public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordArgs args)
         {

@@ -16,7 +16,7 @@ namespace NSSLServer
     public class NsslEnvironment
     {
 #if DEBUG
-        public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=5432;Password=shoppinglist;Database=shoppinglist;";
+        public const string ConnectionString = "User Id=shoppinglist;Server=192.168.49.44;Port=5432;Password=shoppinglist;Database=shoppinglist;";
 #else
         public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=110;Password=shoppinglist;Database=shoppinglist;";
 #endif
