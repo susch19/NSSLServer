@@ -60,6 +60,13 @@ namespace Shared
             public int Amount { get; set; }
             public int ListId { get; set; }
         }
+        public class ChangeListNameResult
+        {
+            public bool Success;
+            public string Error;
+            public string Name { get; set; }
+            public int ListId { get; set; }
+        }
         public class AddListResult
         {
             public bool Success;

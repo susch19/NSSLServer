@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Net;
 
 namespace NSSLServer
 {
@@ -29,10 +30,12 @@ namespace NSSLServer
         }
         private async static void DoStuff()
         {
-            var k = new Sources.EdekaProductSource();
-            var z = await k.FindProductsByName("nudel soße",1);
-            var z1 = await k.FindProductsByName("käse",2);
-
+            WebRequest wr = WebRequest.Create(@"https://www.ean-search.org/perl/ean-search.pl?q=5099750442227");
+            var response = await wr.GetRequestStreamAsync();
+            using(StreamReader sr = new StreamReader(response))
+            {
+                Console.Write(sr.ReadToEnd());
+            }
 
         }
         

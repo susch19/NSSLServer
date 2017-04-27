@@ -108,8 +108,8 @@ namespace NSSLServer
             var list = await c.ShoppingLists.Include(l => l.Owner).FirstOrDefaultAsync(x => x.Id == id);
             var owner = list.Owner;
 
-            if(owner.Id != oldOwner )
-                return new Result {Error = "You are not the owner from the list" };
+            if (owner.Id != oldOwner)
+                return new Result { Error = "You are not the owner from the list" };
 
             list.Owner = await c.Users.FirstOrDefaultAsync(i => i.Id == newOwner);
             await c.SaveChangesAsync();
@@ -146,7 +146,7 @@ namespace NSSLServer
 
         public static async Task<ChangeListItemResult> ChangeProduct(DBContext c, int listId, int contributorId, int productId, int change)
         {
-            var shoppinglist = await c.ShoppingLists.Include(x=>x.Contributors).Include(x=>x.Products).FirstOrDefaultAsync(x => x.Id == listId);
+            var shoppinglist = await c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefaultAsync(x => x.Id == listId);
             if (shoppinglist.Contributors.FirstOrDefault(x => x.UserId == contributorId) == null)
                 return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
             var product = shoppinglist.Products.FirstOrDefault(x => x.Id == productId);
@@ -160,17 +160,22 @@ namespace NSSLServer
             return new ChangeListItemResult { Success = true, Id = product.Id, Name = product.Name, Amount = product.Amount, ListId = listId };
         }
 
-        public static async Task<bool> ChangeListname(DBContext c, int id, int userId, string newName)
+        public static async Task<ChangeListNameResult> ChangeListname(DBContext c, int id, int userId, string newName)
         {
-            c.ShoppingLists.FirstOrDefault(x => x.Id == id && x.UserId == userId).Name = newName;
+            var list = c.ShoppingLists.FirstOrDefault(x => x.Id == id && x.UserId == userId);
+
+            if (list.Contributors.FirstOrDefault(x => x.IsAdmin == true && x.User.Id == userId) == null)
+                return new ChangeListNameResult { Success = false, Error = "Insufficient rights" };
+
+            list.Name = newName;
             await c.SaveChangesAsync();
-            return true;
+            return new ChangeListNameResult { Success = true, ListId = list.Id, Name = list.Name };
         }
 
         public static async Task<Result> DeleteList(DBContext c, int listId, int userId)
         {
-            var shoppinglist = c.ShoppingLists.Include(x=>x.Owner).FirstOrDefault(x => x.Id == listId);
-                       
+            var shoppinglist = c.ShoppingLists.Include(x => x.Owner).FirstOrDefault(x => x.Id == listId);
+
             if (shoppinglist == null)
                 return new Result { Success = false, Error = "The List could not be found. Maybe it was deleted already." };
             if (shoppinglist.Owner.Id != userId)
@@ -189,7 +194,7 @@ namespace NSSLServer
             var shoppinglist = c.ShoppingLists.Add(new ShoppingList { Name = listName, UserId = user.Id, Owner = user }).Entity;
 
             c.Contributors.Add(new Contributor { IsAdmin = true, ShoppingList = shoppinglist, UserId = user.Id });
-            
+
             //user.IsContributors.Add();
 
             //z.Contributors.Add(user.IsContributors.FirstOrDefault(x => x.ListId == z.Id));
@@ -200,7 +205,7 @@ namespace NSSLServer
 
         public static async Task<Result> DeleteProduct(DBContext c, int listid, int userid, int productid)
         {
-            var list = c.ShoppingLists.Include(x=>x.Contributors).Include(x=>x.Products).FirstOrDefault(x => x.Id == listid);
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
             if (list == null)
                 return new Result { Success = false, Error = "list could not be found" };
             var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
@@ -236,12 +241,12 @@ namespace NSSLServer
 
         public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, User user)
         {
-            var cont = con.Contributors.Include(x=>x.ShoppingList).Where(x => x.User == user);
-            
+            var cont = con.Contributors.Include(x => x.ShoppingList).Where(x => x.User == user);
+
             var lists = new List<ShoppingList>();
             foreach (var item in cont)
                 lists.Add(item.ShoppingList);
-            
+
             return lists;//  con.ShoppingLists.Where(x=>x.Contributors.Contains()).ToList();
 
             //await con.Entry(user).Collection(m => m.ShoppingLists).LoadAsync();

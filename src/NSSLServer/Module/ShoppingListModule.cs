@@ -80,12 +80,11 @@ namespace NSSLServer.Features
 
 
         [HttpPut, Route("{listId}")]
-        public async Task<IActionResult> UpdateList(int listId, [FromBody]ChangeListNameArgs args)
+        public async Task<IActionResult> RenameList(int listId, [FromBody]ChangeListNameArgs args)
         {
             if (listId == 0 || string.IsNullOrWhiteSpace(args.Name))
-                return Json(new Result { Error = "Asdf" });
-            await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name);
-            return Json(new Result { Success = true });
+                return Json(new Result {Success = false,  Error = "ListID is wrong or name is empty" });
+            return Json(await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name));           
         }
 
         [HttpDelete, Route("{listId}")]
