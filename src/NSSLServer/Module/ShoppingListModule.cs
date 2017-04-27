@@ -8,10 +8,10 @@ using static Shared.ResultClasses;
 
 namespace NSSLServer.Features
 {
-    [Route("shoppinglists"),WithDbContext]
+    [Route("shoppinglists"), WithDbContext]
     public class ShoppingListModule : AuthenticatingController
     {
-       
+
         [HttpGet, Route("products/{identifier}")]
         public async Task<IActionResult> GetProduct(string identifier)
         {
@@ -44,7 +44,6 @@ namespace NSSLServer.Features
         {
             if (listId == 0 || contributorId == 0)
                 return new BadRequestResult();
-
             return Json(await ShoppingListManager.DeleteContributor(Context, listId, Session.Id, contributorId));
 
         }
@@ -67,6 +66,13 @@ namespace NSSLServer.Features
             return Json(new AddContributorResult { Success = true, Id = cont.Id, Name = u.Username });
         }
 
+        [HttpGet, Route("{listId}/contributors")]
+        public async Task<IActionResult> GetContributors(int listId)
+        {
+            if (listId == 0)
+                return Json(new GetContributorsResult { Error = "The list id was not provided", Success = false });
+            return Json(await ShoppingListManager.GetContributors(Context, listId, Session.Id));
+        }
 
         [HttpPut, Route("{listId}/products/{productId}")]
         public async Task<IActionResult> ChangeProduct(int listId, int productId, [FromBody]ChangeProductArgs args)
@@ -83,8 +89,8 @@ namespace NSSLServer.Features
         public async Task<IActionResult> RenameList(int listId, [FromBody]ChangeListNameArgs args)
         {
             if (listId == 0 || string.IsNullOrWhiteSpace(args.Name))
-                return Json(new Result {Success = false,  Error = "ListID is wrong or name is empty" });
-            return Json(await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name));           
+                return Json(new Result { Success = false, Error = "ListID is wrong or name is empty" });
+            return Json(await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name));
         }
 
         [HttpDelete, Route("{listId}")]

@@ -32,6 +32,20 @@ namespace Shared
             public string Name { get; set; }
             public int Id { get; set; }
         }
+        public class GetContributorsResult
+        {
+            public class ContributorResult
+            {
+                public string Name { get; set; }
+                public int UserId { get; set; }
+                public bool IsAdmin { get; set; }
+
+            }
+            public bool Success;
+            public string Error;
+
+            public List<ContributorResult> Contributors { get; set; }
+        }
 
         public class ProductResult
         {

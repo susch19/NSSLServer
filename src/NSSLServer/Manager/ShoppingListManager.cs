@@ -103,6 +103,8 @@ namespace NSSLServer
                 return list;
             }
         }
+
+
         public static async Task<Result> TransferOwnership(DBContext c, int id, int oldOwner, int newOwner)
         {
             var list = await c.ShoppingLists.Include(l => l.Owner).FirstOrDefaultAsync(x => x.Id == id);
@@ -116,14 +118,14 @@ namespace NSSLServer
             return new Result { Success = true };
         }
 
-        public static async Task<string> DeleteContributor(DBContext c, int listId, int adminId, int contributorId) // TODO Überhaupt implementieren
+        public static async Task<Result> DeleteContributor(DBContext c, int listId, int adminId, int contributorId)
         {
             var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == adminId && x.ListId == listId))?.IsAdmin;
             if (!admin.HasValue || !admin.Value)
-                return "insufficient rights";
+                return new Result { Success = false, Error = "insufficient rights" };
             c.Contributors.Remove((await c.Contributors.FirstOrDefaultAsync(x => x.UserId == contributorId)));
             await c.SaveChangesAsync();
-            return "success";
+            return new Result { Success = true };
         }
 
         public static async Task<Contributor> AddContributor(DBContext c, int listId, int userId, int contributor)
@@ -142,7 +144,20 @@ namespace NSSLServer
             return con;
         }
 
-
+        public static async Task<GetContributorsResult> GetContributors(DBContext c, int listId, int userId)
+        {
+            var contributors = c.ShoppingLists.FirstOrDefault(x => x.Id == listId).Contributors;
+            if (contributors.FirstOrDefault(x => x.UserId == userId) == null)
+                return new GetContributorsResult { Success = false, Error = "User is part of the list" };
+            return new GetContributorsResult
+            {
+                Success = true,
+                Contributors = contributors.
+                    Select(x => new GetContributorsResult.ContributorResult
+                    { IsAdmin = x.IsAdmin, Name = x.User.Username, UserId = x.UserId }).
+                    ToList()
+            };
+        }
 
         public static async Task<ChangeListItemResult> ChangeProduct(DBContext c, int listId, int contributorId, int productId, int change)
         {
