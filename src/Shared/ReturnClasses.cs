@@ -92,11 +92,12 @@ namespace Shared
         {
             public class ListResultItem
             {
+                public int Id { get; set; }
                 public string Name { get; set; }
                 public bool IsAdmin { get; set; }
             }
 
-            public Dictionary<int, ListResultItem> Lists { get; set; }
+            public List<ListResultItem> Lists { get; set; }
         }
         public class InfoResult
         {

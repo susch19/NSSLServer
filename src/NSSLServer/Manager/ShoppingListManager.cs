@@ -272,7 +272,7 @@ namespace NSSLServer
         {
             var lists = await GetShoppingLists(con, userId);
 
-            var dic = lists.ToDictionary(x => x.Id, y => new ListsResult.ListResultItem { Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin });
+            var dic = lists.Select(y => new ListsResult.ListResultItem {Id = y.Id, Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin }).ToList();
 
             return new ListsResult { Lists = dic };
         }
