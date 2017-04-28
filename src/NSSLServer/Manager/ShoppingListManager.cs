@@ -271,7 +271,9 @@ namespace NSSLServer
         internal static async Task<ListsResult> LoadShoppingLists(DBContext con, int userId)
         {
             var lists = await GetShoppingLists(con, userId);
-            var dic = lists.ToDictionary(x=>x.Id, y=>y.Name);
+
+            var dic = lists.ToDictionary(x => x.Id, y => new ListsResult.ListResultItem { Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin });
+
             return new ListsResult { Lists = dic };
         }
     }

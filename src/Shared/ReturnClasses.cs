@@ -90,7 +90,13 @@ namespace Shared
         }
         public class ListsResult
         {
-            public Dictionary<int, string> Lists { get; set; }
+            public class ListResultItem
+            {
+                public string Name { get; set; }
+                public bool IsAdmin { get; set; }
+            }
+
+            public Dictionary<int, ListResultItem> Lists { get; set; }
         }
         public class InfoResult
         {
