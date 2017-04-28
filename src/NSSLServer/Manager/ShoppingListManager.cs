@@ -254,9 +254,9 @@ namespace NSSLServer
         //    await Q.From(ShoppingList.SLT).Where(ShoppingList.SLT.Id.Eq(Q.P("id", id))).FirstOrDefault<ShoppingList>(await DBConnection.OpenConnection());
 
 
-        public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, User user)
+        public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, int userId)
         {
-            var cont = con.Contributors.Include(x => x.ShoppingList).Where(x => x.User == user);
+            var cont = con.Contributors.Include(x => x.ShoppingList).Where(x => x.User.Id == userId);
 
             var lists = new List<ShoppingList>();
             foreach (var item in cont)
@@ -266,6 +266,13 @@ namespace NSSLServer
 
             //await con.Entry(user).Collection(m => m.ShoppingLists).LoadAsync();
             //await con.Entry(user).Collection(x => x.IsContributors).LoadAsync();
+        }
+
+        internal static async Task<ListsResult> LoadShoppingLists(DBContext con, int userId)
+        {
+            var lists = await GetShoppingLists(con, userId);
+            var dic = lists.ToDictionary(x=>x.Id, y=>y.Name);
+            return new ListsResult { Lists = dic };
         }
     }
 }

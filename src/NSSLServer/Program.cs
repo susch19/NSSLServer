@@ -30,13 +30,6 @@ namespace NSSLServer
         }
         private async static void DoStuff()
         {
-            WebRequest wr = WebRequest.Create(@"https://www.ean-search.org/perl/ean-search.pl?q=5099750442227");
-            var response = await wr.GetRequestStreamAsync();
-            using(StreamReader sr = new StreamReader(response))
-            {
-                Console.Write(sr.ReadToEnd());
-            }
-
         }
         
     }

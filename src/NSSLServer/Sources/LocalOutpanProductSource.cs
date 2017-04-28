@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace NSSLServer.Sources
 {
-    public class LocalOutpanProductSource : IProductSource
+    public class LocalCacheProductSource : IProductSource
     {
         public bool islocal { get; } = true;
 
         public long Total { get; set; } = 0;
 
-        public LocalOutpanProductSource()
+        public LocalCacheProductSource()
         {
         }
 
@@ -31,7 +31,7 @@ namespace NSSLServer.Sources
         {
         }
 
-        public static async void AddProductFromOutpan(string name, string gtin)
+        public static async void AddProduct(string name, string gtin, int quantity = 0, string unit = null)
         {
             //TODO Implement saving from Outpan
         }

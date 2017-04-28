@@ -34,7 +34,7 @@ namespace NSSLServer.Module
         public async Task<IActionResult> Info()
         {
             var u = await UserManager.FindUserById(Context.Connection, Session.Id);
-            var lists = await ShoppingListManager.GetShoppingLists(Context, u);
+            var lists = await ShoppingListManager.GetShoppingLists(Context, u.Id);
             var re = new InfoResult {Id = u.Id, EMail = u.Email, Username = u.Username };
             re.ListIds = new List<int>();
             lists.ForEach(y => re.ListIds.Add(y.Id));

@@ -88,6 +88,10 @@ namespace Shared
             public int Id { get; set; }
             public string Name { get; set; }
         }
+        public class ListsResult
+        {
+            public Dictionary<int, string> Lists { get; set; }
+        }
         public class InfoResult
         {
             public int Id { get; set; }

@@ -29,6 +29,10 @@ namespace NSSLServer.Features
         public async Task<IActionResult> GetList(int listId)
             => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, Session.Id))) : new BadRequestResult();
 
+        [HttpGet]
+        public async Task<IActionResult> GetLists()
+            => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
+
         [HttpPut]
         [Route("{listId}/contributors")]
         public async Task<IActionResult> UpdateOwner(int listId, [FromBody]TransferOwnershipArgs args)

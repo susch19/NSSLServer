@@ -35,7 +35,7 @@ namespace NSSLServer.Sources
                 if (string.IsNullOrWhiteSpace(name))
                     return null;
 
-                LocalOutpanProductSource.AddProductFromOutpan(name, gtin);
+                LocalCacheProductSource.AddProduct(name, gtin);
 
                 BasicProduct p = new BasicProduct { Name = name, Gtin = gtin};
                
