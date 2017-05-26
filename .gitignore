@@ -243,3 +243,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/src/NSSLServer/Properties/PublishProfiles
+/src/NSSLServer/Properties/PublishProfiles/FolderProfile.pubxml

@@ -105,15 +105,16 @@ namespace NSSLServer
         }
 
 
-        public static async Task<Result> TransferOwnership(DBContext c, int id, int oldOwner, int newOwner)
+        public static async Task<Result> ChangeRights(DBContext c, int id, int requesterId, int changeUserId)
         {
-            var list = await c.ShoppingLists.Include(l => l.Owner).FirstOrDefaultAsync(x => x.Id == id);
-            var owner = list.Owner;
+            var list = await c.ShoppingLists.Include(x=>x.Owner).Include(x=>x.Contributors).FirstOrDefaultAsync(x => x.Id == id);
+            var requester = list.Contributors.FirstOrDefault(x => x.Id == requesterId);
+            
+            if (requester.IsAdmin && changeUserId == list.Owner.Id)
+                return new Result { Error = "You are not an admin or you wanted to demote the owner" };
 
-            if (owner.Id != oldOwner)
-                return new Result { Error = "You are not the owner from the list" };
-
-            list.Owner = await c.Users.FirstOrDefaultAsync(i => i.Id == newOwner);
+            var changeUser = list.Contributors.FirstOrDefault(x => x.Id == changeUserId);
+            changeUser.IsAdmin = !changeUser.IsAdmin;
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
@@ -128,25 +129,34 @@ namespace NSSLServer
             return new Result { Success = true };
         }
 
-        public static async Task<Contributor> AddContributor(DBContext c, int listId, int userId, int contributor)
+        public static async Task<AddContributorResult> AddContributor(DBContext c, int listId, int userId, User contributor)
         {
             var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId))?.IsAdmin;
+
             if (!admin.HasValue || !admin.Value)
-                return null;
-            var k = await UserManager.FindUserById(c.Connection, contributor);
+                return new AddContributorResult { Success = false, Error = "insufficient rights" };
+            var existingContributor = await c.Contributors.FirstOrDefaultAsync(x => x.UserId == contributor.Id && x.ListId == listId);
+            if (existingContributor != null)
+                return new AddContributorResult { Success = false, Error = "user is already contributor" };
             var con = new Contributor
             {
-                UserId = k.Id,
+                UserId = contributor.Id,
                 IsAdmin = false
             };
-            c.Contributors.Add(new Contributor { ListId = listId, UserId = k.Id });
+            c.Contributors.Add(new Contributor { ListId = listId, UserId = contributor.Id });
             await c.SaveChangesAsync();
-            return con;
+
+            return new AddContributorResult { Success = true, Id = contributor.Id, Name = contributor.Username };
         }
 
         public static async Task<GetContributorsResult> GetContributors(DBContext c, int listId, int userId)
         {
-            var contributors = c.ShoppingLists.FirstOrDefault(x => x.Id == listId).Contributors;
+
+            var cont = c.ShoppingLists.Include(x => x.Contributors).FirstOrDefault(x => x.Id == listId);
+            var contributors = cont.Contributors;
+            using (var con = await NsslEnvironment.OpenConnectionAsync())
+                foreach (var item in contributors)
+                    item.User = await Q.From(User.UT).Where(x => x.Id.Eq(item.UserId)).FirstOrDefault<User>(con);
             if (contributors.FirstOrDefault(x => x.UserId == userId) == null)
                 return new GetContributorsResult { Success = false, Error = "User is part of the list" };
             return new GetContributorsResult
@@ -272,7 +282,7 @@ namespace NSSLServer
         {
             var lists = await GetShoppingLists(con, userId);
 
-            var dic = lists.Select(y => new ListsResult.ListResultItem {Id = y.Id, Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin }).ToList();
+            var dic = lists.Select(y => new ListsResult.ListResultItem { Id = y.Id, Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin }).ToList();
 
             return new ListsResult { Lists = dic };
         }

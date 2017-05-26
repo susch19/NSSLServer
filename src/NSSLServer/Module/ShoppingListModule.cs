@@ -32,14 +32,14 @@ namespace NSSLServer.Features
         [HttpGet]
         public async Task<IActionResult> GetLists()
             => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
-
+        
         [HttpPut]
         [Route("{listId}/contributors")]
-        public async Task<IActionResult> UpdateOwner(int listId, [FromBody]TransferOwnershipArgs args)
+        public async Task<IActionResult> ChangeRights(int listId, [FromBody]TransferOwnershipArgs args)
         {
             if (listId == 0 || args.NewOwnerId.HasValue == false)
                 return new BadRequestResult();
-            return Json(await ShoppingListManager.TransferOwnership(Context, listId, Session.Id, args.NewOwnerId.Value));
+            return Json(await ShoppingListManager.ChangeRights(Context, listId, Session.Id, args.NewOwnerId.Value));
         }
 
         [HttpDelete]
@@ -56,18 +56,14 @@ namespace NSSLServer.Features
         public async Task<IActionResult> AddContributor(int listId, [FromBody]AddContributorArgs args)
         {
             if (listId == 0 || string.IsNullOrWhiteSpace(args.Name))
-                return Json(new AddContributorResult { Error = "asdf" });// new Response { StatusCode = HttpStatusCode.BadRequest };
+                return Json(new AddContributorResult { Error = "Wrong arguments" });// new Response { StatusCode = HttpStatusCode.BadRequest };
 
             User u = await UserManager.FindUserByName(Context.Connection, args.Name); ;
 
             if (u == null)
                 return Json(new AddContributorResult { Error = "User not found" });
 
-            var cont = await ShoppingListManager.AddContributor(Context, listId, Session.Id, u.Id);
-
-            if (cont == null)
-                return Json(new AddContributorResult { Success = false, Error = "Error" });
-            return Json(new AddContributorResult { Success = true, Id = cont.Id, Name = u.Username });
+            return Json(await ShoppingListManager.AddContributor(Context, listId, Session.Id, u));
         }
 
         [HttpGet, Route("{listId}/contributors")]

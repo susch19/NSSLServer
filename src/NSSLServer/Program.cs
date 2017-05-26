@@ -15,7 +15,8 @@ namespace NSSLServer
     public class Program
     {
 
-
+        //dotnet restore
+        //dotnet publish -r ubuntu.16.04-arm
         public static void Main(string[] args)
         {
             Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
