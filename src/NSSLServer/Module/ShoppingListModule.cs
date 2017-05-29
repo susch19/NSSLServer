@@ -32,7 +32,7 @@ namespace NSSLServer.Features
         [HttpGet]
         public async Task<IActionResult> GetLists()
             => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
-        
+
         [HttpPut]
         [Route("{listId}/contributors")]
         public async Task<IActionResult> ChangeRights(int listId, [FromBody]TransferOwnershipArgs args)
@@ -104,14 +104,26 @@ namespace NSSLServer.Features
         [HttpPost]
         public async Task<IActionResult> AddList([FromBody]AddListArgs args)
         => Json((await ShoppingListManager.AddList(Context, args.Name, Session.Id)));
-
+        
 
         [HttpDelete, Route("{listId}/products/{productId}")]
-        public async Task<IActionResult> DeleteProduct(int listId, int productId, [FromBody]DeleteProductsArgs args)
+        public async Task<IActionResult> DeleteProduct(int listId, int productId)
         {
-            if (listId == 0 || (productId == 0 && args.ProductIds.Count == 0))
+            if (listId == 0 || productId == 0)
                 return new BadRequestResult();
-            return Json(args.ProductIds.Count == 0 ? (await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId)) : (await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds)));
+            return Json(await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId));
+        }
+
+        [HttpPost, Route("{listId}/products/batchaction/{command}")]
+        public async Task<IActionResult> BatchAction(int listId, string command, [FromBody]BatchProductArgs args)
+        {
+            if (listId == 0 || args.ProductIds.Length == 0 || string.IsNullOrWhiteSpace(command))
+                return new BadRequestResult();
+            switch (command)
+            {
+                case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds.ToList()));
+                default: return Json(new Result { Error = "action could not be found", Success = false });
+            }
         }
 
         [HttpPost, Route("{listId}/products")]

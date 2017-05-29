@@ -40,9 +40,9 @@ namespace Shared
         {
             public string Name { get; set; }
         }
-        public class DeleteProductsArgs
+        public class BatchProductArgs
         {
-            public List<int> ProductIds { get; set; }
+            public int[] ProductIds { get; set; }
         }
         public class AddProductArgs
         {
