@@ -245,6 +245,31 @@ namespace NSSLServer
             return new Result { Success = true };
         }
 
+        public static async Task<Result> DeleteProducts(DBContext c, int listid, int userid, List<int> productIds)
+        {
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
+            if (list == null)
+                return new Result { Success = false, Error = "list could not be found" };
+            var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
+            if (user == null)
+                return new Result { Success = false, Error = "You are not a contributor" };
+            var notFoundIds = new List<int>();
+            
+            foreach(var id in productIds){
+                var p = list.Products.FirstOrDefault(x => x.Id == id);
+                if (p == null)
+                    notFoundIds.Add(id);
+                else
+                    p.Amount = 0;
+            }
+            await c.SaveChangesAsync();
+            
+            if(notFoundIds.Count == 0)
+                return new Result { Success = true};
+            else
+                return new DeleteProductsResult{Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds};
+        }
+
         public static async Task<AddListItemResult> AddProduct(DBContext c, int listid, int userid, string name, string gtin, int amount)
         {
             var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);

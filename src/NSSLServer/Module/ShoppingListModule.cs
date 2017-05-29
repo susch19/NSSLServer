@@ -107,11 +107,11 @@ namespace NSSLServer.Features
 
 
         [HttpDelete, Route("{listId}/products/{productId}")]
-        public async Task<IActionResult> DeleteProduct(int listId, int productId)
+        public async Task<IActionResult> DeleteProduct(int listId, int productId, [FromBody]DeleteProductsArgs args)
         {
-            if (listId == 0 || productId == 0)
+            if (listId == 0 || (productId == 0 && args.ProductIds.Count == 0))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId)));
+            return Json(args.ProductIds.Count == 0 ? (await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId)) : (await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds)));
         }
 
         [HttpPost, Route("{listId}/products")]
