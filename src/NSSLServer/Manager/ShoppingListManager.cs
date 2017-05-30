@@ -17,69 +17,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NSSLServer
 {
-    //public static class AddContributorRoute
-    //{
-    //    public static readonly AuthenticatedRoute R = Execute;
-    //    private class Args
-    //    {
-    //        public int? ListId { get; set; }
-    //        public int? ContributorId { get; set; }
-    //    }
-
-    //    public class Result
-    //    {
-    //        public bool Success;
-    //        public string Error;
-    //        // public int? ContributorId;
-    //    }
-
-    //    public static async Task<dynamic> Execute(NancyContext ctx, int userId, DBContext c)
-    //    {
-
-    //        var args = ctx.Request.AsJson<Args>();
-
-    //        if (!args.ListId.HasValue || !args.ContributorId.HasValue)
-    //            throw new ArgumentNullException();
-
-    //        //return await ShoppingListManager.AddContributor(context, args.ListId.Value, UserManager.GetIdFromToken(Context.Request.Query["token"]), args.ContributorId.Value);
-    //        //    var userId = (int)stuff.userId;
-    //        var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == args.ListId))?.IsAdmin;
-    //        if (!admin.HasValue || !admin.Value)
-    //            return new Result { Error = "Nope" };
-
-    //        var k = await UserManager.FindUserById(c.Database.Connection, args.ContributorId.Value);
-    //        c.ShoppingLists.FirstOrDefault(x => x.Id == args.ListId).Contributors.Add(new Contributor
-    //        {
-    //            UserId = k.Id,
-    //            IsAdmin = false
-    //        });
-    //        await c.SaveChangesAsync();
-
-    //        return new Result
-    //        {
-    //            Success = true
-    //        };
-    //    }
-    //}
-
     public static class ShoppingListManager
     {
 
         public static async Task<ShoppingList> LoadShoppingList(int listId, int userId)
         {
-            //DBContext co;
-            //var cont = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId));
-            //var cont2 = (await c.Contributors.Include(a => a.ShoppingList).FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId));
-            //var u = (await co.Contributors.Include(a => a.ShoppingList).FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId))?.ShoppingList;
-            //var sl = cont?.ShoppingList;
-            //var sl2 = cont2?.ShoppingList;
-
-
-            //  c.Contributors.Where(c => c.UserId == userId)
-
-            //var list = (await c.ShoppingLists.FirstOrDefaultAsync(x => x.Id == listId));
-            //var cont = list.Contributors.FirstOrDefault(x => x.Id == userId);
-
             using (var con = await NsslEnvironment.OpenConnectionAsync())
             {
 
@@ -333,11 +275,18 @@ namespace NSSLServer
 
         public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, int userId)
         {
-            var cont = con.Contributors.Include(x => x.ShoppingList).Where(x => x.User.Id == userId);
+            var cont = con.Contributors.Include(x => x.ShoppingList).Include(x=>x.ShoppingList.Contributors).Where(x => x.User.Id == userId);
+            //var list = con.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).Where(x => x.Contributors.Where(y => y.UserId == userId).ToList().Count > 1);
+
 
             var lists = new List<ShoppingList>();
             foreach (var item in cont)
-                lists.Add(item.ShoppingList);
+            {
+                var list = await LoadShoppingList(item.ShoppingList.Id, userId);
+                list.Contributors = new List<Contributor>();
+                list.Contributors.Add(item);
+                lists.Add(list);
+            }
 
             return lists;//  con.ShoppingLists.Where(x=>x.Contributors.Contains()).ToList();
 
@@ -348,8 +297,12 @@ namespace NSSLServer
         internal static async Task<ListsResult> LoadShoppingLists(DBContext con, int userId)
         {
             var lists = await GetShoppingLists(con, userId);
-
-            var dic = lists.Select(y => new ListsResult.ListResultItem { Id = y.Id, Name = y.Name, IsAdmin = y.Contributors.FirstOrDefault(z => z.UserId == userId).IsAdmin }).ToList();
+            var dic = lists.Select(y => new ListsResult.ListResultItem {
+                Id = y.Id,
+                Name = y.Name,
+                IsAdmin = y.Contributors.FirstOrDefault().IsAdmin,
+                Products = y.Products?.Select(x=>new ShoppingListItemResult {
+                    Amount = x.Amount, Gtin = x?.Gtin, Id = x.Id, Name = x.Name }).ToList() }).ToList();
 
             return new ListsResult { Lists = dic };
         }

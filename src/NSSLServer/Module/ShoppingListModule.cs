@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NSSLServer.Models;
 using NSSLServer.Models.DatabaseConnection;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static Shared.RequestClasses;
@@ -30,8 +31,11 @@ namespace NSSLServer.Features
             => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, Session.Id))) : new BadRequestResult();
 
         [HttpGet]
+        [Route("batchaction/")]
         public async Task<IActionResult> GetLists()
-            => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
+        {
+            return Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id));
+        }
 
         [HttpPut]
         [Route("{listId}/contributors")]

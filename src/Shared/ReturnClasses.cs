@@ -70,6 +70,13 @@ namespace Shared
             public int Id { get; set; }
             public string Name { get; set; }
         }
+        public class ShoppingListItemResult
+        {
+            public string Name { get; set; }
+            public string Gtin { get; set; }
+            public int Amount { get; set; }
+            public int Id { get; set; }
+        }
         public class ListsResult
         {
             public class ListResultItem
@@ -77,6 +84,7 @@ namespace Shared
                 public int Id { get; set; }
                 public string Name { get; set; }
                 public bool IsAdmin { get; set; }
+                public List<ShoppingListItemResult> Products { get; set; }
             }
 
             public List<ListResultItem> Lists { get; set; }
