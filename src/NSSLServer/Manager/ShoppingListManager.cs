@@ -215,7 +215,7 @@ namespace NSSLServer
 
 
             if (notFoundIds.Count == 0)
-                return new HashResult { Success = true, Hash = hash};
+                return new HashResult { Success = true, Hash = hash };
             else
                 return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
         }
@@ -234,13 +234,19 @@ namespace NSSLServer
 
         public static async Task<Result> DeleteList(DBContext c, int listId, int userId)
         {
-            var shoppinglist = c.ShoppingLists.Include(x => x.Owner).FirstOrDefault(x => x.Id == listId);
+            var shoppinglist = c.ShoppingLists.Include(x => x.Owner).Include(x => x.Contributors).FirstOrDefault(x => x.Id == listId);
 
             if (shoppinglist == null)
                 return new Result { Success = false, Error = "The List could not be found. Maybe it was deleted already." };
-            if (shoppinglist.Owner.Id != userId)
-                return new Result { Success = false, Error = "Only owner is able to delete the list" };
-            c.ShoppingLists.Remove(shoppinglist);
+            var cont = shoppinglist.Contributors.FirstOrDefault(x => x.UserId == userId);
+            if (cont == null)
+                return new Result { Success = false, Error = "The user could not be found in the list" };
+            if (shoppinglist.Owner.Id == userId)
+            {
+                c.ShoppingLists.Remove(shoppinglist);
+                return new Result { Success = true };
+            }
+            c.Contributors.Remove(cont);
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
