@@ -107,13 +107,16 @@ namespace NSSLServer
 
         public static async Task<Result> ChangeRights(DBContext c, int id, int requesterId, int changeUserId)
         {
-            var list = await c.ShoppingLists.Include(x=>x.Owner).Include(x=>x.Contributors).FirstOrDefaultAsync(x => x.Id == id);
-            var requester = list.Contributors.FirstOrDefault(x => x.Id == requesterId);
-            
-            if (requester.IsAdmin && changeUserId == list.Owner.Id)
+            var list = await c.ShoppingLists.Include(x => x.Owner).Include(x => x.Contributors).FirstOrDefaultAsync(x => x.Id == id);
+            var requester = list.Contributors.FirstOrDefault(x => x.UserId == requesterId);
+
+            if (!requester.IsAdmin || changeUserId == list.Owner.Id)
                 return new Result { Error = "You are not an admin or you wanted to demote the owner" };
 
-            var changeUser = list.Contributors.FirstOrDefault(x => x.Id == changeUserId);
+            var changeUser = list.Contributors.FirstOrDefault(x => x.UserId == changeUserId);
+            if (changeUser == null)
+                return new Result { Error = "User could not be found as a contributor in this list" };
+
             changeUser.IsAdmin = !changeUser.IsAdmin;
             await c.SaveChangesAsync();
             return new Result { Success = true };
@@ -121,9 +124,12 @@ namespace NSSLServer
 
         public static async Task<Result> DeleteContributor(DBContext c, int listId, int adminId, int contributorId)
         {
-            var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == adminId && x.ListId == listId))?.IsAdmin;
+            var list = await c.ShoppingLists.Include(x => x.Owner).Include(x => x.Contributors).FirstOrDefaultAsync(x => x.Id == listId);
+            var admin = list.Contributors.FirstOrDefault(x => x.UserId == adminId)?.IsAdmin;
             if (!admin.HasValue || !admin.Value)
                 return new Result { Success = false, Error = "insufficient rights" };
+            if (contributorId == list.Owner.Id)
+                return new Result { Success = false, Error = "owner of a list can't be removed" };
             c.Contributors.Remove((await c.Contributors.FirstOrDefaultAsync(x => x.UserId == contributorId)));
             await c.SaveChangesAsync();
             return new Result { Success = true };
@@ -158,7 +164,7 @@ namespace NSSLServer
                 foreach (var item in contributors)
                     item.User = await Q.From(User.UT).Where(x => x.Id.Eq(item.UserId)).FirstOrDefault<User>(con);
             if (contributors.FirstOrDefault(x => x.UserId == userId) == null)
-                return new GetContributorsResult { Success = false, Error = "User is part of the list" };
+                return new GetContributorsResult { Success = false, Error = "User is not part of the list" };
             return new GetContributorsResult
             {
                 Success = true,

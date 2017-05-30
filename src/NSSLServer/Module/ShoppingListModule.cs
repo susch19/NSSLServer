@@ -34,12 +34,12 @@ namespace NSSLServer.Features
             => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
         
         [HttpPut]
-        [Route("{listId}/contributors")]
-        public async Task<IActionResult> ChangeRights(int listId, [FromBody]TransferOwnershipArgs args)
+        [Route("{listId}/contributors/{contributorId}")]
+        public async Task<IActionResult> ChangeRights(int listId, int contributorId)
         {
-            if (listId == 0 || args.NewOwnerId.HasValue == false)
+            if (listId == 0 || contributorId == 0)
                 return new BadRequestResult();
-            return Json(await ShoppingListManager.ChangeRights(Context, listId, Session.Id, args.NewOwnerId.Value));
+            return Json(await ShoppingListManager.ChangeRights(Context, listId, Session.Id, contributorId));
         }
 
         [HttpDelete]
