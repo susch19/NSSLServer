@@ -42,7 +42,8 @@ namespace Shared
         }
         public class BatchProductArgs
         {
-            public int[] ProductIds { get; set; }
+            public List<int> ProductIds { get; set; }
+            public List<int> Amount { get; set; }
         }
         public class AddProductArgs
         {

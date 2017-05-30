@@ -104,7 +104,7 @@ namespace NSSLServer.Features
         [HttpPost]
         public async Task<IActionResult> AddList([FromBody]AddListArgs args)
         => Json((await ShoppingListManager.AddList(Context, args.Name, Session.Id)));
-        
+
 
         [HttpDelete, Route("{listId}/products/{productId}")]
         public async Task<IActionResult> DeleteProduct(int listId, int productId)
@@ -117,11 +117,12 @@ namespace NSSLServer.Features
         [HttpPost, Route("{listId}/products/batchaction/{command}")]
         public async Task<IActionResult> BatchAction(int listId, string command, [FromBody]BatchProductArgs args)
         {
-            if (listId == 0 || args.ProductIds.Length == 0 || string.IsNullOrWhiteSpace(command))
+            if (listId == 0 || args.ProductIds.Count == 0 || string.IsNullOrWhiteSpace(command))
                 return new BadRequestResult();
-            switch (command)
+            switch (command.ToLower())
             {
-                case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds.ToList()));
+                case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds));
+                case "change": return Json(await ShoppingListManager.ChangeProducts(Context, listId, Session.Id, args.ProductIds, args.Amount));
                 default: return Json(new Result { Error = "action could not be found", Success = false });
             }
         }

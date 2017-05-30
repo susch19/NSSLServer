@@ -107,9 +107,9 @@ namespace NSSLServer
 
         public static async Task<Result> ChangeRights(DBContext c, int id, int requesterId, int changeUserId)
         {
-            var list = await c.ShoppingLists.Include(x=>x.Owner).Include(x=>x.Contributors).FirstOrDefaultAsync(x => x.Id == id);
+            var list = await c.ShoppingLists.Include(x => x.Owner).Include(x => x.Contributors).FirstOrDefaultAsync(x => x.Id == id);
             var requester = list.Contributors.FirstOrDefault(x => x.Id == requesterId);
-            
+
             if (requester.IsAdmin && changeUserId == list.Owner.Id)
                 return new Result { Error = "You are not an admin or you wanted to demote the owner" };
 
@@ -185,6 +185,41 @@ namespace NSSLServer
             return new ChangeListItemResult { Success = true, Id = product.Id, Name = product.Name, Amount = product.Amount, ListId = listId };
         }
 
+        public static async Task<Result> ChangeProducts(DBContext c, int listId, int contributorId, List<int> productIds, List<int> changes)
+        {
+            var shoppinglist = await c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefaultAsync(x => x.Id == listId);
+            if (shoppinglist.Contributors.FirstOrDefault(x => x.UserId == contributorId) == null)
+                return new Result { Success = false, Error = "User is not allowed to access this list" };
+            if (productIds.Count != changes.Count)
+                return new Result { Success = false, Error = "Length of product ids doesn't match with length of change list" };
+            var notFoundIds = new List<int>();
+            int hash = 0;
+
+            for (int i = 0; i < productIds.Count; i++)
+            {
+                var id = productIds[i];
+                var change = changes[i];
+                var product = shoppinglist.Products.FirstOrDefault(x => x.Id == id);
+                if (product == null)
+                    notFoundIds.Add(id);
+                else
+                {
+                    if (product.Amount + change <= 0 || change == 0)
+                        product.Amount = 0;
+                    else
+                        product.Amount += change;
+                    hash += product.Amount + product.Id;
+                }
+            }
+            await c.SaveChangesAsync();
+
+
+            if (notFoundIds.Count == 0)
+                return new HashResult { Success = true, Hash = hash};
+            else
+                return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
+        }
+
         public static async Task<ChangeListNameResult> ChangeListname(DBContext c, int id, int userId, string newName)
         {
             var list = c.ShoppingLists.FirstOrDefault(x => x.Id == id && x.UserId == userId);
@@ -254,8 +289,9 @@ namespace NSSLServer
             if (user == null)
                 return new Result { Success = false, Error = "You are not a contributor" };
             var notFoundIds = new List<int>();
-            
-            foreach(var id in productIds){
+
+            foreach (var id in productIds)
+            {
                 var p = list.Products.FirstOrDefault(x => x.Id == id);
                 if (p == null)
                     notFoundIds.Add(id);
@@ -263,11 +299,11 @@ namespace NSSLServer
                     p.Amount = 0;
             }
             await c.SaveChangesAsync();
-            
-            if(notFoundIds.Count == 0)
-                return new Result { Success = true};
+
+            if (notFoundIds.Count == 0)
+                return new Result { Success = true };
             else
-                return new DeleteProductsResult{Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds};
+                return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
         }
 
         public static async Task<AddListItemResult> AddProduct(DBContext c, int listid, int userid, string name, string gtin, int amount)
