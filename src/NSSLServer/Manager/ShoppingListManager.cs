@@ -190,11 +190,9 @@ namespace NSSLServer
             if (cont == null)
                 return new Result { Success = false, Error = "The user could not be found in the list" };
             if (shoppinglist.Owner.Id == userId)
-            {
                 c.ShoppingLists.Remove(shoppinglist);
-                return new Result { Success = true };
-            }
-            c.Contributors.Remove(cont);
+            else
+                c.Contributors.Remove(cont);
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
