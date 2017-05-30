@@ -32,7 +32,7 @@ namespace NSSLServer.Features
         [HttpGet]
         public async Task<IActionResult> GetLists()
             => (IActionResult)(Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id)));
-        
+
         [HttpPut]
         [Route("{listId}/contributors/{contributorId}")]
         public async Task<IActionResult> ChangeRights(int listId, int contributorId)
@@ -111,7 +111,20 @@ namespace NSSLServer.Features
         {
             if (listId == 0 || productId == 0)
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId)));
+            return Json(await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId));
+        }
+
+        [HttpPost, Route("{listId}/products/batchaction/{command}")]
+        public async Task<IActionResult> BatchAction(int listId, string command, [FromBody]BatchProductArgs args)
+        {
+            if (listId == 0 || args.ProductIds.Count == 0 || string.IsNullOrWhiteSpace(command))
+                return new BadRequestResult();
+            switch (command.ToLower())
+            {
+                case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds));
+                case "change": return Json(await ShoppingListManager.ChangeProducts(Context, listId, Session.Id, args.ProductIds, args.Amount));
+                default: return Json(new Result { Error = "action could not be found", Success = false });
+            }
         }
 
         [HttpPost, Route("{listId}/products")]

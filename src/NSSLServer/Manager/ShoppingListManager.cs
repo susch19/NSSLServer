@@ -191,6 +191,41 @@ namespace NSSLServer
             return new ChangeListItemResult { Success = true, Id = product.Id, Name = product.Name, Amount = product.Amount, ListId = listId };
         }
 
+        public static async Task<Result> ChangeProducts(DBContext c, int listId, int contributorId, List<int> productIds, List<int> changes)
+        {
+            var shoppinglist = await c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefaultAsync(x => x.Id == listId);
+            if (shoppinglist.Contributors.FirstOrDefault(x => x.UserId == contributorId) == null)
+                return new Result { Success = false, Error = "User is not allowed to access this list" };
+            if (productIds.Count != changes.Count)
+                return new Result { Success = false, Error = "Length of product ids doesn't match with length of change list" };
+            var notFoundIds = new List<int>();
+            int hash = 0;
+
+            for (int i = 0; i < productIds.Count; i++)
+            {
+                var id = productIds[i];
+                var change = changes[i];
+                var product = shoppinglist.Products.FirstOrDefault(x => x.Id == id);
+                if (product == null)
+                    notFoundIds.Add(id);
+                else
+                {
+                    if (product.Amount + change <= 0 || change == 0)
+                        product.Amount = 0;
+                    else
+                        product.Amount += change;
+                    hash += product.Amount + product.Id;
+                }
+            }
+            await c.SaveChangesAsync();
+
+
+            if (notFoundIds.Count == 0)
+                return new HashResult { Success = true, Hash = hash };
+            else
+                return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
+        }
+
         public static async Task<ChangeListNameResult> ChangeListname(DBContext c, int id, int userId, string newName)
         {
             var list = c.ShoppingLists.FirstOrDefault(x => x.Id == id && x.UserId == userId);
@@ -205,13 +240,19 @@ namespace NSSLServer
 
         public static async Task<Result> DeleteList(DBContext c, int listId, int userId)
         {
-            var shoppinglist = c.ShoppingLists.Include(x => x.Owner).FirstOrDefault(x => x.Id == listId);
+            var shoppinglist = c.ShoppingLists.Include(x => x.Owner).Include(x => x.Contributors).FirstOrDefault(x => x.Id == listId);
 
             if (shoppinglist == null)
                 return new Result { Success = false, Error = "The List could not be found. Maybe it was deleted already." };
-            if (shoppinglist.Owner.Id != userId)
-                return new Result { Success = false, Error = "Only owner is able to delete the list" };
-            c.ShoppingLists.Remove(shoppinglist);
+            var cont = shoppinglist.Contributors.FirstOrDefault(x => x.UserId == userId);
+            if (cont == null)
+                return new Result { Success = false, Error = "The user could not be found in the list" };
+            if (shoppinglist.Owner.Id == userId)
+            {
+                c.ShoppingLists.Remove(shoppinglist);
+                return new Result { Success = true };
+            }
+            c.Contributors.Remove(cont);
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
@@ -249,6 +290,32 @@ namespace NSSLServer
             //list.Products.Remove(list.Products.FirstOrDefault(x => x.Id == productid));
             await c.SaveChangesAsync();
             return new Result { Success = true };
+        }
+
+        public static async Task<Result> DeleteProducts(DBContext c, int listid, int userid, List<int> productIds)
+        {
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
+            if (list == null)
+                return new Result { Success = false, Error = "list could not be found" };
+            var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
+            if (user == null)
+                return new Result { Success = false, Error = "You are not a contributor" };
+            var notFoundIds = new List<int>();
+
+            foreach (var id in productIds)
+            {
+                var p = list.Products.FirstOrDefault(x => x.Id == id);
+                if (p == null)
+                    notFoundIds.Add(id);
+                else
+                    p.Amount = 0;
+            }
+            await c.SaveChangesAsync();
+
+            if (notFoundIds.Count == 0)
+                return new Result { Success = true };
+            else
+                return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
         }
 
         public static async Task<AddListItemResult> AddProduct(DBContext c, int listid, int userid, string name, string gtin, int amount)
