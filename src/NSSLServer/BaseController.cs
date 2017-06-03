@@ -95,7 +95,7 @@ namespace NSSLServer
 
         static ExtractJwtSessionFilterAttribute()
         {
-            JwtKeyBytes = UserManager.SECRETKEY;
+            JwtKeyBytes = UserManager.SecretKey;
         }
 
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)

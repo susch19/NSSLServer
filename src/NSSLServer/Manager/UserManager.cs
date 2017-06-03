@@ -9,6 +9,7 @@ using NSSLServer.Models;
 using System.Data.Common;
 using System.Threading.Tasks;
 using static Shared.ResultClasses;
+using System.IO;
 
 namespace NSSLServer
 {
@@ -17,13 +18,19 @@ namespace NSSLServer
         /// <summary>
         /// WARNING RADIOACTIVE HAZARD
         /// <para>string = SEKRETKEY</para>
-        /// <seealso cref="SECRETKEY"/>
+        /// <seealso cref="SecretKey"/>
         /// </summary>
 #if true//youareadmin - lookinside
         #region DO NOT LOOK INSIDE HERE IS NOTHING TOO SEA
-        public static readonly byte[] SECRETKEY = Encoding.UTF8.GetBytes("LWehASIewSNDwiAPSohwe587║@;ÆY«⌂È47a56guUIw54qbekl9WI56376453▼Peou"); //VERY VERY SECRET!
+        public static byte[] SecretKey; //VERY VERY SECRET!
         #endregion  
 #endif
+
+        public static void ReadSecretKeyFromFile()
+        {
+            SecretKey = Encoding.UTF8.GetBytes(File.ReadAllText("secretkey"));
+        }
+
         public static async Task<CreateResult> CreateUser(string username, string email, string pwdhash)
         {
             using (var cont = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
@@ -47,8 +54,7 @@ namespace NSSLServer
             }
 
         }
-
-        //public static string DeleteUser(DBContext con, )
+        
 
         public static async Task<Result> ChangePassword(int id, string o, string n)
         {
@@ -66,29 +72,7 @@ namespace NSSLServer
             }
         }
 
-        //public static IDictionary<string, object> Authenticate(string token)
-        //{
-        //    if (string.IsNullOrWhiteSpace(token))
-        //        return null;
-        //    try
-        //    {
-        //        var o = ((IDictionary<string, object>)JsonWebToken.DecodeToObject(token, SECRETKEY));
-        //        var ex = ((DateTime)o["Expires"]).CompareTo(DateTime.UtcNow);
-        //        if (((DateTime)o["Expires"]).CompareTo(DateTime.UtcNow) > 0)
-        //            return o;
-        //        else
-        //            return null;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return null;
-        //    }
-        //}
-
-        //public static int GetIdFromToken(string token) =>
-        //    (int)((IDictionary<string, object>)JsonWebToken.DecodeToObject(token, SECRETKEY))["Id"];
-
-
+      
         public static async Task<LoginResult> Login(string username, string email, string passwordhash)
         {
             using (var con = await NsslEnvironment.OpenConnectionAsync())
@@ -109,10 +93,10 @@ namespace NSSLServer
 
                 var payload = new Dictionary<string, object>()
             {
-                { "Expires", DateTime.UtcNow.AddDays(1) },
+                { "Expires", DateTime.UtcNow.AddDays(30) },
                 { "Id", exists.Id}
             };
-                return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, SECRETKEY, JsonWebToken.JwtHashAlgorithm.HS512), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
+                return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, SecretKey, JsonWebToken.JwtHashAlgorithm.HS256), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
 
             }
         }

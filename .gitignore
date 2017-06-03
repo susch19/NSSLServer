@@ -245,3 +245,5 @@ ModelManifest.xml
 .fake/
 /src/NSSLServer/Properties/PublishProfiles
 /src/NSSLServer/Properties/PublishProfiles/FolderProfile.pubxml
+/src/NSSLServer/secretkey
+/src/NSSLServer/secretkey

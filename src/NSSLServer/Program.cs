@@ -22,11 +22,12 @@ namespace NSSLServer
             Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             var host = new WebHostBuilder()
                 .UseKestrel()
-                .UseUrls("http://localhost:4344")
+                .UseUrls("http://[::1]:4344", "http://127.0.0.1:4344")
                 .UseContentRoot(Directory.GetCurrentDirectory())               
                 .UseStartup<Startup>()
                 .Build();
             DoStuff();
+            UserManager.ReadSecretKeyFromFile();
             host.Run();
         }
         private async static void DoStuff()
