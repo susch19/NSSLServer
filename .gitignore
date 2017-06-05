@@ -247,3 +247,5 @@ ModelManifest.xml
 /src/NSSLServer/Properties/PublishProfiles/FolderProfile.pubxml
 /src/NSSLServer/secretkey
 /src/NSSLServer/secretkey
+/src/NSSLServer/connectionstring
+/src/NSSLServer/connectionstring

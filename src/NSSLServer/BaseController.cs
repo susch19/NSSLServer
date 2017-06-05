@@ -8,6 +8,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,11 +16,8 @@ namespace NSSLServer
 {
     public class NsslEnvironment
     {
-#if DEBUG
-        public const string ConnectionString = "User Id=shoppinglist;Server=192.168.49.44;Port=5432;Password=shoppinglist;Database=shoppinglist;";
-#else
-        public const string ConnectionString = "User Id=shoppinglist;Server=localhost;Port=110;Password=shoppinglist;Database=shoppinglist;";
-#endif
+        public static string ConnectionString = File.ReadAllText("connectionstring"); 
+
         public static async Task<DbConnection> OpenConnectionAsync()
         {
             var con = new NpgsqlConnection(ConnectionString);
