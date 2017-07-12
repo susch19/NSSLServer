@@ -61,7 +61,7 @@ namespace NSSLServer.Sources
                 var tsQuery = string.Join(" & ", name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
                 var q = Q.From(BasicProduct.BPT)
-                    .Where(a => Q.ToTsVector(Regconfig.German, a.Name).Match(Q.ToTsQuery(Regconfig.German, Q.P("qry", tsQuery))));
+                    .Where(a => Q.ToTsVector("German", a.Name).Match(Q.ToTsQuery("German", Q.P("qry", tsQuery))));
                     //.Where(new RawSql("to_tsvector('german', name) @@ to_tsquery('german', @qry)"))
                     //.WithExtraParameter(Q.P("qry", );
                 

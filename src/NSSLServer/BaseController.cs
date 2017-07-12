@@ -98,24 +98,21 @@ namespace NSSLServer
 
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            StringValues sv;
-            if (context.HttpContext.Request.Headers.TryGetValue("X-Token", out sv) && sv.Count > 0)
+            if (context.HttpContext.Request.Headers.TryGetValue("X-Token", out StringValues sv) && sv.Count > 0)
             {
-                NsslSession s;
-                if (JsonWebToken.Decode<NsslSession>(sv[0], JwtKeyBytes, true, out s))
+                if (JsonWebToken.Decode<NsslSession>(sv[0], JwtKeyBytes, true, out NsslSession s))
                     context.HttpContext.Items[ItemDicKey] = s;
             }
 
-            
+
 
             await next.Invoke();
         }
 
         public static NsslSession FromItems(HttpContext context)
         {
-            object s;
             NsslSession session = null;
-            if (context.Items.TryGetValue(ItemDicKey, out s))
+            if (context.Items.TryGetValue(ItemDicKey, out object s))
             {
                 session = (NsslSession)s;
             }

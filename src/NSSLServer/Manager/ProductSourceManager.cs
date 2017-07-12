@@ -12,17 +12,12 @@ namespace NSSLServer
 {
     public static class ProductSourceManager
     {
-
         public static List<IProductSource> ProductSources
         {
             get
             {
                 if (_productSources == null || _productSources.Count == 0)
                 {
-                    //_productSources = typeof(IProductSource)
-                    //                               .Assembly.GetTypes()
-                    //                               .Where(t => t.IsSubclassOf(typeof(IProductSource)) && !t.IsAbstract)
-                    //                               .Select(t => (IProductSource)Activator.CreateInstance(t)).ToList();
                     var interfaceType = typeof(IProductSource);
                     _productSources = typeof(IProductSource).GetTypeInfo().Assembly.GetTypes()
                       .Where(x => interfaceType.IsAssignableFrom(x) && !x.GetTypeInfo().IsInterface && !x.GetTypeInfo().IsAbstract)
@@ -50,6 +45,7 @@ namespace NSSLServer
         {
             if (name == null)
                 return new List<BasicProduct>();
+            page = page < 1 ? 1 : page;
 
             name = name.ToLower();
             List<BasicProduct> products = new List<BasicProduct>();

@@ -35,16 +35,18 @@ namespace NSSLServer
         {
             using (var cont = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
-
                 var exists = await FindUserByName(cont.Connection, username);
                 if (exists != null)
+                {
+                    //await ChangePassword(exists.Id, "2", pwdhash);
                     return new CreateResult { Success = false, Error = "Username already taken" };
+                }
                 exists = await FindUserByEmail(cont.Connection, email);
                 if (exists != null)
                     return new CreateResult { Success = false, Error = "Email already in use" };
 
-                var minedsalt = generateSalt();
-                var saltedpw = salting(pwdhash, minedsalt);
+                var minedsalt = GenerateSalt();
+                var saltedpw = Salting(pwdhash, minedsalt);
                 User c = new User(username, saltedpw, email, minedsalt);
 
                 cont.Users.Add(c);
@@ -61,9 +63,9 @@ namespace NSSLServer
             using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
                 var k = c.Users.FirstOrDefault(x => x.Id == id);
-                if (k.PasswordHash.SequenceEqual(salting(o, k.Salt)))
+                if (k.PasswordHash.SequenceEqual(Salting(o, k.Salt)))
                 {
-                    k.PasswordHash = salting(n, k.Salt);
+                    k.PasswordHash = Salting(n, k.Salt);
                     await c.SaveChangesAsync();
                 }
                 else
@@ -88,7 +90,7 @@ namespace NSSLServer
                     if (exists == null)
                         return new LoginResult { Success = false, Error = "user could not be found" };
                 }
-                if (!salting(passwordhash, exists.Salt).SequenceEqual(exists.PasswordHash))
+                if (!Salting(passwordhash, exists.Salt).SequenceEqual(exists.PasswordHash))
                     return new LoginResult { Success = false, Error = "password is incorrect" };
 
                 var payload = new Dictionary<string, object>()
@@ -101,13 +103,13 @@ namespace NSSLServer
             }
         }
 
-        private static byte[] salting(string passwordhash, byte[] salt)
+        private static byte[] Salting(string passwordhash, byte[] salt)
         {
             var prov = System.Security.Cryptography.SHA512.Create();
             var hash = Encoding.UTF8.GetBytes(passwordhash).Concat(salt);
             return prov.ComputeHash(hash.ToArray());
         }
-        private static byte[] generateSalt()
+        private static byte[] GenerateSalt()
         {
             var num = System.Security.Cryptography.RandomNumberGenerator.Create();
             byte[] saltmine = new byte[128];

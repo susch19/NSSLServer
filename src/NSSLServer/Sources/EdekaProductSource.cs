@@ -21,7 +21,7 @@ namespace NSSLServer.Sources
          => await From(EdekaGtinEntry.EGT).Where(EdekaGtinEntry.EGT.Gtin.Eq(P("q", code))).FirstOrDefault<EdekaGtinEntry>(await OpenConnection());
 
         public async Task<BasicProduct> FindProductByCode(string code)
-        => (await From(EdekaGtinEntry.EGT).Where((x)=>x.Gtin.Eq(code)).InnerJoin(EPT).On((x,y)=> x.ProductId.Eq(y.Id)).Select(new RawSql("ept.*")).Limit(1).FirstOrDefault<EdekaProduct>(await OpenConnection()))?.ConvertToProduct();
+        => (await From(EdekaGtinEntry.EGT).Where((x)=>x.Gtin.EqV(code)).InnerJoin(EPT).On((x,y)=> x.ProductId.Eq(y.Id)).Select(new RawSql("ept.*")).Limit(1).FirstOrDefault<EdekaProduct>(await OpenConnection()))?.ConvertToProduct();
 
         //public async Task<List<BasicProduct>> FindProductsByName(string name)
         // =>( await From(EPT).Where(EPT.Name.Like(P("gtin", "%" + name +"%"), LikeMode.IgnoreCase)).Limit(30).ToList<EdekaProduct>(await OpenConnection())).Select(p => p.ConvertToProduct()).ToList();
@@ -34,8 +34,8 @@ namespace NSSLServer.Sources
                 var tsQuery = string.Join(" & ", name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
                 var q = Q.From(EPT)
-                    .Where(a => Q.ToTsVector(Regconfig.German, Q.Concat(a.Name, a.LongDescription, a.ShortDescription))
-                    .Match(Q.ToTsQuery(Regconfig.German, Q.P("qry", tsQuery))));
+                    .Where(a => Q.ToTsVector("German", Q.Concat(a.Name, a.LongDescription, a.ShortDescription))
+                    .Match(Q.ToTsQuery("German", Q.P("qry", tsQuery))));
                     
                     //.Where(EPT.Name.Like(P("gtin", "%" + name + "%"), LikeMode.IgnoreCase));
                     

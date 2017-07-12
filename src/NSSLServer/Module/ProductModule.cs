@@ -15,15 +15,14 @@ namespace NSSLServer.Module
     public class ProductModule : AuthenticatingController
     {
         [HttpGet,Route("{id}")]
-        public async Task<IActionResult> GetProduct([FromRoute]string id, [FromQuery]int page)
+        public async Task<IActionResult> GetProduct([FromRoute]string id, [FromQuery]int? page)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return new BadRequestResult();
-            long i;
-            if ((id.Length == 8 || id.Length == 13) && long.TryParse(id, out i))
+            if ((id.Length == 8 || id.Length == 13) && long.TryParse(id, out long i))
                 return Json((await ProductSourceManager.FindProductByCode(id)));
             else
-                return Json((await ProductSourceManager.FindProductsByName(id, page)));
+                return Json((await ProductSourceManager.FindProductsByName(id, page??1)));
         }
 
         [HttpPost]
@@ -31,8 +30,7 @@ namespace NSSLServer.Module
         {
             if (string.IsNullOrWhiteSpace(args.Gtin) || string.IsNullOrWhiteSpace(args.Name))
                 return new BadRequestResult();
-            long i;
-            if ((args.Gtin.Length == 8 || args.Gtin.Length == 13) && long.TryParse(args.Gtin, out i))
+            if ((args.Gtin.Length == 8 || args.Gtin.Length == 13) && long.TryParse(args.Gtin, out long i))
                 return Json((await ProductSourceManager.AddNewProduct(args.Gtin, args.Name)));
             else
                 return new BadRequestResult();

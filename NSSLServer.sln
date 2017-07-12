@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.12
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65527620-5DCC-4BD5-9D5E-E00E34858168}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,9 +10,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer", "src\NSSLServer\NSSLServer.csproj", "{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{A768287F-16AA-4541-8059-1B4FEA3A9A89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firebase", "Firebase\Firebase.csproj", "{15D7896D-5D54-4E04-8068-4D209D66681D}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Deviax.QueryBuilder.Shared", "lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.shproj", "{F0A3737D-FE0B-4301-A968-E7EA3755818F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviax.QueryBuilder.Postgres", "lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj", "{C3AD6119-AD7F-49DA-8128-0832261882D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedCore", "SharedCore\SharedCore.csproj", "{83979BA5-B150-46CD-AB1F-94572CC83C88}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.projitems*{f0a3737d-fe0b-4301-a968-e7ea3755818f}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -22,10 +31,18 @@ Global
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A768287F-16AA-4541-8059-1B4FEA3A9A89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D7896D-5D54-4E04-8068-4D209D66681D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D7896D-5D54-4E04-8068-4D209D66681D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D7896D-5D54-4E04-8068-4D209D66681D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D7896D-5D54-4E04-8068-4D209D66681D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3AD6119-AD7F-49DA-8128-0832261882D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3AD6119-AD7F-49DA-8128-0832261882D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3AD6119-AD7F-49DA-8128-0832261882D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3AD6119-AD7F-49DA-8128-0832261882D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83979BA5-B150-46CD-AB1F-94572CC83C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83979BA5-B150-46CD-AB1F-94572CC83C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83979BA5-B150-46CD-AB1F-94572CC83C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83979BA5-B150-46CD-AB1F-94572CC83C88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Net;
+using Firebase;
 
 namespace NSSLServer
 {
@@ -28,12 +29,19 @@ namespace NSSLServer
                 .Build();
             DoStuff();
             UserManager.ReadSecretKeyFromFile();
+
             host.Run();
         }
         private async static void DoStuff()
         {
+
         }
         
+    }
+
+    public static class FirebaseCloudMessaging
+    {
+        public static Firebase.FirebaseCloudMessaging fcm = new Firebase.FirebaseCloudMessaging(File.ReadAllText("firebase.key"));
     }
 
 }

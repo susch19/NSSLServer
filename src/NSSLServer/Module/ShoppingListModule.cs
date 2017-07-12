@@ -18,8 +18,7 @@ namespace NSSLServer.Features
         {
             if (string.IsNullOrWhiteSpace(identifier))
                 return new BadRequestResult();
-            long i;
-            if ((identifier.Length == 8 || identifier.Length == 13) && long.TryParse(identifier, out i))
+            if ((identifier.Length == 8 || identifier.Length == 13) && long.TryParse(identifier, out long i))
                 return Json((await ProductSourceManager.FindProductByCode(identifier)));
             else
                 return Json((await ProductSourceManager.FindProductsByName(identifier)));

@@ -19,26 +19,22 @@ namespace NSSLServer
 {
     public static class ShoppingListManager
     {
-
         public static async Task<ShoppingList> LoadShoppingList(int listId, int userId)
         {
             using (var con = await NsslEnvironment.OpenConnectionAsync())
             {
-
                 var list = await Q.From(Contributor.CT)
                     .InnerJoin(ShoppingList.SLT).On((c, sl) => c.ListId.Eq(sl.Id))
                     .Where(
-                        (c, sl) => c.UserId.Eq(userId),
-                        (c, sl) => sl.Id.Eq(listId)
+                        (c, sl) => c.UserId.EqV(userId),
+                        (c, sl) => sl.Id.EqV(listId)
                     )
                     .Select(new RawSql(ShoppingList.SLT.TableAlias + ".*")).Limit(1)
                     .FirstOrDefault<ShoppingList>(con);
 
-
-
                 if (list == null)
                     return new ShoppingList { }; //TODO Nicht leere Liste zurückgeben
-                list.Products = await Q.From(ListItem.LIT).Where(l => l.ListId.Eq(list.Id))
+                list.Products = await Q.From(ListItem.LIT).Where(l => l.ListId.EqV(list.Id))
                         .Where(l => l.Amount.Neq(Q.P("a", 0)))
                         .OrderBy(t => t.Id.Asc())
                         .ToList<ListItem>(con);
@@ -79,7 +75,8 @@ namespace NSSLServer
 
         public static async Task<AddContributorResult> AddContributor(DBContext c, int listId, int userId, User contributor)
         {
-            var admin = (await c.Contributors.FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId))?.IsAdmin;
+            var cont = await c.Contributors.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId && x.ListId == listId);
+            var admin = cont?.IsAdmin;
 
             if (!admin.HasValue || !admin.Value)
                 return new AddContributorResult { Success = false, Error = "insufficient rights" };
@@ -92,8 +89,27 @@ namespace NSSLServer
                 IsAdmin = false
             };
             c.Contributors.Add(new Contributor { ListId = listId, UserId = contributor.Id });
-            await c.SaveChangesAsync();
 
+            ShoppingList list;
+            List<ListItem> items;
+            using (var connection = await NsslEnvironment.OpenConnectionAsync())
+            {
+                list = await Q.From(ShoppingList.SLT)
+                      .Where(sl => sl.Id.EqV(listId)).FirstOrDefault<ShoppingList>(connection);
+                items = await Q.From(ListItem.LIT).Where(li => li.ListId.EqV(listId), li => li.Amount.NeqV(0)).ToList<ListItem>(connection);
+            }
+
+            await FirebaseCloudMessaging.fcm.TopicMessage<object>("someListTopic", null,
+                    notification: new Firebase.Models.Notification { Title = "You were added to the list " + list.Name },
+                    priority: Firebase.Priority.normal);
+
+
+            await FirebaseCloudMessaging.fcm.TopicMessage("someListTopic",
+                    new { listId, list.Name, items},
+                    priority: Firebase.Priority.normal);
+
+
+            await c.SaveChangesAsync();
             return new AddContributorResult { Success = true, Id = contributor.Id, Name = contributor.Username };
         }
 
@@ -104,7 +120,7 @@ namespace NSSLServer
             var contributors = cont.Contributors;
             using (var con = await NsslEnvironment.OpenConnectionAsync())
                 foreach (var item in contributors)
-                    item.User = await Q.From(User.UT).Where(x => x.Id.Eq(item.UserId)).FirstOrDefault<User>(con);
+                    item.User = await Q.From(User.UT).Where(x => x.Id.EqV(item.UserId)).FirstOrDefault<User>(con);
             if (contributors.FirstOrDefault(x => x.UserId == userId) == null)
                 return new GetContributorsResult { Success = false, Error = "User is not part of the list" };
             return new GetContributorsResult
@@ -125,10 +141,23 @@ namespace NSSLServer
             var product = shoppinglist.Products.FirstOrDefault(x => x.Id == productId);
             if (product == null)
                 return new ChangeListItemResult { Success = false, Error = "Product not found" };
+            string action;
             if (product.Amount + change <= 0 || change == 0)
+            {
                 product.Amount = 0;
+                action = "ItemDeleted";
+                await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+                                        new { listId, product.Id, action },
+                                        priority: Firebase.Priority.normal);
+            }
             else
+            {
                 product.Amount += change;
+                action = "ItemChanged";
+                await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+                        new { listId, product.Id, product.Amount, action },
+                        priority: Firebase.Priority.normal);
+            }
             await c.SaveChangesAsync();
             return new ChangeListItemResult { Success = true, Id = product.Id, Name = product.Name, Amount = product.Amount, ListId = listId };
         }
@@ -159,9 +188,13 @@ namespace NSSLServer
                     hash += product.Amount + product.Id;
                 }
             }
+            string action = "Refresh";
+            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+                    new { listId, action },
+                    priority: Firebase.Priority.normal);
+
             await c.SaveChangesAsync();
-
-
+            
             if (notFoundIds.Count == 0)
                 return new HashResult { Success = true, Hash = hash };
             else
@@ -176,6 +209,13 @@ namespace NSSLServer
                 return new ChangeListNameResult { Success = false, Error = "Insufficient rights" };
 
             list.Name = newName;
+            var listId = list.Id;
+
+            string action = "ListRename";
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+                    new { listId, list.Name, action },
+                    priority: Firebase.Priority.normal);
+
             await c.SaveChangesAsync();
             return new ChangeListNameResult { Success = true, ListId = list.Id, Name = list.Name };
         }
@@ -193,6 +233,10 @@ namespace NSSLServer
                 c.ShoppingLists.Remove(shoppinglist);
             else
                 c.Contributors.Remove(cont);
+
+            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+                    new { listId },
+                    priority: Firebase.Priority.normal);
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
@@ -215,9 +259,9 @@ namespace NSSLServer
             return new AddListResult { Success = true, Id = shoppinglist.Id, Name = shoppinglist.Name };
         }
 
-        public static async Task<Result> DeleteProduct(DBContext c, int listid, int userid, int productid)
+        public static async Task<Result> DeleteProduct(DBContext c, int listId, int userid, int productid)
         {
-            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listId);
             if (list == null)
                 return new Result { Success = false, Error = "list could not be found" };
             var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
@@ -227,14 +271,17 @@ namespace NSSLServer
             if (p == null)
                 return new Result { Success = false, Error = "Product could not be found in the database" };
             p.Amount = 0;
-            //list.Products.Remove(list.Products.FirstOrDefault(x => x.Id == productid));
+            string action = "ItemDeleted";
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+                                    new { listId, p.Id, action },
+                                    priority: Firebase.Priority.normal);
             await c.SaveChangesAsync();
             return new Result { Success = true };
         }
 
-        public static async Task<Result> DeleteProducts(DBContext c, int listid, int userid, List<int> productIds)
+        public static async Task<Result> DeleteProducts(DBContext c, int listId, int userid, List<int> productIds)
         {
-            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listId);
             if (list == null)
                 return new Result { Success = false, Error = "list could not be found" };
             var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
@@ -252,24 +299,33 @@ namespace NSSLServer
             }
             await c.SaveChangesAsync();
 
+            string action = "Refresh";
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+                    new { listId, action },
+                    priority: Firebase.Priority.normal);
             if (notFoundIds.Count == 0)
                 return new Result { Success = true };
             else
                 return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
         }
 
-        public static async Task<AddListItemResult> AddProduct(DBContext c, int listid, int userid, string name, string gtin, int amount)
+        public static async Task<AddListItemResult> AddProduct(DBContext c, int listId, int userid, string name, string gtin, int amount)
         {
-            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listid);
+            var list = c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefault(x => x.Id == listId);
             if (list == null)
                 return new AddListItemResult { Success = false, Error = "list could not be found" };
             var user = list.Contributors.FirstOrDefault(x => x.UserId == userid);
             if (user == null)
                 return new AddListItemResult { Success = false, Error = "You are not a contributor" };
-            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listid };
+            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId };
             list.Products.Add(li);
             await c.SaveChangesAsync();
             //TODO Same name and same gtin
+
+            string action = "NewItemAdded";
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+                    new { listId, li.Id, li.Name, li.Gtin, li.Amount, action },
+                    priority: Firebase.Priority.normal);
             return new AddListItemResult { Success = true, Gtin = li.Gtin, Name = name, ProductId = li.Id };
         }
 
@@ -279,7 +335,7 @@ namespace NSSLServer
 
         public static async Task<List<ShoppingList>> GetShoppingLists(DBContext con, int userId)
         {
-            var cont = con.Contributors.Include(x => x.ShoppingList).Include(x=>x.ShoppingList.Contributors).Where(x => x.User.Id == userId);
+            var cont = con.Contributors.Include(x => x.ShoppingList).Include(x => x.ShoppingList.Contributors).Where(x => x.User.Id == userId);
             //var list = con.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).Where(x => x.Contributors.Where(y => y.UserId == userId).ToList().Count > 1);
 
 
@@ -287,8 +343,10 @@ namespace NSSLServer
             foreach (var item in cont)
             {
                 var list = await LoadShoppingList(item.ShoppingList.Id, userId);
-                list.Contributors = new List<Contributor>();
-                list.Contributors.Add(item);
+                list.Contributors = new List<Contributor>
+                {
+                    item
+                };
                 lists.Add(list);
             }
 
@@ -301,12 +359,19 @@ namespace NSSLServer
         internal static async Task<ListsResult> LoadShoppingLists(DBContext con, int userId)
         {
             var lists = await GetShoppingLists(con, userId);
-            var dic = lists.Select(y => new ListsResult.ListResultItem {
+            var dic = lists.Select(y => new ListsResult.ListResultItem
+            {
                 Id = y.Id,
                 Name = y.Name,
                 IsAdmin = y.Contributors.FirstOrDefault().IsAdmin,
-                Products = y.Products?.Select(x=>new ShoppingListItemResult {
-                    Amount = x.Amount, Gtin = x?.Gtin, Id = x.Id, Name = x.Name }).ToList() }).ToList();
+                Products = y.Products?.Select(x => new ShoppingListItemResult
+                {
+                    Amount = x.Amount,
+                    Gtin = x?.Gtin,
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToList()
+            }).ToList();
 
             return new ListsResult { Lists = dic };
         }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -21,29 +21,32 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.0-beta1"/>
-    <PackageReference Include="Microsoft.NETCore.DotNetHostPolicy" Version="1.1.0"/>
-    <PackageReference Include="Microsoft.NETCore.Runtime.CoreCLR" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2"/>
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="1.1.1"/>
-    <PackageReference Include="Deviax.QueryBuilder.Postgres" Version="0.1.0"/>
-    <PackageReference Include="System.Net.Requests" Version="4.3.0"/>
-    <PackageReference Include="Npgsql" Version="3.2.2"/>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="1.1.0"/>
-    <PackageReference Include="Libuv" Version="1.10.0-preview1-22036"/>
-    <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1-rc2-24027"/>
-    <PackageReference Include="System.Linq" Version="4.3.0"/>
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0"/>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.0-beta1" />
+    <PackageReference Include="Microsoft.NETCore.DotNetHostPolicy" Version="1.1.0" />
+    <PackageReference Include="Microsoft.NETCore.Runtime.CoreCLR" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="1.1.1" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="Npgsql" Version="3.2.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="1.1.0" />
+    <PackageReference Include="Libuv" Version="1.10.0-preview1-22036" />
+    <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1-rc2-24027" />
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj"/>
+    <ProjectReference Include="..\..\Firebase\Firebase.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj" />
+    <ProjectReference Include="..\..\SharedCore\SharedCore.csproj" />
   </ItemGroup>
 </Project>

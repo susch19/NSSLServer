@@ -50,8 +50,7 @@ namespace NSSLServer
             loggerFactory.AddDebug();
 
             app.Use(async (ctx, f) => {
-                StringValues originValues;
-                ctx.Response.Headers["Access-Control-Allow-Origin"] = ctx.Request.Headers.TryGetValue("Origin", out originValues) ? originValues[0] : "*";
+                ctx.Response.Headers["Access-Control-Allow-Origin"] = ctx.Request.Headers.TryGetValue("Origin", out StringValues originValues) ? originValues[0] : "*";
                 ctx.Response.Headers["Access-Control-Allow-Credentials"] = "true";
                 if (ctx.Request.Method == "OPTIONS")
                 {

@@ -148,8 +148,7 @@ namespace NSSLServer
             var payloadData = Serializer.Deserialize<Dictionary<string, object>>(payloadJson);
             if (payloadData.ContainsKey("exp") && payloadData["exp"] != null)
             {
-                int exp;
-                if (!int.TryParse(payloadData["exp"].ToString(), out exp))
+                if (!int.TryParse(payloadData["exp"].ToString(), out int exp))
                     return false;
 
                 var secondsSinceEpoch = Math.Round((DateTime.UtcNow - UnixEpoch).TotalSeconds);
