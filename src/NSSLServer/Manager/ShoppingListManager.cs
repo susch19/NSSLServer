@@ -99,15 +99,12 @@ namespace NSSLServer
                 items = await Q.From(ListItem.LIT).Where(li => li.ListId.EqV(listId), li => li.Amount.NeqV(0)).ToList<ListItem>(connection);
             }
 
-            await FirebaseCloudMessaging.fcm.TopicMessage<object>("someListTopic", null,
-                    notification: new Firebase.Models.Notification { Title = "You were added to the list " + list.Name },
+            await FirebaseCloudMessaging.fcm.TopicMessage<object>(contributor.Username + "userTopic", null,
+                     notification: new Firebase.Models.Notification { Title = "You were added to the list " + list.Name },
+                     priority: Firebase.Priority.normal);
+            await FirebaseCloudMessaging.fcm.TopicMessage(contributor.Username + "userTopic",
+                    new { listId, list.Name, items },
                     priority: Firebase.Priority.normal);
-
-
-            await FirebaseCloudMessaging.fcm.TopicMessage("someListTopic",
-                    new { listId, list.Name, items},
-                    priority: Firebase.Priority.normal);
-
 
             await c.SaveChangesAsync();
             return new AddContributorResult { Success = true, Id = contributor.Id, Name = contributor.Username };
@@ -146,17 +143,28 @@ namespace NSSLServer
             {
                 product.Amount = 0;
                 action = "ItemDeleted";
-                await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+                await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Id + "shoppingListTopic",
                                         new { listId, product.Id, action },
                                         priority: Firebase.Priority.normal);
             }
             else
             {
                 product.Amount += change;
-                action = "ItemChanged";
-                await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
-                        new { listId, product.Id, product.Amount, action },
-                        priority: Firebase.Priority.normal);
+                if (product.Amount - change == 0)
+                {
+                    action = "NewItemAdded";
+                    await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Id + "shoppingListTopic",
+                            new { listId, product.Id, product.Amount, product.Name, action },
+                            priority: Firebase.Priority.normal);
+                }
+                else
+                {
+                    action = "ItemChanged";
+                    await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Id + "shoppingListTopic",
+                            new { listId, product.Id, product.Amount, action },
+                            priority: Firebase.Priority.normal);
+                }
+
             }
             await c.SaveChangesAsync();
             return new ChangeListItemResult { Success = true, Id = product.Id, Name = product.Name, Amount = product.Amount, ListId = listId };
@@ -189,12 +197,12 @@ namespace NSSLServer
                 }
             }
             string action = "Refresh";
-            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Id + "shoppingListTopic",
                     new { listId, action },
                     priority: Firebase.Priority.normal);
 
             await c.SaveChangesAsync();
-            
+
             if (notFoundIds.Count == 0)
                 return new HashResult { Success = true, Hash = hash };
             else
@@ -212,7 +220,7 @@ namespace NSSLServer
             var listId = list.Id;
 
             string action = "ListRename";
-            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Id + "shoppingListTopic",
                     new { listId, list.Name, action },
                     priority: Firebase.Priority.normal);
 
@@ -234,7 +242,7 @@ namespace NSSLServer
             else
                 c.Contributors.Remove(cont);
 
-            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(shoppinglist.Id + "shoppingListTopic",
                     new { listId },
                     priority: Firebase.Priority.normal);
             await c.SaveChangesAsync();
@@ -272,7 +280,7 @@ namespace NSSLServer
                 return new Result { Success = false, Error = "Product could not be found in the database" };
             p.Amount = 0;
             string action = "ItemDeleted";
-            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Id + "shoppingListTopic",
                                     new { listId, p.Id, action },
                                     priority: Firebase.Priority.normal);
             await c.SaveChangesAsync();
@@ -300,7 +308,7 @@ namespace NSSLServer
             await c.SaveChangesAsync();
 
             string action = "Refresh";
-            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Id + "shoppingListTopic",
                     new { listId, action },
                     priority: Firebase.Priority.normal);
             if (notFoundIds.Count == 0)
@@ -323,7 +331,7 @@ namespace NSSLServer
             //TODO Same name and same gtin
 
             string action = "NewItemAdded";
-            await FirebaseCloudMessaging.fcm.TopicMessage(list.Name + "Topic",
+            await FirebaseCloudMessaging.fcm.TopicMessage(list.Id + "shoppingListTopic",
                     new { listId, li.Id, li.Name, li.Gtin, li.Amount, action },
                     priority: Firebase.Priority.normal);
             return new AddListItemResult { Success = true, Gtin = li.Gtin, Name = name, ProductId = li.Id };
