@@ -28,8 +28,8 @@ namespace NSSLServer
         //    Name = name;
         //    Amount = amount;
         //}
-
-        public static ListItemTable LIT = new ListItemTable();
+        public static ListItemTable T = new ListItemTable();
+        [PrimaryKey(nameof(Id))]
         public class ListItemTable : Table<ListItemTable>
         {
             public Field Id;

@@ -6,29 +6,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static NSSLServer.Models.EdekaProduct;
 
 namespace NSSLServer.Models.Products
 {
-    public class EdekaGtinEntry
+    public class ProductsGtins
     {
-        public string Gtin { get; set; }
+        public int GtinId { get; set; }
         public int ProductId { get; set; }
 
         [ForeignKey(nameof(ProductId))]
-        public virtual EdekaProduct Product { get; set; }
+        public virtual List<Product> Products { get; set; }
+        [ForeignKey(nameof(GtinId))]
+        public virtual List<GtinEntry> Gtins { get; set; }
 
-        public static GtinsTable EGT = new GtinsTable("gt1");
-        public static GtinsTable EGT2 = new GtinsTable("gt2");
-        [PrimaryKey(nameof(Gtin))]
-        public class GtinsTable : Table<GtinsTable>
+
+        public static ProductsGtinsTable T = new ProductsGtinsTable("gpt");
+        [PrimaryKey(nameof(GtinId), nameof(ProductId))]
+        public class ProductsGtinsTable : Table<ProductsGtinsTable>
         {
-            public Field Gtin;
+            public Field GtinId;
             public Field ProductId;
 
-            public GtinsTable(string alias = null) : base("edeka", "gtins", alias)
+            public ProductsGtinsTable(string alias = null) : base("test_schema", "products_gtins", alias)
             {
-                Gtin = F("gtin");
+                GtinId = F("gtin_id");
                 ProductId = F("product_id");
             }
         }
@@ -38,23 +39,17 @@ namespace NSSLServer.Models.Products
         //    .InnerJoin(EGT).On(EPT.Id.Eq(EGT.ProductId))
         //    .InnerJoin(EGT2).On(EGT.ProductId.Eq(EGT2.ProductId))
         //    .GroupBy(EPT.Id, EPT.Name);
-        public static readonly SelectQuery<GtinsTable> GtinsQuery = Q.From(EGT)
-            .Select(EGT.ProductId, new RawSql("array_agg(gt1.gtin)").As("gtins"))
-            .GroupBy(EGT.ProductId);
+        //public static readonly SelectQuery<GtinsTable> GtinsQuery = Q.From(EGT)
+        //    .Select(EGT.ProductId, new RawSql("array_agg(gt1.gtin)").As("gtins"))
+        //    .GroupBy(EGT.ProductId);
 
         public override string ToString()
         {
-            return $"{Gtin}|{ProductId}";
+            return $"{GtinId}|{ProductId}";
         }
 
         //public static async Task<List<InternalGtinList>> GetGtinList(EdekaProduct p) =>
         //    await GtinsQuery.Where(EGT.ProductId.Eq(Q.P("asd",p.Id))).FirstOrDefault<InternalGtinList>(await DatabaseConnection.DBConnection.OpenConnection());
-
-
-        public class InternalGtinList
-        {
-            public int ProductId { get; set; }
-            public List<string> Gtins { get; set; }
-        }
+       
     }
 }

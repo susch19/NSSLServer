@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace NSSLServer.Models
 {
-    interface IDatabaseProduct
+    public interface IDatabaseProduct
     {
-        BasicProduct ConvertToProduct();
+        string Name { get; set; }
+        decimal? Quantity { get; set; }
+        string Unit { get; set; }
     }
 }

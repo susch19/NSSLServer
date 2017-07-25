@@ -9,8 +9,8 @@ namespace NSSLServer.Models
 {
     public interface IProductSource
     {
-        bool islocal { get; }
-        Task<BasicProduct> FindProductByCode(string code);
-        Task<Paged<BasicProduct>> FindProductsByName(string name, int page = 1);
+        bool Islocal { get; }
+        Task<IDatabaseProduct> FindProductByCode(string code);
+        Task<Paged<IDatabaseProduct>> FindProductsByName(string name, int page = 1);
     }
 }

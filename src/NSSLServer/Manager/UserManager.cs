@@ -48,10 +48,8 @@ namespace NSSLServer
                 var minedsalt = GenerateSalt();
                 var saltedpw = Salting(pwdhash, minedsalt);
                 User c = new User(username, saltedpw, email, minedsalt);
+                await Q.InsertOne(cont.Connection, c);
 
-                cont.Users.Add(c);
-
-                await cont.SaveChangesAsync();
                 return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
             }
 
@@ -62,7 +60,7 @@ namespace NSSLServer
         {
             using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
-                var k = c.Users.FirstOrDefault(x => x.Id == id);
+                var k = await Q.From(User.T).Where(x => x.Id.EqV(id)).FirstOrDefault<User>(c.Connection);// c.Users.FirstOrDefault(x => x.Id == id);
                 if (k.PasswordHash.SequenceEqual(Salting(o, k.Salt)))
                 {
                     k.PasswordHash = Salting(n, k.Salt);
@@ -118,13 +116,13 @@ namespace NSSLServer
         }
 
         public static async Task<User> FindUserByName(DbConnection con, string name) =>
-             await From(UT).Where(UT.Username.Eq(P("sad", name.ToLower()))).FirstOrDefault<User>(con);
+             await From(T).Where(T.Username.Eq(P("sad", name.ToLower()))).FirstOrDefault<User>(con);
 
         public static async Task<User> FindUserByEmail(DbConnection con, string email) =>
-             await From(UT).Where(UT.Email.Eq(P("sad", email.ToLower()))).FirstOrDefault<User>(con);
+             await From(T).Where(T.Email.Eq(P("sad", email.ToLower()))).FirstOrDefault<User>(con);
 
         public static async Task<User> FindUserById(DbConnection con, int id) => 
-            await From(UT).Where(UT.Id.Eq(Q.P("id", id))).FirstOrDefault<User>(con);
+            await From(T).Where(T.Id.Eq(Q.P("id", id))).FirstOrDefault<User>(con);
         
 
         #region Unused code

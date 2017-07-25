@@ -50,8 +50,9 @@ namespace NSSLServer.Models
         public string ShortDescription { get; set; }
         public virtual ICollection<EdekaGtinEntry> Gtins { get; set; }
 
-
+        
         public static EdekaProductsTable EPT = new EdekaProductsTable("ept");
+        [PrimaryKey(nameof(Id))]
         public class EdekaProductsTable : Table<EdekaProductsTable>
         {
             public Field Id;
@@ -88,6 +89,7 @@ namespace NSSLServer.Models
 
         public static RegionsTable ERT = new RegionsTable();
 
+        [PrimaryKey(nameof(Id))]
         public class RegionsTable : Table<RegionsTable>
         {
             public Field Id;

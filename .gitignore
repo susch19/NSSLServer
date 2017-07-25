@@ -249,3 +249,7 @@ ModelManifest.xml
 /src/NSSLServer/secretkey
 /src/NSSLServer/connectionstring
 /src/NSSLServer/connectionstring
+/Publish Ubuntu.bat
+/Restore.bat
+/src/NSSLServer/Features/EdekaDatabaseUpdater.cs
+/src/NSSLServer/Features/Bla.cs

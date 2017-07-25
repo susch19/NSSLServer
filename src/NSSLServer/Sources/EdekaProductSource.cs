@@ -20,13 +20,13 @@ namespace NSSLServer.Sources
         private static async Task<EdekaGtinEntry> GetId(string code)
          => await From(EdekaGtinEntry.EGT).Where(EdekaGtinEntry.EGT.Gtin.Eq(P("q", code))).FirstOrDefault<EdekaGtinEntry>(await OpenConnection());
 
-        public async Task<BasicProduct> FindProductByCode(string code)
-        => (await From(EdekaGtinEntry.EGT).Where((x)=>x.Gtin.EqV(code)).InnerJoin(EPT).On((x,y)=> x.ProductId.Eq(y.Id)).Select(new RawSql("ept.*")).Limit(1).FirstOrDefault<EdekaProduct>(await OpenConnection()))?.ConvertToProduct();
+        public async Task<IDatabaseProduct> FindProductByCode(string code)
+        => await From(EdekaGtinEntry.EGT).Where((x)=>x.Gtin.EqV(code)).InnerJoin(EPT).On((x,y)=> x.ProductId.Eq(y.Id)).Select(new RawSql("ept.*")).Limit(1).FirstOrDefault<EdekaProduct>(await OpenConnection());
 
         //public async Task<List<BasicProduct>> FindProductsByName(string name)
         // =>( await From(EPT).Where(EPT.Name.Like(P("gtin", "%" + name +"%"), LikeMode.IgnoreCase)).Limit(30).ToList<EdekaProduct>(await OpenConnection())).Select(p => p.ConvertToProduct()).ToList();
 
-        public async Task<Paged<BasicProduct>> FindProductsByName(string name, int page = 1)
+        public async Task<Paged<IDatabaseProduct>> FindProductsByName(string name, int page = 1)
         {
             using (var con = await NsslEnvironment.OpenConnectionAsync())
             {
@@ -43,8 +43,8 @@ namespace NSSLServer.Sources
               
                 var total = await q.Select(a => Q.Count(a.Id)).ScalarResult<long>(con);
 
-                var items = (await q.OrderBy(a => a.Name.Asc()).Limit(perPage, (page - 1) * perPage).ToList<EdekaProduct>(con)).Select(p => p.ConvertToProduct()).ToList();
-                return items.Paged(total, page, perPage);
+                var items = await q.OrderBy(a => a.Name.Asc()).Limit(perPage, (page - 1) * perPage).ToList<EdekaProduct>(con);
+                return items.PagedAs<EdekaProduct, IDatabaseProduct>(total, page, perPage);
 
             }
         }

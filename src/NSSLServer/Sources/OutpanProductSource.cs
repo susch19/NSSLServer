@@ -14,14 +14,14 @@ namespace NSSLServer.Sources
 {
     class OutpanProductSource : IProductSource
     {
-        public bool islocal { get; } = false;
+        public bool Islocal { get; } = false;
         public long Total { get; set; } = 0;
 
-        public async static Task AddProduct(string name, string gtin)
-        {
-            // TODO Implement Adding Products to Outpan
-        }
-        async Task<BasicProduct> IProductSource.FindProductByCode(string code)
+        //public async static Task AddProduct(string name, string gtin)
+        //{
+        //    // TODO Implement Adding Products to Outpan
+        //}
+        async Task<IDatabaseProduct> IProductSource.FindProductByCode(string code)
         {
             string url = "https://" + $"api.outpan.com/v2/products/{code}?apikey=1e0dea2842c3bd80559b9ef0a8df187b";
             var request = WebRequest.Create(url);
@@ -35,7 +35,7 @@ namespace NSSLServer.Sources
                 if (string.IsNullOrWhiteSpace(name))
                     return null;
 
-                LocalCacheProductSource.AddProduct(name, gtin);
+                //LocalCacheProductSource.AddProduct(name, gtin);
 
                 BasicProduct p = new BasicProduct { Name = name, Gtin = gtin};
                
@@ -43,9 +43,11 @@ namespace NSSLServer.Sources
             }
         }
 
-        async Task<Paged<BasicProduct>> IProductSource.FindProductsByName(string name, int i)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        async Task<Paged<IDatabaseProduct>> IProductSource.FindProductsByName(string name, int i)
         {
-            return new Paged<BasicProduct>();
+            return new Paged<IDatabaseProduct>();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 }

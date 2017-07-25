@@ -1,0 +1,5 @@
+System.InvalidOperationException: The request message was already sent. Cannot send the same request message multiple times.
+   at System.Net.Http.HttpClient.CheckRequestMessage(HttpRequestMessage request)
+   at System.Net.Http.HttpClient.SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.SendAsync(HttpRequestMessage request)
+   at NSSLServer.Features.EdekaDatabaseUpdater.<Update>d__4.MoveNext()

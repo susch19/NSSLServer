@@ -16,6 +16,15 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Models\Products\Edeka\**" />
+    <Content Remove="Models\Products\Edeka\**" />
+    <EmbeddedResource Remove="Models\Products\Edeka\**" />
+    <None Remove="Models\Products\Edeka\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Sources\EdekaProductSource.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="Views;Areas\**\Views">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>

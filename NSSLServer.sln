@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedCore", "SharedCore\Sh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviax.QueryBuilder.Postgres", "lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj", "{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Deviax.QueryBuilder.Shared", "lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.shproj", "{F0A3737D-FE0B-4301-A968-E7EA3755818F}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.projitems*{f0a3737d-fe0b-4301-a968-e7ea3755818f}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

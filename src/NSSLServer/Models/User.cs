@@ -29,12 +29,13 @@ namespace NSSLServer.Models
             Salt = saltmine;
         }
         
-        public static readonly UserTable UT = new UserTable("u");
+        public static readonly UserTable T = new UserTable("u");
+        [PrimaryKey(nameof(Id))]
         public class UserTable : Table<UserTable>
         {
             public Field Id;
             public Field Username;
-            public Field Passwordhash;
+            public Field PasswordHash;
             public Field Salt;
             public Field Email;
 
@@ -42,7 +43,7 @@ namespace NSSLServer.Models
             {
                 Id = F("id");
                 Username = F("username");
-                Passwordhash = F("passwordhash");
+                PasswordHash = F("password_hash");
                 Email = F("email");
                 Salt = F("salt");
             }

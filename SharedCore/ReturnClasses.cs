@@ -43,7 +43,7 @@ namespace Shared
         {
             public string Name { get; set; }
             public string Gtin { get; set; }
-            public decimal Quantity { get; set; }
+            public decimal? Quantity { get; set; }
             public string Unit { get; set; }
         }
         public class AddListItemResult : Result
