@@ -1,15 +1,6 @@
-﻿ using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.Net;
-using Firebase;
 using Deviax.QueryBuilder;
 using NSSLServer.Models;
 using NSSLServer.Models.Products;
@@ -25,15 +16,19 @@ namespace NSSLServer
 {
     public class Program
     {
-
         //dotnet restore
         //dotnet publish -r ubuntu.16.04-arm
         public static void Main(string[] args)
         {
+            System.Threading.ThreadPool.SetMaxThreads(500, 500);
             Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             var host = new WebHostBuilder()
                 .UseKestrel()
+#if DEBUG
+                .UseUrls("http://[::1]:4344", "http://192.168.49.28:4344")
+#else
                 .UseUrls("http://[::1]:4344", "http://127.0.0.1:4344")
+#endif
                 .UseContentRoot(Directory.GetCurrentDirectory())               
                 .UseStartup<Startup>()
                 .Build();
@@ -45,9 +40,6 @@ namespace NSSLServer
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async static void DoStuff()
         {
-            //NSSLServer.Features.EdekaDatabaseUpdater.Initialize();
-            //Registry.RegisterTypeToTable<EdekaProduct, EdekaProductsTable>();
-            //Registry.RegisterTypeToTable<EdekaGtinEntry, GtinsTable>();
             Registry.RegisterTypeToTable<Product, ProductsTable>();
             Registry.RegisterTypeToTable<GtinEntry, GtinsTable>();
             Registry.RegisterTypeToTable<ProductsGtins, ProductsGtinsTable>();
@@ -56,6 +48,7 @@ namespace NSSLServer
             Registry.RegisterTypeToTable<User, UserTable>();
             Registry.RegisterTypeToTable<ShoppingList, ShoppingListTable>();
             //I like my do Stuff methods :)
+
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 

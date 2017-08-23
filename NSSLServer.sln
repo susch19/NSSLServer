@@ -20,6 +20,9 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Deviax.QueryBuilder.Shared", "lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.shproj", "{F0A3737D-FE0B-4301-A968-E7EA3755818F}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.projitems*{f0a3737d-fe0b-4301-a968-e7ea3755818f}*SharedItemsImports = 13
 	EndGlobalSection

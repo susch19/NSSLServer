@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static NSSLServer.Models.User;
-using static Deviax.QueryBuilder.Q;
 using NSSLServer.Models;
 using System.Data.Common;
 using System.Threading.Tasks;
 using static Shared.ResultClasses;
 using System.IO;
+using Deviax.QueryBuilder.ChangeTracking;
 
 namespace NSSLServer
 {
@@ -47,14 +47,14 @@ namespace NSSLServer
 
                 var minedsalt = GenerateSalt();
                 var saltedpw = Salting(pwdhash, minedsalt);
-                User c = new User(username, saltedpw, email, minedsalt);
+                User c = new User(username.TrimEnd(), saltedpw, email.TrimEnd(), minedsalt);
                 await Q.InsertOne(cont.Connection, c);
 
                 return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
             }
 
         }
-        
+
 
         public static async Task<Result> ChangePassword(int id, string o, string n)
         {
@@ -63,8 +63,9 @@ namespace NSSLServer
                 var k = await Q.From(User.T).Where(x => x.Id.EqV(id)).FirstOrDefault<User>(c.Connection);// c.Users.FirstOrDefault(x => x.Id == id);
                 if (k.PasswordHash.SequenceEqual(Salting(o, k.Salt)))
                 {
+                    var ctc = ChangeTrackingContext.StartWith(k);
                     k.PasswordHash = Salting(n, k.Salt);
-                    await c.SaveChangesAsync();
+                    await ctc.Commit(c.Connection);
                 }
                 else
                     return new Result { Success = false, Error = "old password was incorrect" };
@@ -72,7 +73,7 @@ namespace NSSLServer
             }
         }
 
-      
+
         public static async Task<LoginResult> Login(string username, string email, string passwordhash)
         {
             using (var con = await NsslEnvironment.OpenConnectionAsync())
@@ -92,10 +93,11 @@ namespace NSSLServer
                     return new LoginResult { Success = false, Error = "password is incorrect" };
 
                 var payload = new Dictionary<string, object>()
-            {
-                { "Expires", DateTime.UtcNow.AddDays(30) },
-                { "Id", exists.Id}
-            };
+                {
+                    { "Expires", DateTime.UtcNow.AddMonths(1) },
+                    { "Id", exists.Id},
+                    {"Created", DateTime.UtcNow }
+                };
                 return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, SecretKey, JsonWebToken.JwtHashAlgorithm.HS256), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
 
             }
@@ -116,14 +118,14 @@ namespace NSSLServer
         }
 
         public static async Task<User> FindUserByName(DbConnection con, string name) =>
-             await From(T).Where(T.Username.Eq(P("sad", name.ToLower()))).FirstOrDefault<User>(con);
+             await Q.From(T).Where(T.Username.ILike(name)).FirstOrDefault<User>(con);
 
         public static async Task<User> FindUserByEmail(DbConnection con, string email) =>
-             await From(T).Where(T.Email.Eq(P("sad", email.ToLower()))).FirstOrDefault<User>(con);
+             await Q.From(T).Where(T.Email.ILike(email)).FirstOrDefault<User>(con);
 
-        public static async Task<User> FindUserById(DbConnection con, int id) => 
-            await From(T).Where(T.Id.Eq(Q.P("id", id))).FirstOrDefault<User>(con);
-        
+        public static async Task<User> FindUserById(DbConnection con, int id) =>
+            await Q.From(T).Where(T.Id.EqV(id)).FirstOrDefault<User>(con);
+
 
         #region Unused code
         //public static async Task<UserInfo2> GetUserInfo(int id)

@@ -30,8 +30,7 @@ namespace NSSLServer.Models
                 Unit = F("unit");
             }
         }
-
-        public BasicProduct ConvertToProduct() => this;
+        
 
         //public static implicit operator Product(BasicProduct pr)
         //{

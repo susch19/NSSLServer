@@ -105,6 +105,8 @@ namespace NSSLServer
             var parts = token.Split('.');
             if (parts.Length != 3)
             {
+                payload = null;
+                return false;
                 throw new ArgumentException("Token must consist from 3 delimited by dot parts");
             }
             var header = parts[0];

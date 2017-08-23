@@ -12,7 +12,6 @@ namespace NSSLServer.Features
     [Route("shoppinglists"), WithDbContext]
     public class ShoppingListModule : AuthenticatingController
     {
-
         [HttpGet, Route("products/{identifier}")]
         public async Task<IActionResult> GetProduct(string identifier)
         {
@@ -30,7 +29,7 @@ namespace NSSLServer.Features
             => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, Session.Id))) : new BadRequestResult();
 
         [HttpGet]
-        [Route("batchaction/")]
+        [Route("batchaction/"), Route("")]
         public async Task<IActionResult> GetLists()
         {
             return Json(await ShoppingListManager.LoadShoppingLists(Context, Session.Id));
@@ -133,7 +132,7 @@ namespace NSSLServer.Features
         [HttpPost, Route("{listId}/products")]
         public async Task<IActionResult> AddProduct(int listId, [FromBody]AddProductArgs args)
         {
-            if (listId == 0 || (args.Gtin == "" && args.ProductName == ""))
+            if (listId == 0 || (string.IsNullOrWhiteSpace(args.Gtin) && string.IsNullOrWhiteSpace(args.ProductName)))
                 return new BadRequestResult();
             return Json((await ShoppingListManager.AddProduct(Context, listId, Session.Id, args.ProductName, args.Gtin, args.Amount.Value)));
         }

@@ -31,8 +31,15 @@ namespace NSSLServer.Features
         [AuthRequired]
         public Task<IActionResult> Refresh()
         {
-            Session.Expires = DateTime.UtcNow.AddDays(1);
-            var token = JsonWebToken.Encode(new Dictionary<string, object>(), Session, ExtractJwtSessionFilterAttribute.JwtKeyBytes, JsonWebToken.JwtHashAlgorithm.HS512);
+            var payload = new Dictionary<string, object>()
+                {
+                    { "Expires", DateTime.UtcNow.AddMonths(1) },
+                    { "Id", Session.Id},
+                    {"Created", DateTime.UtcNow }
+                };
+            
+            //var token = JsonWebToken.Encode(new Dictionary<string, object>(), Session, ExtractJwtSessionFilterAttribute.JwtKeyBytes, JsonWebToken.JwtHashAlgorithm.HS512);
+            var token =  JsonWebToken.Encode(new Dictionary<string, object>(), payload, ExtractJwtSessionFilterAttribute.JwtKeyBytes, JsonWebToken.JwtHashAlgorithm.HS256);
             return Task.FromResult<IActionResult>(Json(new SessionRefreshResult { Token = token }));
         }
 

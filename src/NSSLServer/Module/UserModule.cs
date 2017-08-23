@@ -55,7 +55,7 @@ namespace NSSLServer.Module
         {
             if (args.Username == null || args.EMail == null || args.PWHash == null)
                 return new BadRequestResult();
-            return Json((await UserManager.CreateUser(args.Username.ToLower(), args.EMail.ToLower(), args.PWHash)));
+            return Json((await UserManager.CreateUser(args.Username, args.EMail, args.PWHash)));
         }
     }
 }

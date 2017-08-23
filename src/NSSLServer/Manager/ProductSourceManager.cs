@@ -43,12 +43,13 @@ namespace NSSLServer
             return products;
         }
 
-        internal static async Task<Result> AddNewProduct(string gtin, string name)
+
+        internal static async Task<Result> AddNewProduct(string gtin, string name, decimal? quantity, string unit)
         {
             if (string.IsNullOrWhiteSpace(gtin) || string.IsNullOrWhiteSpace(name))
                 return new Result { Success = false, Error = "The name or gtin was not properly inserted" };
 
-            await ProductSource.AddProduct(name, gtin);
+            await ProductSource.AddProduct(name, gtin, quantity, unit);
             //await OutpanProductSource.AddProduct(name, gtin);
             return new Result { Success = true };
         }

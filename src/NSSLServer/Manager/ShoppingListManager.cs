@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using NSSLServer.Sources;
 using NSSLServer.Models;
 using Deviax.QueryBuilder;
-using NSSLServer.Models.DatabaseConnection;
-using System.Threading;
-using NSSLServer.Module;
 using Deviax.QueryBuilder.Parts;
-using static Shared.RequestClasses;
 using static Shared.ResultClasses;
-using Microsoft.EntityFrameworkCore;
-using NSSLServer.Models.Products;
 using Deviax.QueryBuilder.ChangeTracking;
-using System.Data.Common;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 namespace NSSLServer
@@ -65,7 +54,7 @@ namespace NSSLServer
             ChangeTrackingContext ctc = new ChangeTrackingContext();
             ctc.Track(changeUser);
             changeUser.Permission = Contributor.Permissions.IsAdmin(changeUser.Permission) ? Contributor.Permissions.User : Contributor.Permissions.Admin;
-            ctc.Commit(c.Connection);
+            await ctc.Commit(c.Connection);
             return new Result { Success = true };
         }
 
@@ -131,7 +120,10 @@ namespace NSSLServer
                     .On((d, s) => s.Id.Eq(d.ListId))
                     .Where((d, s) => d.UserId.EqV(userId))
                     .Select(new RawSql("null")))
-                ).InnerJoin(User.T).On((co, u) => co.UserId.Eq(u.Id)).Select((x, y) => x.UserId, (x, y) => y.Username.As("name"), (x, y) => x.Permission.GteV(Contributor.Permissions.Admin).As("is_admin"))
+                ).InnerJoin(User.T).On((co, u) => co.UserId.Eq(u.Id)).Select(
+                    (x, y) => x.UserId, 
+                    (x, y) => y.Username.As("name"), 
+                    (x, y) => x.Permission.GteV(Contributor.Permissions.Admin).As("is_admin"))
                 .ToList<GetContributorsResult.ContributorResult>(c.Connection);
 
             if (cont == null)
@@ -218,7 +210,7 @@ namespace NSSLServer
                     hash += product.Amount + product.Id;
                 }
             }
-            ctc.Commit(c.Connection);
+            await ctc.Commit(c.Connection);
             string action = "Refresh";
             FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
                     new { listId, action },
@@ -237,7 +229,7 @@ namespace NSSLServer
             var list = await Q.From(ShoppingList.T).Where(x => x.Id.EqV(id)).Where(x => Q.Exists(Q.From(Contributor.T).Where(a => a.ListId.Eq(x.Id), a => a.UserId.EqV(userId), a => a.Permission.GteV(Contributor.Permissions.Admin)).Select(new RawSql("null")))).FirstOrDefault<ShoppingList>(c.Connection);
             if (list == null)
                 return new ChangeListNameResult { Success = false, Error = "Insufficient rights" };
-            var ctc = ChangeTrackingContext.NewAndTrack(list);
+            var ctc = ChangeTrackingContext.StartWith(list);
 
             list.Name = newName;
             var listId = list.Id;
@@ -302,7 +294,7 @@ namespace NSSLServer
             var p = await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId), x => x.Id.EqV(productId)).FirstOrDefault<ListItem>(c.Connection);// list.Products.FirstOrDefault(x => x.Id == productId);
             if (p == null)
                 return new Result { Success = false, Error = "Product was not found" };
-            var ctc = ChangeTrackingContext.NewAndTrack(p);
+            var ctc = ChangeTrackingContext.StartWith(p);
             p.Amount = 0;
             string action = "ItemDeleted";
             FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
@@ -321,7 +313,7 @@ namespace NSSLServer
             var notFoundIds = new List<int>();
             var p = await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId), x => x.Id.InV(productIds)).ToList<ListItem>(c.Connection);
             var ctc = new ChangeTrackingContext();
-
+            
             foreach (var product in p)
             {
                 ctc.Track(product);
@@ -330,7 +322,7 @@ namespace NSSLServer
                 else
                     product.Amount = 0;
             }
-            ctc.Commit(c.Connection);
+            await ctc.Commit(c.Connection);
 
             string action = "Refresh";
             FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
@@ -348,7 +340,7 @@ namespace NSSLServer
             if (cont == null)
                 return new AddListItemResult { Success = false, Error = "You are not a contributor" };
             var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId };
-            Q.InsertOne(c.Connection, li);
+            await Q.InsertOne(c.Connection, li);
             //TODO Same name and same gtin <-- WTF?
 
             string action = "NewItemAdded";
