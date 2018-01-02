@@ -14,14 +14,19 @@ using System.Threading.Tasks;
 
 namespace NSSLServer
 {
+
     public class NsslEnvironment
     {
-        public static string ConnectionString = File.ReadAllText("connectionstring"); 
+        public static string ConnectionString = File.ReadAllText("connectionstring") + "Connection Idle Lifetime=5;Maximum Pool Size=1024"; 
 
         public static async Task<DbConnection> OpenConnectionAsync()
-        {
+        { 
+            
+            NpgsqlConnection.ClearAllPools();
+            
             var con = new NpgsqlConnection(ConnectionString);
-            await con.OpenAsync().ConfigureAwait(false);
+            await con.OpenAsync();//..ConfigureAwait(false);
+            
             return con;
         }
     }
@@ -52,9 +57,7 @@ namespace NSSLServer
 
         public DBContext Context;
 
-        
-
-        protected async Task<DbConnection> OpenConnection() => await NsslEnvironment.OpenConnectionAsync();
+       
     }
 
 
@@ -104,8 +107,6 @@ namespace NSSLServer
                     context.HttpContext.Items[ItemDicKey] = s;
             }
 
-
-
             await next.Invoke();
         }
 
@@ -144,8 +145,11 @@ namespace NSSLServer
         {
 
             var controller = (BaseController)context.Controller;
-            using (controller.Context = new DBContext(await NsslEnvironment.OpenConnectionAsync(),true))
+            using (controller.Context = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            {
                 await next.Invoke();
+                controller.Context.Connection.Close(); 
+            }
             
             //await controller.Context.SaveChangesAsync();
         }

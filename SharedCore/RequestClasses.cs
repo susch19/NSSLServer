@@ -31,6 +31,7 @@ namespace Shared
         public class ChangeProductArgs
         {
             public int? Change { get; set; }
+            public string NewName { get; set; }
         }
         public class ChangeListNameArgs
         {

@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Threading;
 using static Shared.RequestClasses;
 using static Shared.ResultClasses;
 using Microsoft.AspNetCore.Mvc;
 using Deviax.QueryBuilder;
 using NSSLServer.Models;
+using System.Net;
 
 namespace NSSLServer.Module
 {
@@ -58,4 +57,62 @@ namespace NSSLServer.Module
             return Json((await UserManager.CreateUser(args.Username, args.EMail, args.PWHash)));
         }
     }
+    [Route("password")]
+    public class ResetPassword : BaseController
+    {
+        //public class Token
+        //{
+        //    public string token { get; set; }
+        //}
+
+        [HttpGet, Route("site/reset")]
+       // [Produces("text/html")]
+        public ContentResult ResetPasswordWebsite([FromQuery]string token)
+        {
+          
+            var path = "Static/passwordreset.html";
+            var content = System.IO.File.ReadAllText(path);
+
+            return new ContentResult
+            {
+                ContentType = "text/html",
+                StatusCode = (int)HttpStatusCode.OK,
+                Content = content
+            };
+        }
+        public class Email
+        {
+            public string email { get; set; }
+        }
+        [HttpPost]
+        public async Task<IActionResult> RequestResetPasswordEmail([FromBody]Email email)
+        {
+            if (string.IsNullOrWhiteSpace(email.email))
+                return new BadRequestResult();
+            return Json(await UserManager.SendPasswortResetEmail(email.email));
+            //sender.SendMail("suschi@ist-einmalig.de", "Test Mail", "Hello!");
+
+            //return new BadRequestResult();
+        }
+        public class TokenPW
+        {
+            public string token { get; set; }
+            public string password { get; set; }
+        }
+
+        [HttpPut, Route("reset")]
+        public async Task<IActionResult> RequestResetPassword([FromBody]TokenPW token)
+        {
+            return Json(await UserManager.ResetPassword(token.token, token.password));
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordArgs args)
+        {
+            if (args.OldPWHash == null || args.NewPWHash == null)
+                return Json(new Result { Error = "Username, Old Password or New Password was not correctly inserted" });
+            return Json((await UserManager.ChangePassword(Session.Id, args.OldPWHash, args.NewPWHash)));
+        }
+    }
+
 }

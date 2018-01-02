@@ -79,14 +79,11 @@ namespace NSSLServer.Features
         [HttpPut, Route("{listId}/products/{productId}")]
         public async Task<IActionResult> ChangeProduct(int listId, int productId, [FromBody]ChangeProductArgs args)
         {
-            if (listId == 0 || productId == 0 || !args.Change.HasValue)
+            if (listId == 0 || productId == 0 || (!args.Change.HasValue && string.IsNullOrWhiteSpace(args.NewName)))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.Value)));
+            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.HasValue ? args.Change.Value : 0, args.NewName)));
         }
-
-
-
-
+        
         [HttpPut, Route("{listId}")]
         public async Task<IActionResult> RenameList(int listId, [FromBody]ChangeListNameArgs args)
         {

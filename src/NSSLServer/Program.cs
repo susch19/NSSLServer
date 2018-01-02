@@ -11,6 +11,9 @@ using static NSSLServer.ListItem;
 using static NSSLServer.Models.Contributor;
 using static NSSLServer.Models.User;
 using static NSSLServer.Models.ShoppingList;
+using NSSLServer.Features;
+using static NSSLServer.Features.PasswordRecovery;
+using static NSSLServer.Models.TokenUserId;
 
 namespace NSSLServer
 {
@@ -33,7 +36,7 @@ namespace NSSLServer
                 .UseStartup<Startup>()
                 .Build();
             DoStuff();
-            UserManager.ReadSecretKeyFromFile();
+            UserManager.ReadLoginInformation();
 
             host.Run();
         }
@@ -47,11 +50,16 @@ namespace NSSLServer
             Registry.RegisterTypeToTable<Contributor, ContributorTable>();
             Registry.RegisterTypeToTable<User, UserTable>();
             Registry.RegisterTypeToTable<ShoppingList, ShoppingListTable>();
+            Registry.RegisterTypeToTable<TokenUserId, TokenUserTable>();
+            using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            {
+                var asdasd = await Q.From(TokenUserId.T).FirstOrDefault<TokenUserId>(c.Connection);
+                c.Connection.Close();
+            }
             //I like my do Stuff methods :)
-
+            EdekaDatabaseUpdater.Initialize();
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-
     }
 
     public static class FirebaseCloudMessaging

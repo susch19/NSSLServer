@@ -10,13 +10,13 @@ namespace NSSLServer
 {
     public class ListItem
     {
-      
         public int Id { get; set; }
         public string Gtin { get; set; }
         public string Name { get; set; }
         public int ListId { get; set; }
       //[Column("quantity")]
         public int Amount { get; set; }
+        public int BoughtAmount { get; set; }
 
         [ForeignKey(nameof(ListId))]
         public virtual ShoppingList ShoppingList {get;set;}
@@ -37,6 +37,7 @@ namespace NSSLServer
             public Field Name;
             public Field ListId;
             public Field Amount;
+            public Field BoughtAmount;
 
             public ListItemTable(string tableAlias = null) : base("public", "list_item", tableAlias)
             {
@@ -45,6 +46,7 @@ namespace NSSLServer
                 Name = F("name");
                 ListId = F("list_id");
                 Amount = F("amount");
+                BoughtAmount = F("bought_amount");
             }
         }
 
