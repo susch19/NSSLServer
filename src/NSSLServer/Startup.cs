@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,6 @@ namespace NSSLServer
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
-
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -39,8 +39,12 @@ namespace NSSLServer
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
-
             services.AddMvc();
+            services.AddResponseCompression(options => {
+                options.Providers.Add<GzipCompressionProvider>();
+            });
+            services.Configure<GzipCompressionProviderOptions>(conf => conf.Level = System.IO.Compression.CompressionLevel.Optimal);
+            services.AddResponseCompression();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -50,6 +54,9 @@ namespace NSSLServer
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 #endif
+            app.UseResponseCompression();
+            //app.UseStaticFiles();
+
             app.Use(async (ctx, f) => {
                 ctx.Response.Headers["Access-Control-Allow-Origin"] = ctx.Request.Headers.TryGetValue("Origin", out StringValues originValues) ? originValues[0] : "*";
                 ctx.Response.Headers["Access-Control-Allow-Credentials"] = "true";
@@ -64,7 +71,13 @@ namespace NSSLServer
                     await f();
                 }
             });
-            app.UseMvc();
+     
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }

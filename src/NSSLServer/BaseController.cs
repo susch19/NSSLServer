@@ -5,6 +5,7 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Npgsql;
+using NSSLServer.Shared;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -21,9 +22,7 @@ namespace NSSLServer
 
         public static async Task<DbConnection> OpenConnectionAsync()
         { 
-            
-            NpgsqlConnection.ClearAllPools();
-            
+                        
             var con = new NpgsqlConnection(ConnectionString);
             await con.OpenAsync();//..ConfigureAwait(false);
             
@@ -31,10 +30,6 @@ namespace NSSLServer
         }
     }
 
-   public class NsslSession {
-        public int Id;
-        public DateTime Expires;
-    }
 
     [ExtractJwtSessionFilter]
     public class BaseController : ControllerBase
@@ -106,7 +101,7 @@ namespace NSSLServer
                 if (JsonWebToken.Decode<NsslSession>(sv[0], JwtKeyBytes, true, out NsslSession s))
                     context.HttpContext.Items[ItemDicKey] = s;
             }
-
+            
             await next.Invoke();
         }
 

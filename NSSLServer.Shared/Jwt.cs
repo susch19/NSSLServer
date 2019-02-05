@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
-namespace NSSLServer
+namespace Shared
 {
     /// <summary>
     /// Provides methods for encoding and decoding JSON Web Tokens.
@@ -46,7 +46,7 @@ namespace NSSLServer
         /// <summary>
         /// Pluggable JSON Serializer
         /// </summary>
-        public static IJwtSerializer Serializer = new NewtonsoftJwtSerializer(BaseController.DefaultJsonSettings);
+        public static IJwtSerializer Serializer = new NewtonsoftJwtSerializer(DefaultJsonSettings);
 
         public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -102,9 +102,16 @@ namespace NSSLServer
         /// <param name="verify">Whether to verify the signature (default is true).</param>
         /// <returns>A string containing the JSON payload.</returns>
         /// <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
-        public static bool Decode<T>(string token, byte[] key, bool verify, out T payload) where T : class
+        public static bool Decode<T>(string token, out T payload) where T : class
+            => Decode(token, new byte[0], false, out payload);
+
+        public static bool Decode<T>(string token, byte[] key, out T payload) where T : class
+            => Decode(token, key, true, out payload);
+
+        private static bool Decode<T>(string token, byte[] key, bool verify, out T payload) where T : class
         {
             var parts = token.Split('.');
+
             if (parts.Length != 3)
             {
                 payload = null;
@@ -203,5 +210,33 @@ namespace NSSLServer
             var converted = Convert.FromBase64String(output); // Standard base64 decoder
             return converted;
         }
+        public static readonly JsonSerializerSettings DefaultJsonSettings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Converters = new List<JsonConverter> { new EmptyToNullConverter() },
+            DateFormatHandling = DateFormatHandling.IsoDateFormat
+        };
+    }
+    public class EmptyToNullConverter : JsonConverter
+    {
+        private readonly JsonSerializer _stringSerializer = new JsonSerializer();
+
+        public override bool CanConvert(Type objectType)
+            => objectType == typeof(string);
+
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var value = _stringSerializer.Deserialize<string>(reader);
+
+            if (string.IsNullOrEmpty(value))
+                value = null;
+
+            return value;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            => _stringSerializer.Serialize(writer, value);
     }
 }

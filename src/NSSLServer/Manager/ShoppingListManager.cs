@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NSSLServer.Models;
 using Deviax.QueryBuilder;
-using Deviax.QueryBuilder.Parts;
-using static Shared.ResultClasses;
 using Deviax.QueryBuilder.ChangeTracking;
+using Deviax.QueryBuilder.Parts;
+using NSSLServer.Models;
+using static Shared.ResultClasses;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 namespace NSSLServer
 {
     public static class ShoppingListManager
     {
-        public static async Task<ShoppingList> LoadShoppingList(int listId, int userId)
+        public static async Task<ShoppingList> LoadShoppingList(int listId, int userId, bool alreadyBought = false)
         {
             using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
@@ -27,10 +27,18 @@ namespace NSSLServer
 
                 if (list == null)
                     return new ShoppingList { }; //TODO Nicht leere Liste zurückgeben
-                list.Products = await Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id))
-                        .Where(l => l.Amount.Neq(Q.P("a", 0)))
-                        .OrderBy(t => t.Id.Asc())
-                        .ToList<ListItem>(con.Connection);
+
+                var tempQuery = Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id)).OrderBy(t => t.Id.Asc());
+
+                if (!alreadyBought)
+                    list.Products = await tempQuery.Where(l => l.Amount.Neq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
+                else
+                    list.Products = await tempQuery.Where(l => l.Amount.Eq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
+
+                //list.Products = await Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id))
+                //        .OrderBy(t => t.Id.Asc())
+                //        .Where(l => l.Amount.Neq(Q.P("a", 0)))
+                //        .ToList<ListItem>(con.Connection);
                 con.Connection.Close();
                 return list;
             }
@@ -74,7 +82,7 @@ namespace NSSLServer
 
             if (list == null)
                 return new Result { Success = false, Error = "insufficient rights" };
-            await Q.DeleteFrom(Contributor.T).Where(x => x.UserId.EqV(contributorId)).Execute(c.Connection);
+            await Q.DeleteFrom(Contributor.T).Where(x => x.UserId.EqV(contributorId), x => x.ListId.EqV(listId)).Execute(c.Connection); //TODO WTF?!?!?!
             return new Result { Success = true };
         }
 
@@ -237,8 +245,6 @@ namespace NSSLServer
                     new { userId, listId, action },
                     priority: Firebase.Priority.normal);
 
-            await c.SaveChangesAsync();
-
             if (notFoundIds.Count == 0)
                 return new HashResult { Success = true, Hash = hash };
             else
@@ -339,10 +345,13 @@ namespace NSSLServer
             foreach (var product in p)
             {
                 ctc.Track(product);
-                if (p == null)
+                if (product == null)
                     notFoundIds.Add(product.Id);
                 else
+                {
+                    product.BoughtAmount = product.Amount;
                     product.Amount = 0;
+                }
             }
             await ctc.Commit(c.Connection);
 

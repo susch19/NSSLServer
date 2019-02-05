@@ -1,5 +1,6 @@
 ﻿using Deviax.QueryBuilder;
 using Microsoft.AspNetCore.Mvc;
+using NSSLServer.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;

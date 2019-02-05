@@ -12,17 +12,17 @@ namespace NSSLServer.Features
     [Route("shoppinglists"), WithDbContext]
     public class ShoppingListModule : AuthenticatingController
     {
-        [HttpGet, Route("products/{identifier}")]
-        public async Task<IActionResult> GetProduct(string identifier)
-        {
-            if (string.IsNullOrWhiteSpace(identifier))
-                return new BadRequestResult();
-            if ((identifier.Length == 8 || identifier.Length == 13) && long.TryParse(identifier, out long i))
-                return Json((await ProductSourceManager.FindProductByCode(identifier)));
-            else
-                return Json((await ProductSourceManager.FindProductsByName(identifier)));
-        }
-
+        //[HttpGet, Route("products/{identifier}")]
+        //public async Task<IActionResult> GetProduct(string identifier)
+        //{
+        //    if (string.IsNullOrWhiteSpace(identifier))
+        //        return new BadRequestResult();
+        //    if ((identifier.Length == 8 || identifier.Length == 13) && long.TryParse(identifier, out long i))
+        //        return Json((await ProductSourceManager.FindProductByCode(identifier)));
+        //    else
+        //        return Json((await ProductSourceManager.FindProductsByName(identifier)));
+        //}
+        
         [HttpGet]
         [Route("{listId}")]
         public async Task<IActionResult> GetList(int listId)

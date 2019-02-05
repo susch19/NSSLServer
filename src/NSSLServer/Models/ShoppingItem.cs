@@ -18,8 +18,8 @@ namespace NSSLServer
         public int Amount { get; set; }
         public int BoughtAmount { get; set; }
 
-        [ForeignKey(nameof(ListId))]
-        public virtual ShoppingList ShoppingList {get;set;}
+        //[ForeignKey(nameof(ListId))]
+        //public virtual ShoppingList ShoppingList {get;set;}
         public ListItem() { }
         //public ListItem(int listid, string gtin = null,string name = null,int amount = 1 )
         //{

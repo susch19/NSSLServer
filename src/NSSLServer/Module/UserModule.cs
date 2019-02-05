@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Deviax.QueryBuilder;
 using NSSLServer.Models;
 using System.Net;
+using System;
 
 namespace NSSLServer.Module
 {
@@ -57,6 +58,30 @@ namespace NSSLServer.Module
             return Json((await UserManager.CreateUser(args.Username, args.EMail, args.PWHash)));
         }
     }
+
+    [Route("test")]
+    public class TestController : BaseController
+    {
+        [HttpPost, HttpPut]
+        public async Task<IActionResult> Create([FromBody]Rootobject args)
+        {
+            var a = args;
+            return null;
+        }
+      
+        public class Rootobject
+        {
+            public Datum[] data { get; set; }
+        }
+
+        public class Datum
+        {
+            public string from_id { get; set; }
+            public string to_id { get; set; }
+            public DateTime followed_at { get; set; }
+        }
+    }
+
     [Route("password")]
     public class ResetPassword : BaseController
     {
@@ -66,10 +91,10 @@ namespace NSSLServer.Module
         //}
 
         [HttpGet, Route("site/reset")]
-       // [Produces("text/html")]
+        // [Produces("text/html")]
         public ContentResult ResetPasswordWebsite([FromQuery]string token)
         {
-          
+
             var path = "Static/passwordreset.html";
             var content = System.IO.File.ReadAllText(path);
 

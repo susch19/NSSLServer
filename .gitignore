@@ -257,3 +257,4 @@ ModelManifest.xml
 /src/NSSLServer/Features/FileModule.cs
 /Publish Win10.bat
 /src/NSSLServer/emailcert
+/NSSLServer.Tests/Features
