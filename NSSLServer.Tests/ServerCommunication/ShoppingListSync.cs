@@ -16,7 +16,7 @@ namespace NSSLServer.Tests.ServerCommunication
             => await PostAsync<ShoppingList>($"{path}", new AddListArgs { Name = listName });
 
         public static async Task<ShoppingList> GetList(int listId)
-            => await GetAsync<ShoppingList>($"{path}/{listId}");
+            => await GetAsync<ShoppingList>($"{path}/{listId}/false");
 
         public static async Task<ChangeListNameResult> RenameList(int listId, string newName)
             => await PutAsync<ChangeListNameResult>($"{path}/{listId}", new ChangeListNameArgs { Name = newName });

@@ -14,7 +14,7 @@ namespace NSSL.Models
 
         public static User GetUser(out bool tokenSuccess)
         {
-            var testUserToken = Directory.GetFiles(Environment.CurrentDirectory, "test-user_*_token.txt").FirstOrDefault();
+            var testUserToken = Directory.GetFiles("TestUser", "test-user_*_token.txt").FirstOrDefault();
 
             tokenSuccess = testUserToken != null;
 
@@ -25,7 +25,7 @@ namespace NSSL.Models
         }
         public static User GetUser()
         {
-            var testuser = Directory.GetFiles(Environment.CurrentDirectory, "test-user_*.txt").FirstOrDefault();
+            var testuser = Directory.GetFiles("TestUser", "test-user_*.txt").FirstOrDefault();
             if (testuser == null)
                 return null;
             var userInfo = File.ReadAllLines(testuser);

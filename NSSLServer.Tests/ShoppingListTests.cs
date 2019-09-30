@@ -9,7 +9,7 @@ using static Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 namespace NSSLServer.Tests
 {
     [TestClass]
-    public class ShoppingListTests
+    public class ShoppingListTestClass
     {
         [TestMethod]
         public async Task GetList()
@@ -41,6 +41,14 @@ namespace NSSLServer.Tests
 
             var contributors = await ShoppingListSync.GetContributors(listId);
             var contributor = contributors.Contributors.FirstOrDefault(c => c.UserId != user.Id);
+
+            if (contributor == null)
+            {
+                await AddContributor();
+                contributors = await ShoppingListSync.GetContributors(listId);
+                contributor = contributors.Contributors.FirstOrDefault(c => c.UserId != user.Id);
+            }
+
             IsNotNull(contributor, "No other contributors on this list");
 
             var res = await ShoppingListSync.ChangeRights(listId, contributor.UserId);
@@ -55,6 +63,14 @@ namespace NSSLServer.Tests
 
             var contributors = await ShoppingListSync.GetContributors(listId);
             var contributor = contributors.Contributors.FirstOrDefault(c => c.UserId != user.Id);
+
+            if(contributor == null)
+            {
+                await AddContributor();
+                contributors = await ShoppingListSync.GetContributors(listId);
+                contributor = contributors.Contributors.FirstOrDefault(c => c.UserId != user.Id);
+            }
+
             IsNotNull(contributor, "No other contributors on this list");
 
             var res = await ShoppingListSync.DeleteContributor(listId, contributor.UserId);
@@ -90,6 +106,13 @@ namespace NSSLServer.Tests
 
 
             var list = await ShoppingListSync.GetList(listId);
+
+            if (list.Products.Count < 1)
+            {
+                await AddMultipleProducts(listId);
+                list = await ShoppingListSync.GetList(listId);
+            }
+
             IsNotNull(list.Products);
             IsTrue(list.Products.Count > 0);
 
@@ -124,7 +147,7 @@ namespace NSSLServer.Tests
             (var user, var listId) = await GetUserWithList();
 
 
-            var deleteResult =  await ShoppingListSync.DeleteList(listId);
+            var deleteResult = await ShoppingListSync.DeleteList(listId);
             IsTrue(deleteResult.Success, "List couldn't be deleted");
         }
 
@@ -146,6 +169,13 @@ namespace NSSLServer.Tests
             (var user, var listId) = await GetUserWithList();
 
             var list = await ShoppingListSync.GetList(listId);
+
+            if (list.Products.Count < 1)
+            {
+                await AddMultipleProducts(listId);
+                list = await ShoppingListSync.GetList(listId);
+            }
+
             IsNotNull(list.Products);
             IsTrue(list.Products.Count > 0, "No Products to delete are on the list");
 
@@ -156,15 +186,19 @@ namespace NSSLServer.Tests
 
             list = await ShoppingListSync.GetList(listId);
             IsNotNull(list.Products);
-            IsNull(list.Products.FirstOrDefault(x=>x.ID == id));
+            IsNull(list.Products.FirstOrDefault(x => x.ID == id));
         }
 
         [TestMethod]
         public async Task BatchActionDelete()
         {
             (var user, var listId) = await GetUserWithList();
-            
+
             var list = await ShoppingListSync.GetList(listId);
+            if(list.Products.Count < 2)
+               await AddMultipleProducts(listId);
+            list = await ShoppingListSync.GetList(listId);
+
             IsNotNull(list.Products);
             IsTrue(list.Products.Count > 0, "No Products to delete are on the list");
 
@@ -184,10 +218,13 @@ namespace NSSLServer.Tests
             (var user, var listId) = await GetUserWithList();
 
             var list = await ShoppingListSync.GetList(listId);
+            if (list.Products.Count < 2)
+                await AddMultipleProducts(listId);
+            list = await ShoppingListSync.GetList(listId);
             IsNotNull(list.Products);
             IsTrue(list.Products.Count > 0);
 
-            var change = await ShoppingListSync.ChangeProducts(listId, list.Products.Select(x=>x.ID).ToList(), list.Products.Select(x => 5).ToList());
+            var change = await ShoppingListSync.ChangeProducts(listId, list.Products.Select(x => x.ID).ToList(), list.Products.Select(x => 5).ToList());
             int hash = 0;
             list.Products.ForEach(x => hash += x.ID + x.Amount + 5);
             AreEqual(change.Hash, hash);
@@ -202,6 +239,13 @@ namespace NSSLServer.Tests
             IsNotNull(product);
             AreEqual(product.Gtin, "0000000000000");
             AreEqual(product.Name, "TestProduct");
+        }
+
+        public async Task AddMultipleProducts(int listId)
+        {
+            await ShoppingListSync.AddProduct(listId, "TestProduct", "0000000000000", 1);
+            await ShoppingListSync.AddProduct(listId, "TestProduct2", "0000000000000", 1);
+            await ShoppingListSync.AddProduct(listId, "TestProduct3", "0000000000000", 1);
         }
 
         //[TestMethod]

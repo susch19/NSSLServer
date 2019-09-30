@@ -15,7 +15,7 @@ namespace NSSL.ServerCommunication
     public static class HelperMethods
     {
         #region url
-        public static string url = "https://susch.undo.it";
+        public static string url = "https://nssl.susch.eu";
        // public static string url = "http://192.168.49.28:4344";
 
         #endregion
@@ -55,7 +55,7 @@ namespace NSSL.ServerCommunication
             var wr = WebRequest.CreateHttp(url + "/" + rp);// + "?token=" + Token);
             wr.Headers.Set("X-Token", Token);
             wr.ContentType = "application/json";
-            wr.Accept = "application/json; charset=utf-8";
+            //wr.Accept = "application/json; charset=utf-8";
 
             wr.Method = method;
             return wr;

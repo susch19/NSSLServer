@@ -53,7 +53,6 @@ namespace NSSLServer
             Registry.RegisterTypeToTable<TokenUserId, TokenUserTable>();
             using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
-                var asdasd = await Q.From(TokenUserId.T).FirstOrDefault<TokenUserId>(c.Connection);
                 c.Connection.Close();
             }
             //I like my do Stuff methods :)

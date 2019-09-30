@@ -258,3 +258,15 @@ ModelManifest.xml
 /Publish Win10.bat
 /src/NSSLServer/emailcert
 /NSSLServer.Tests/Features
+/NSSLServer/secretkey
+/NSSLServer/Features/Bla.cs
+/NSSLServer/Features/EdekaDatabaseUpdater.cs
+/NSSLServer/Features/FileModule.cs
+/NSSLServer/appsettings.json
+/NSSLServer/connectionstring
+/NSSLServer/connectionstring_docker
+/NSSLServer/Dockerfile.original
+/NSSLServer/emailcert
+/NSSLServer/firebase.key
+/NSSLServer/NSSLServer - Verknüpfung.lnk
+/NSSLServer/WebRequest.los

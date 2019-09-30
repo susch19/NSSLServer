@@ -22,7 +22,7 @@ namespace NSSLServer.Tests
             Assert.IsNotNull(user.Id);
             Assert.IsNotNull(user.EMail);
             Assert.IsNotNull(user.Username);
-            File.WriteAllLines("test-user_" + now + ".txt", new string[] { user.Id.ToString(), user.EMail, user.Username });
+            File.WriteAllLines("TestUser\\test-user_" + now + ".txt", new string[] { user.Id.ToString(), user.EMail, user.Username });
         }
 
         [TestMethod]
@@ -68,8 +68,8 @@ namespace NSSLServer.Tests
             Assert.IsTrue(JsonWebToken.Decode(user.Token, out NsslSession payload));
 
             Assert.AreEqual(payload.Id, userInfo.Id);
-            if (!File.Exists(userInfo.Username + "_token.txt"))
-                File.WriteAllLines(userInfo.Username + "_token.txt", new string[] { user.Id.ToString(), user.Token, payload.Expires.ToString() });
+            if (!File.Exists("TestUser\\"+ userInfo.Username + "_token.txt"))
+                File.WriteAllLines("TestUser\\" + userInfo.Username + "_token.txt", new string[] { user.Id.ToString(), user.Token, payload.Expires.ToString() });
         }
 
         [TestMethod]
@@ -86,8 +86,8 @@ namespace NSSLServer.Tests
             Assert.IsTrue(JsonWebToken.Decode(user.Token, out NsslSession payload));
 
             Assert.AreEqual(payload.Id, userInfo.Id);
-            if (!File.Exists(userInfo.Username + "_token.txt"))
-                File.WriteAllLines(userInfo.Username + "_token.txt", new string[] { user.Id.ToString(), user.Token, payload.Expires.ToString() });
+            if (!File.Exists("TestUser\\" + userInfo.Username + "_token.txt"))
+                File.WriteAllLines("TestUser\\" + userInfo.Username + "_token.txt", new string[] { user.Id.ToString(), user.Token, payload.Expires.ToString() });
         }
 
         [TestMethod]

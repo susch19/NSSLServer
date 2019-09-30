@@ -59,6 +59,7 @@ namespace Shared
             public int Id { get; set; }
             public int Amount { get; set; }
             public int ListId { get; set; }
+            public DateTime Changed { get; set; }
         }
         public class ChangeListNameResult : Result
         {
@@ -76,6 +77,8 @@ namespace Shared
             public string Gtin { get; set; }
             public int Amount { get; set; }
             public int Id { get; set; }
+            public DateTime Changed { get; set; }
+            public DateTime Created { get; set; }
         }
         public class ListsResult
         {
