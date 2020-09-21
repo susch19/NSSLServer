@@ -5,13 +5,12 @@ VisualStudioVersion = 16.0.28902.138
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65527620-5DCC-4BD5-9D5E-E00E34858168}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		lib\querybuilder\src\Deviax.QueryBuilder.Postgres\bin\Debug\netstandard1.6\Deviax.QueryBuilder.Postgres.dll = lib\querybuilder\src\Deviax.QueryBuilder.Postgres\bin\Debug\netstandard1.6\Deviax.QueryBuilder.Postgres.dll
 		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer", "NSSLServer\NSSLServer.csproj", "{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firebase", "Firebase\Firebase.csproj", "{15D7896D-5D54-4E04-8068-4D209D66681D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviax.QueryBuilder.Postgres", "lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj", "{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}"
 EndProject
@@ -20,6 +19,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Tests", "NSSLServer.Tests\NSSLServer.Tests.csproj", "{6BFA223E-7C44-4622-A103-97869DFEF1D5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Shared", "NSSLServer.Shared\NSSLServer.Shared.csproj", "{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Core", "NSSLServer.Core\NSSLServer.Core.csproj", "{C8E63A3C-124F-428E-896D-D8BE6F57A88F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.EdekaDbUpdater", "NSSLServer.Plugin.EdekaDbUpdater\NSSLServer.Plugin.EdekaDbUpdater.csproj", "{9B9836CD-1ABC-4254-911C-9581C8A08A95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Database", "NSSLServer.Database\NSSLServer.Database.csproj", "{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Plugin.Example", "NSSLServer.Plugin.PasswordReset\NSSLServer.Plugin.Example.csproj", "{A7C017B3-CE45-45FB-B4E0-150776F242AE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -34,10 +41,6 @@ Global
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15D7896D-5D54-4E04-8068-4D209D66681D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15D7896D-5D54-4E04-8068-4D209D66681D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15D7896D-5D54-4E04-8068-4D209D66681D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15D7896D-5D54-4E04-8068-4D209D66681D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,6 +53,22 @@ Global
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

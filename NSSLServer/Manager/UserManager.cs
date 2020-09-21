@@ -10,139 +10,120 @@ using System.Threading.Tasks;
 using static Shared.ResultClasses;
 using System.IO;
 using Deviax.QueryBuilder.ChangeTracking;
+using NSSLServer.Core.Authentication;
 using static NSSLServer.Features.PasswordRecovery;
 
 namespace NSSLServer
 {
     static class UserManager
     {
-        /// <summary>
-        /// WARNING RADIOACTIVE HAZARD
-        /// <para>string = SEKRETKEY</para>
-        /// <seealso cref="SecretKey"/>
-        /// </summary>
-#if true//youareadmin - lookinside
-        #region DO NOT LOOK INSIDE HERE IS NOTHING TOO SEA
-        public static byte[] SecretKey; //VERY VERY SECRET!
-        #endregion  
-#endif
+
         private static string mailUser; 
         private static string mailUserPwd;
 
         public static void ReadLoginInformation()
         {
-            SecretKey = Encoding.UTF8.GetBytes(File.ReadAllText("external/secretkey"));
+           
             mailUser = File.ReadAllLines(@"external/emailcert")[0];
             mailUserPwd = File.ReadAllLines(@"external/emailcert")[1];
         }
 
         public static async Task<CreateResult> CreateUser(string username, string email, string pwdhash)
         {
-            using (var cont = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            using var cont = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
+            var exists = await FindUserByName(cont.Connection, username);
+            if (exists != null)
             {
-                var exists = await FindUserByName(cont.Connection, username);
-                if (exists != null)
-                {
-                    //await ChangePassword(exists.Id, "2", pwdhash);
-                    return new CreateResult { Success = false, Error = "Username already taken" };
-                }
-                exists = await FindUserByEmail(cont.Connection, email);
-                if (exists != null)
-                    return new CreateResult { Success = false, Error = "Email already in use" };
-
-                var minedsalt = GenerateSalt();
-                var saltedpw = Salting(pwdhash, minedsalt);
-                User c = new User(username.TrimEnd(), saltedpw, email.TrimEnd(), minedsalt);
-                await Q.InsertOne(cont.Connection, c);
-
-                cont.Connection.Close();
-                return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
+                //await ChangePassword(exists.Id, "2", pwdhash);
+                return new CreateResult { Success = false, Error = "Username already taken" };
             }
+            exists = await FindUserByEmail(cont.Connection, email);
+            if (exists != null)
+                return new CreateResult { Success = false, Error = "Email already in use" };
+
+            var minedsalt = GenerateSalt();
+            var saltedpw = Salting(pwdhash, minedsalt);
+            User c = new User(username.TrimEnd(), saltedpw, email.TrimEnd(), minedsalt);
+            await Q.InsertOne(cont.Connection, c);
+
+            return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
 
         }
 
         public static async Task<Result> ChangePassword(int id, string o, string n, bool passwordReset = false)
         {
-            using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            using var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
+            var k = await Q.From(User.T).Where(x => x.Id.EqV(id)).FirstOrDefault<User>(c.Connection);// c.Users.FirstOrDefault(x => x.Id == id);
+            if (k.PasswordHash.SequenceEqual(Salting(o, k.Salt)) || passwordReset)
             {
-                var k = await Q.From(User.T).Where(x => x.Id.EqV(id)).FirstOrDefault<User>(c.Connection);// c.Users.FirstOrDefault(x => x.Id == id);
-                if (k.PasswordHash.SequenceEqual(Salting(o, k.Salt)) || passwordReset)
-                {
-                    var ctc = ChangeTrackingContext.StartWith(k);
-                    k.PasswordHash = Salting(n, k.Salt);
-                    await ctc.Commit(c.Connection);
-                }
-                else
-                {
-                    c.Connection.Close();
-                    return new Result { Success = false, Error = "old password was incorrect" };
-                }
-                c.Connection.Close();
-                return new Result { Success = true };
+                var ctc = ChangeTrackingContext.StartWith(k);
+                k.PasswordHash = Salting(n, k.Salt);
+                await ctc.Commit(c.Connection);
             }
+            else
+            {
+                c.Connection.Close();
+                return new Result { Success = false, Error = "old password was incorrect" };
+            }
+            return new Result { Success = true };
         }
 
 
         public static async Task<LoginResult> Login(string username, string email, string passwordhash)
         {
-            using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            using var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
+            User exists = null;
+            if (username != null)
+                exists = await FindUserByName(con.Connection, username);
+            if (exists == null)
             {
-                User exists = null;
-                if (username != null)
-                    exists = await FindUserByName(con.Connection, username);
+                if (email == null)
+                    return new LoginResult { Success = false, Error = "user could not be found" };
+                exists = await FindUserByEmail(con.Connection, email);
                 if (exists == null)
-                {
-                    if (email == null)
-                        return new LoginResult { Success = false, Error = "user could not be found" };
-                    exists = await FindUserByEmail(con.Connection, email);
-                    if (exists == null)
-                        return new LoginResult { Success = false, Error = "user could not be found" };
-                }
-                if (!Salting(passwordhash, exists.Salt).SequenceEqual(exists.PasswordHash))
-                {
-                    con.Connection.Close();
-                    return new LoginResult { Success = false, Error = "password is incorrect" };
-                }
+                    return new LoginResult { Success = false, Error = "user could not be found" };
+            }
+            if (!Salting(passwordhash, exists.Salt).SequenceEqual(exists.PasswordHash))
+            {
+                con.Connection.Close();
+                return new LoginResult { Success = false, Error = "password is incorrect" };
+            }
 
-                var payload = new Dictionary<string, object>()
+            var payload = new Dictionary<string, object>()
                 {
                     { "Expires", DateTime.UtcNow.AddMonths(1) },
                     { "Id", exists.Id},
                     {"Created", DateTime.UtcNow }
                 };
-                con.Connection.Close();
-                return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, SecretKey, JsonWebToken.JwtHashAlgorithm.HS256), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
-
-            }
+            return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, JwtKeyProvider.SecretKey, JsonWebToken.JwtHashAlgorithm.HS256), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
         }
         public static async Task<Result> SendPasswortResetEmail(string email)
         {
-            using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            using var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
+            User exists = null;
+            if (email != null)
+                exists = await FindUserByName(con.Connection, email);
+            if (exists == null)
             {
-                User exists = null;
-                if (email != null)
-                    exists = await FindUserByName(con.Connection, email);
+                exists = await FindUserByEmail(con.Connection, email);
                 if (exists == null)
-                {
-                    exists = await FindUserByEmail(con.Connection, email);
-                    if (exists == null)
-                        return new Result { Success = false, Error = "user could not be found" };
-                }
+                    return new Result { Success = false, Error = "user could not be found" };
+            }
 
-                var sender = new OutlookDotComMail(mailUser, mailUserPwd);
-                var payload = new Dictionary<string, object>()
+            var sender = new OutlookDotComMail(mailUser, mailUserPwd);
+            var payload = new Dictionary<string, object>()
                 {
                     { "Expires", DateTime.UtcNow.AddDays(1) },
                     { "Id", exists.Id },
                     { "Created", DateTime.UtcNow }
                 };
 
-                var token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, SecretKey, JsonWebToken.JwtHashAlgorithm.HS256);
-                var tokenUser = new TokenUserId(token, exists.Id);
-                tokenUser.Timestamp = DateTime.UtcNow;
-                await Q.InsertOne(con.Connection, tokenUser);
-                sender.SendMail(exists.Email, "NSSL Password Reset",
-                    $"Dear {exists.Username},\r\n\r\n" +
+            var token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, JwtKeyProvider.SecretKey, JsonWebToken.JwtHashAlgorithm.HS256);
+            var tokenUser = new TokenUserId(token, exists.Id);
+            tokenUser.Timestamp = DateTime.UtcNow;
+            await Q.InsertOne(con.Connection, tokenUser);
+            sender.SendMail(exists.Email, "NSSL Password Reset",
+                $"Dear {exists.Username},\r\n\r\n" +
 "This email was automatically sent following your request to reset your password.\r\n" +
 "To reset your password, click this link or paste it into your browser's address bar:\r\n" +
 "https://nssl.susch.eu/password/site/reset?token=" + token +
@@ -150,27 +131,23 @@ namespace NSSLServer
 "If you did not forget your password, please ignore this email. Thank you.\r\n\r\n" +
 "Kind Regards,\r\n" +
 "NSSL Team");
-                con.Connection.Close();
-                return new Result { Success = true, Error = "" };
-
-            }
+            return new Result { Success = true, Error = "" };
         }
         public static async Task<Result> ResetPassword(string token, string n)
         {
-            using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
-            {
-                var rpt = await Q.From(TokenUserId.T).Where(x => x.Timestamp.GtV(DateTime.UtcNow.AddDays(-1)).And(x.ResetToken.EqV(token))).FirstOrDefault<TokenUserId>(c.Connection);
+            using var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
+            var rpt = await Q.From(TokenUserId.T).Where(x => x.Timestamp.GtV(DateTime.UtcNow.AddDays(-1)).And(x.ResetToken.EqV(token))).FirstOrDefault<TokenUserId>(c.Connection);
 
-                if (rpt == null)
-                    return new Result { Success = false, Error = "Token Expired or password reset was not requested" };
-                var user = await Q.From(T).Where(x => x.Id.EqV(rpt.UserId)).FirstOrDefault<User>(c.Connection);
-                if (user == null)
-                    return new Result { Success = false, Error = "User for the token doesn't exists anymore" };
-                await ChangePassword(user.Id, "", n, true);
-                await Q.DeleteFrom(TokenUserId.T).Where(x => x.Timestamp.EqV(rpt.Timestamp).And(x.ResetToken.EqV(rpt.ResetToken).And(x.UserId.EqV(rpt.UserId)))).Execute(c.Connection);
+            if (rpt == null)
+                return new Result { Success = false, Error = "Token Expired or password reset was not requested" };
+            var user = await Q.From(T).Where(x => x.Id.EqV(rpt.UserId)).FirstOrDefault<User>(c.Connection);
+            if (user == null)
+                return new Result { Success = false, Error = "User for the token doesn't exists anymore" };
+            await ChangePassword(user.Id, "", n, true);
+            await Q.DeleteFrom(TokenUserId.T).Where(x => x.Timestamp.EqV(rpt.Timestamp).And(x.ResetToken.EqV(rpt.ResetToken).And(x.UserId.EqV(rpt.UserId)))).Execute(c.Connection);
 
-                var sender = new OutlookDotComMail(mailUser, mailUserPwd);
-                sender.SendMail(user.Email, "NSSL Password Reset",
+            var sender = new OutlookDotComMail(mailUser, mailUserPwd);
+            sender.SendMail(user.Email, "NSSL Password Reset",
 $@"Dear {user.Username},
 
 This email was sent to you, because you have successfully changed your password.
@@ -181,9 +158,7 @@ If it wasn't you, than this might be an indicator, that someone has access to yo
 
 Kind Regards,
 NSSL Team");
-                c.Connection.Close();
-                return new Result { Success = true };
-            }
+            return new Result { Success = true };
         }
 
 
@@ -201,8 +176,15 @@ NSSL Team");
             return saltmine;
         }
 
-        public static async Task<User> FindUserByName(DbConnection con, string name) =>
-             await Q.From(T).Where(T.Username.ILike(name)).FirstOrDefault<User>(con);
+        public static async Task<User> FindUserByName(DbConnection con, string name)
+        {
+            //using (var context = new DBContext(con, false))
+            //{
+            //    return context.Users.FirstOrDefault(x => x.Username.ToLower() == name.ToLower());
+            //}
+
+            return await Q.From(T).Where(T.Username.ILike(name)).FirstOrDefault<User>(con);
+        }
 
         public static async Task<User> FindUserByEmail(DbConnection con, string email) =>
              await Q.From(T).Where(T.Email.ILike(email)).FirstOrDefault<User>(con);

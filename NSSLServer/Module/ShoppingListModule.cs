@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
+using NSSLServer.Database;
+using NSSLServer.Database.Attributes;
 using NSSLServer.Models;
 using NSSLServer.Models.DatabaseConnection;
 using System;
@@ -10,7 +13,7 @@ using static Shared.ResultClasses;
 namespace NSSLServer.Features
 {
     [Route("shoppinglists"), WithDbContext]
-    public class ShoppingListModule : AuthenticatingController
+    public class ShoppingListModule : AuthenticatingDbContextController
     {
         //[HttpGet, Route("products/{identifier}")]
         //public async Task<IActionResult> GetProduct(string identifier)
@@ -81,7 +84,7 @@ namespace NSSLServer.Features
         {
             if (listId == 0 || productId == 0 || (!args.Change.HasValue && string.IsNullOrWhiteSpace(args.NewName)))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.HasValue ? args.Change.Value : 0, args.NewName)));
+            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.HasValue ? args.Change.Value : 0, args.Order, args.NewName)));
         }
         
         [HttpPut, Route("{listId}")]
@@ -122,6 +125,7 @@ namespace NSSLServer.Features
             {
                 case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds));
                 case "change": return Json(await ShoppingListManager.ChangeProducts(Context, listId, Session.Id, args.ProductIds, args.Amount));
+                case "order": return Json(await ShoppingListManager.ReorderProducts(Context, listId, Session.Id, args.ProductIds));
                 default: return Json(new Result { Error = "action could not be found", Success = false });
             }
         }
@@ -131,7 +135,7 @@ namespace NSSLServer.Features
         {
             if (listId == 0 || (string.IsNullOrWhiteSpace(args.Gtin) && string.IsNullOrWhiteSpace(args.ProductName)))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.AddProduct(Context, listId, Session.Id, args.ProductName, args.Gtin, args.Amount.Value)));
+            return Json((await ShoppingListManager.AddProduct(Context, listId, Session.Id, args.ProductName, args.Gtin, args.Amount.Value, args.Order)));
         }
     }
 }

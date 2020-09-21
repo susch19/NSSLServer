@@ -1,0 +1,19 @@
+﻿[*.cs]
+
+# HAA0101: Array allocation for params parameter
+dotnet_diagnostic.HAA0101.severity = warning
+
+# HAA0601: Value type to reference type conversion causing boxing allocation
+dotnet_diagnostic.HAA0601.severity = warning
+
+# HAA0401: Possible allocation of reference type enumerator
+dotnet_diagnostic.HAA0401.severity = warning
+
+# HAA0302: Display class allocation to capture closure
+dotnet_diagnostic.HAA0302.severity = warning
+
+# HAA0301: Closure Allocation Source
+dotnet_diagnostic.HAA0301.severity = warning
+
+# HAA0303: Lambda or anonymous method in a generic method allocates a delegate instance
+dotnet_diagnostic.HAA0303.severity = warning

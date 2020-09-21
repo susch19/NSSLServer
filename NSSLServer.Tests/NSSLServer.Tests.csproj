@@ -72,10 +72,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj">
-      <Project>{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}</Project>
-      <Name>Deviax.QueryBuilder.Postgres</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj">
       <Project>{4d8cbdaa-c18b-4700-b6fc-abdc1e4d423b}</Project>
       <Name>NSSLServer.Shared</Name>

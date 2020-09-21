@@ -1,14 +1,9 @@
-﻿using Deviax.QueryBuilder;
-using Deviax.QueryBuilder.Parts;
-using NSSLServer.Models;
-using NSSLServer.Models.DatabaseConnection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace NSSLServer.Sources
+namespace NSSLServer.Database
 {
     public static class PagedExt
     {
@@ -47,5 +42,4 @@ namespace NSSLServer.Sources
 
         public Paged() { }
     }
-
 }

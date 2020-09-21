@@ -1,10 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+
 using Deviax.QueryBuilder;
 using Deviax.QueryBuilder.ChangeTracking;
 using Deviax.QueryBuilder.Parts;
+
 using NSSLServer.Models;
+
 using static Shared.ResultClasses;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -43,7 +49,6 @@ namespace NSSLServer
                 return list;
             }
         }
-
 
         public static async Task<Result> ChangeRights(DBContext c, int listId, int requesterId, int changeUserId)
         {
@@ -108,12 +113,8 @@ namespace NSSLServer
             items = await Q.From(ListItem.T).Where(li => li.ListId.EqV(listId), li => li.Amount.NeqV(0)).ToList<ListItem>(c.Connection);
 
 
-            FirebaseCloudMessaging.fcm.TopicMessage<object>($"{contributor.Username}userTopic", null,
-                     notification: new Firebase.Models.Notification { Title = "You were added to the list " + list.Name },
-                     priority: Firebase.Priority.normal);
-            FirebaseCloudMessaging.fcm.TopicMessage($"{contributor.Username}userTopic",
-                    new { userId, listId, list.Name, items },
-                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{contributor.Username}userTopic", "You were added to the list " + list.Name, null);
+            FirebaseCloudMessaging.TopicMessage($"{contributor.Username}userTopic", new { userId, listId, list.Name, items });
 
             return new AddContributorResult { Success = true, Id = contributor.Id, Name = contributor.Username };
         }
@@ -143,12 +144,18 @@ namespace NSSLServer
             };
         }
 
-        public static async Task<ChangeListItemResult> ChangeProduct(DBContext c, int listId, int userId, int productId, int change, string newName)
+        public static async Task<ChangeListItemResult> ChangeProduct(DBContext c, int listId, int userId, int productId, int change, int? order, string newName)
         {
-            var cont = await Q.From(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
-            if (cont == null)
-                return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
-            var product = await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId), x => x.Id.EqV(productId)).FirstOrDefault<ListItem>(c.Connection);
+            //var cont = await Q.From(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
+            //if (cont == null)
+            //    return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
+            var query = Q.From(ListItem.T)
+                .InnerJoin(Contributor.T)
+                .On((l, c) => l.ListId.Eq(c.ListId))
+                .Where((l, c) => l.Id.EqV(productId), (l, c) => l.ListId.EqV(listId), (l, c) => c.UserId.EqV(userId))
+                .Select((l, c) => new RawSql(l.TableAlias + ".*"));
+            var product = await query
+                .FirstOrDefault<ListItem>(c.Connection);
             if (product == null)
                 return new ChangeListItemResult { Success = false, Error = "Product not found" };
 
@@ -162,9 +169,7 @@ namespace NSSLServer
                     product.BoughtAmount = product.Amount;
                     product.Amount = 0;
                     action = "ItemDeleted";
-                    FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                                            new { userId, listId, product.Id, action },
-                                            priority: Firebase.Priority.normal);
+                    FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, action });
                 }
                 else
                 {
@@ -173,28 +178,26 @@ namespace NSSLServer
                     if (product.Amount - change == 0)
                     {
                         action = "NewItemAdded";
-                        FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                                new { userId, listId, product.Id, product.Amount, product.Name, action },
-                                priority: Firebase.Priority.normal);
+                        FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, product.Amount, product.Name, product.SortOrder, action });
                     }
                     else
                     {
                         action = "ItemChanged";
-                        FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                                new { userId, listId, product.Id, product.Amount, action },
-                                priority: Firebase.Priority.normal);
+                        FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, product.Amount, product.SortOrder, action });
                     }
-
                 }
             }
             if (!string.IsNullOrWhiteSpace(newName))
             {
                 product.Name = newName;
                 action = "ItemRenamed";
-                FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                        new { userId, listId, product.Id, product.Name, action },
-                        priority: Firebase.Priority.normal);
-
+                FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, product.Name, action });
+            }
+            if (order.HasValue)
+            {
+                product.SortOrder = order.Value;
+                action = "OrderChanged";
+                FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, product.SortOrder, action });
             }
             await ctc.Commit(c.Connection);
             return new ChangeListItemResult
@@ -203,8 +206,9 @@ namespace NSSLServer
                 Id = product.Id,
                 Name = product.Name,
                 Amount = product.Amount,
+                Order = product.SortOrder,
                 Changed = product.Changed,
-                ListId = listId
+                ListId = product.ListId
             };
         }
 
@@ -242,9 +246,40 @@ namespace NSSLServer
             }
             await ctc.Commit(c.Connection);
             string action = "Refresh";
-            FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                    new { userId, listId, action },
-                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action });
+
+            if (notFoundIds.Count == 0)
+                return new HashResult { Success = true, Hash = hash };
+            else
+                return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
+        }
+
+        public static async Task<Result> ReorderProducts(DBContext c, int listId, int userId, List<int> productIds)
+        {
+            var products = await Q.From(ListItem.T).InnerJoin(Contributor.T).On((x, y) => x.ListId.Eq(y.ListId))
+               .Where((a, s) => a.ListId.EqV(listId), (a, s) => s.UserId.EqV(userId)).Select((x,y)=>new RawSql(x.TableAlias + ".*")).ToList<ListItem>(c.Connection);
+            if (products == null)
+                return new Result { Success = false, Error = "User is not allowed to access this list" };
+
+            var notFoundIds = new List<int>();
+            int hash = 0;
+            var ctc = new ChangeTrackingContext();
+            for (int i = 1; i <= productIds.Count; i++)
+            {
+                var id = productIds[i-1];
+                var product = products.FirstOrDefault(x => x.Id == id);
+                if (product == null)
+                    notFoundIds.Add(id);
+                else
+                {
+                    ctc.Track(product);
+                    product.SortOrder = i;
+                    hash += product.Id * i;
+                }
+            }
+            await ctc.Commit(c.Connection);
+            string action = "Refresh";
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action });
 
             if (notFoundIds.Count == 0)
                 return new HashResult { Success = true, Hash = hash };
@@ -263,9 +298,7 @@ namespace NSSLServer
             var listId = list.Id;
 
             string action = "ListRename";
-            FirebaseCloudMessaging.fcm.TopicMessage($"{list.Id}shoppingListTopic",
-                    new { userId, listId, list.Name, action },
-                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{list.Id}shoppingListTopic", new { userId, listId, list.Name, action });
 
             await ctc.Commit(c.Connection);
             return new ChangeListNameResult { Success = true, ListId = list.Id, Name = list.Name };
@@ -290,12 +323,11 @@ namespace NSSLServer
             }
             else
             {
-                await Q.DeleteFrom(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).Execute(c.Connection);
+                //Q.Create(Contributor.T).Column(x => x.Permission).Type("asd");
+                //await Q.DeleteFrom(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).Execute(c.Connection);
             }
 
-            FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                    new { userId, listId },
-                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId });
             return new Result { Success = true };
         }
 
@@ -326,9 +358,7 @@ namespace NSSLServer
             p.BoughtAmount = p.Amount;
             p.Amount = 0;
             string action = "ItemDeleted";
-            FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                                    new { userId, listId, p.Id, action },
-                                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, p.Id, action });
             await ctc.Commit(c.Connection);
             return new Result { Success = true };
         }
@@ -357,28 +387,30 @@ namespace NSSLServer
             await ctc.Commit(c.Connection);
 
             string action = "Refresh";
-            FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                    new { userId, listId, action },
-                    priority: Firebase.Priority.normal);
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action });
             if (notFoundIds.Count == 0)
                 return new Result { Success = true };
             else
                 return new DeleteProductsResult { Success = true, Error = "Some Products could not be found in the Database", productIds = notFoundIds };
         }
 
-        public static async Task<AddListItemResult> AddProduct(DBContext c, int listId, int userId, string name, string gtin, int amount)
+
+        public static async Task<AddListItemResult> AddProduct(DBContext c, int listId, int userId, string name, string gtin, int amount, int? order)
         {
             var cont = await Q.From(Contributor.T).Where(a => a.ListId.EqV(listId), a => a.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
             if (cont == null)
                 return new AddListItemResult { Success = false, Error = "You are not a contributor" };
-            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId };
+
+            if (!order.HasValue)
+                order = (int)(await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId)).Select(x => Q.Count(x.Id)).FirstOrDefault<DbFunctionModel>(c.Connection)).Count +1;
+
+            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId, SortOrder = order.Value, Created = DateTime.Now };
             await Q.InsertOne(c.Connection, li);
             //TODO Same name and same gtin <-- WTF?
 
             string action = "NewItemAdded";
-            FirebaseCloudMessaging.fcm.TopicMessage($"{listId}shoppingListTopic",
-                    new { userId, listId, li.Id, li.Name, li.Gtin, li.Amount, action },
-                    priority: Firebase.Priority.normal);
+
+            FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, li.Id, li.Name, li.Gtin, li.Amount, li.SortOrder, action });
             return new AddListItemResult { Success = true, Gtin = li.Gtin, Name = name, ProductId = li.Id };
         }
 
@@ -406,6 +438,7 @@ namespace NSSLServer
                     Gtin = x?.Gtin,
                     Id = x.Id,
                     Name = x.Name,
+                    Order = x.SortOrder,
                     Changed = x.Changed,
                     Created = x.Created
                 }).ToList();

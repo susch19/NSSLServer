@@ -17,6 +17,7 @@ namespace NSSLServer
       //[Column("quantity")]
         public int Amount { get; set; }
         public int BoughtAmount { get; set; }
+        public int SortOrder { get; set; }
         public DateTime Changed { get; set; }
         public DateTime Created { get; set; }
 
@@ -30,7 +31,7 @@ namespace NSSLServer
         //    Name = name;
         //    Amount = amount;
         //}
-        public static ListItemTable T = new ListItemTable();
+        public static ListItemTable T = new ListItemTable("listitemtable");
         [PrimaryKey(nameof(Id))]
         public class ListItemTable : Table<ListItemTable>
         {
@@ -40,6 +41,7 @@ namespace NSSLServer
             public Field ListId;
             public Field Amount;
             public Field BoughtAmount;
+            public Field SortOrder;
             public Field Changed;
             public Field Created;
 
@@ -51,6 +53,7 @@ namespace NSSLServer
                 ListId = F("list_id");
                 Amount = F("amount");
                 BoughtAmount = F("bought_amount");
+                SortOrder = F("sort_order");
                 Changed = F("changed");
                 Created = F("created");
             }

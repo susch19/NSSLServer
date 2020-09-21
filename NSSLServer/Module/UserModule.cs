@@ -7,11 +7,13 @@ using Deviax.QueryBuilder;
 using NSSLServer.Models;
 using System.Net;
 using System;
+using NSSLServer.Database.Attributes;
+using NSSLServer.Database;
 
 namespace NSSLServer.Module
 {
     [Route("users")]
-    public class UserModule : AuthenticatingController
+    public class UserModule : AuthenticatingDbContextController
     {
         private List<string> unauthorizedEndpoints = new List<string> { "/users/create", "/users/login" };
 
@@ -59,29 +61,7 @@ namespace NSSLServer.Module
         }
     }
 
-    [Route("test")]
-    public class TestController : BaseController
-    {
-        [HttpPost, HttpPut]
-        public async Task<IActionResult> Create([FromBody]Rootobject args)
-        {
-            var a = args;
-            return null;
-        }
-      
-        public class Rootobject
-        {
-            public Datum[] data { get; set; }
-        }
-
-        public class Datum
-        {
-            public string from_id { get; set; }
-            public string to_id { get; set; }
-            public DateTime followed_at { get; set; }
-        }
-    }
-
+   
     [Route("password")]
     public class ResetPassword : BaseController
     {

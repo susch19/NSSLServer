@@ -32,6 +32,7 @@ namespace Shared
         {
             public int? Change { get; set; }
             public string NewName { get; set; }
+            public int? Order { get; set; }
         }
         public class ChangeListNameArgs
         {
@@ -51,6 +52,7 @@ namespace Shared
             public string ProductName { get; set; }
             public string Gtin { get; set; }
             public int? Amount { get; set; }
+            public int? Order { get; set; }
         }
         public class AddNewProductArgs
         {

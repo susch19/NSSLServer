@@ -2,10 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
 using Npgsql;
+
+using NSSLServer.Core.Authentication;
 using NSSLServer.Shared;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -15,22 +20,6 @@ using System.Threading.Tasks;
 
 namespace NSSLServer
 {
-
-    public class NsslEnvironment
-    {
-        public static string ConnectionString = File.ReadAllText("external/connectionstring") + "Connection Idle Lifetime=5;Maximum Pool Size=1024"; 
-
-        public static async Task<DbConnection> OpenConnectionAsync()
-        { 
-                        
-            var con = new NpgsqlConnection(ConnectionString);
-            await con.OpenAsync();//..ConfigureAwait(false);
-            
-            return con;
-        }
-    }
-
-
     [ExtractJwtSessionFilter]
     public class BaseController : ControllerBase
     {
@@ -46,13 +35,8 @@ namespace NSSLServer
 
         protected JsonResult Json<T>(T obj) where T : class
         {
-            
             return new JsonResult(obj, DefaultJsonSettings);
         }
-
-        public DBContext Context;
-
-       
     }
 
 
@@ -91,7 +75,7 @@ namespace NSSLServer
 
         static ExtractJwtSessionFilterAttribute()
         {
-            JwtKeyBytes = UserManager.SecretKey;
+            JwtKeyBytes = JwtKeyProvider.SecretKey;
         }
 
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
@@ -118,7 +102,7 @@ namespace NSSLServer
 
     public class AuthRequiredAttribute : Attribute, IAsyncActionFilter
     {
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var session = ExtractJwtSessionFilterAttribute.FromItems(context.HttpContext);
 
@@ -134,21 +118,7 @@ namespace NSSLServer
         }
     }
 
-    public class WithDbContextAttribute : Attribute, IAsyncActionFilter
-    {
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
 
-            var controller = (BaseController)context.Controller;
-            using (controller.Context = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
-            {
-                await next.Invoke();
-                controller.Context.Connection.Close(); 
-            }
-            
-            //await controller.Context.SaveChangesAsync();
-        }
-    }
 
     [AuthRequired]
     public class AuthenticatingController : BaseController
