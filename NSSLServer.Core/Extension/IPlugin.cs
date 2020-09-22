@@ -16,6 +16,6 @@ namespace NSSLServer.Core.Extension
     {
         public string Name { get; }
 
-        bool Initialize();
+        bool Initialize(NLog.LogFactory logFactory);
     }
 }

@@ -34,13 +34,13 @@ namespace NSSLServer
         //dotnet publish -r ubuntu.16.04-arm
         public static void Main(string[] args)
         {
-            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            var logFactory = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config");
             System.Threading.ThreadPool.SetMaxThreads(500, 500);
             Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             PluginLoader = new PluginLoader();
-
+            
             PluginLoader.LoadAssemblies();
-            PluginLoader.InitializePlugins();
+            PluginLoader.InitializePlugins(logFactory);
 
             var host = new WebHostBuilder()
                 .UseKestrel()

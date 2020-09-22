@@ -12,9 +12,9 @@ namespace NSSLServer.Plugin.Example
 
         public string Name { get; }
 
-        public bool Initialize()
+        public bool Initialize(LogFactory factory)
         {
-            logger = LogManager.GetLogger(nameof(ExamplePlugin));
+            logger = factory.GetCurrentClassLogger();
             return true;
         }
 

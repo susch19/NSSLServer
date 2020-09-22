@@ -6,7 +6,6 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-using Npgsql;
 
 using NSSLServer.Core.Authentication;
 using NSSLServer.Shared;

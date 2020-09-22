@@ -55,11 +55,11 @@ namespace NSSLServer.Features
             }
         }
 
-        public void InitializePlugins()
+        public void InitializePlugins(LogFactory logFactory)
         {
             foreach (var plugin in plugins)
             {
-                if (!plugin.Initialize())
+                if (!plugin.Initialize(logFactory))
                     logger.Warn($"Plugin {plugin.Name} had errors in initialization :(");
             }
 
