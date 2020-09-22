@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using Shared;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,11 +16,9 @@ namespace NSSL.ServerCommunication
 {
     public static class HelperMethods
     {
-        #region url
-        public static string url = "https://nssl.susch.eu";
-       // public static string url = "http://192.168.49.28:4344";
+        //public static string url = "https://nssl.susch.eu";
+        public static string url = "http://localhost:4344";
 
-        #endregion
         public static string Token;
 
 

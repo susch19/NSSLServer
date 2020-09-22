@@ -15,4 +15,8 @@
     <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\" />
+  </ItemGroup>
+
 </Project>

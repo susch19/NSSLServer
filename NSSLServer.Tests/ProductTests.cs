@@ -16,14 +16,14 @@ namespace NSSLServer.Tests
         {
             (var user, var listId) = await GetUserWithList();
 
-            var product = await ProductSync.GetProduct("4018077669897");
+            var product = await ProductSync.GetProduct("0000000000000");
             IsNotNull(product);
             IsTrue(product.Success);
 
-            AreEqual(product.Gtin, "4018077669897");
-            AreEqual(product.Quantity, 175);
-            AreEqual(product.Unit, "g");
-            AreEqual(product.Name, "Crunchips Western Style 175g");
+            AreEqual(product.Gtin, "0000000000000");
+            AreEqual(product.Quantity, 123);
+            AreEqual(product.Unit, "T");
+            AreEqual(product.Name, "!!!TESTPRODUCT!!!");
         }
 
         [TestMethod]
@@ -31,10 +31,10 @@ namespace NSSLServer.Tests
         {
             (var user, var listId) = await GetUserWithList();
 
-            var productsPage1 = await ProductSync.GetProducts("Chips", 1);
+            var productsPage1 = await ProductSync.GetProducts("!!!TESTPRODUCT!!!", 1);
             IsTrue(productsPage1.Count > 0);
             
-            var productsPage2 = await ProductSync.GetProducts("Chips", 2);
+            var productsPage2 = await ProductSync.GetProducts("!!!TESTPRODUCT!!!", 2);
             AreNotEqual(productsPage1, productsPage2);
         }
 
@@ -46,6 +46,7 @@ namespace NSSLServer.Tests
             var newProduct = await ProductSync.AddNewProduct("0000000000000", "!!!TESTPRODUCT!!!");
             IsTrue(newProduct.Success);
         }
+
 
         public async Task<(User user, int listId)> GetUserWithList(bool withToken = true)
         {

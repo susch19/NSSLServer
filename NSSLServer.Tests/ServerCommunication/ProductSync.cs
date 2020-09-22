@@ -21,6 +21,6 @@ namespace NSSLServer.Tests.ServerCommunication
         => await GetAsync<List<Product>>($"{path}/{name}?page={page}");
 
         public static async Task<Result> AddNewProduct(string gtin, string name)
-        => await PostAsync<Result>($"{path}/", new AddNewProductArgs { Gtin = gtin, Name = name });
+        => await PostAsync<Result>($"{path}/", new AddNewProductArgs { Gtin = gtin, Name = name, Quantity=123, Unit="T" });
     }
 }

@@ -16,17 +16,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviax.QueryBuilder.Postgre
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Deviax.QueryBuilder.Shared", "lib\querybuilder\src\Deviax.QueryBuilder.Shared\Deviax.QueryBuilder.Shared.shproj", "{F0A3737D-FE0B-4301-A968-E7EA3755818F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Tests", "NSSLServer.Tests\NSSLServer.Tests.csproj", "{6BFA223E-7C44-4622-A103-97869DFEF1D5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Shared", "NSSLServer.Shared\NSSLServer.Shared.csproj", "{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Core", "NSSLServer.Core\NSSLServer.Core.csproj", "{C8E63A3C-124F-428E-896D-D8BE6F57A88F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.EdekaDbUpdater", "NSSLServer.Plugin.EdekaDbUpdater\NSSLServer.Plugin.EdekaDbUpdater.csproj", "{9B9836CD-1ABC-4254-911C-9581C8A08A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Database", "NSSLServer.Database\NSSLServer.Database.csproj", "{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Database", "NSSLServer.Database\NSSLServer.Database.csproj", "{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Example", "NSSLServer.Plugin.PasswordReset\NSSLServer.Plugin.Example.csproj", "{A7C017B3-CE45-45FB-B4E0-150776F242AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Plugin.Example", "NSSLServer.Plugin.PasswordReset\NSSLServer.Plugin.Example.csproj", "{A7C017B3-CE45-45FB-B4E0-150776F242AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Tests", "NSSLServer.Tests\NSSLServer.Tests.csproj", "{A27AB456-62D8-4A1E-A80F-3B8D4C7642C2}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -45,10 +43,6 @@ Global
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B48EEFE-C8C8-48F3-A367-5EDEC71A892B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BFA223E-7C44-4622-A103-97869DFEF1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BFA223E-7C44-4622-A103-97869DFEF1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BFA223E-7C44-4622-A103-97869DFEF1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BFA223E-7C44-4622-A103-97869DFEF1D5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D8CBDAA-C18B-4700-B6FC-ABDC1E4D423B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,10 +51,6 @@ Global
 		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8E63A3C-124F-428E-896D-D8BE6F57A88F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B9836CD-1ABC-4254-911C-9581C8A08A95}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AA6E090-4F12-46AD-AC31-F39C3E8C6958}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,6 +59,10 @@ Global
 		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7C017B3-CE45-45FB-B4E0-150776F242AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A27AB456-62D8-4A1E-A80F-3B8D4C7642C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A27AB456-62D8-4A1E-A80F-3B8D4C7642C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A27AB456-62D8-4A1E-A80F-3B8D4C7642C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A27AB456-62D8-4A1E-A80F-3B8D4C7642C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

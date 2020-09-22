@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace NSSLServer.Database
 {
     [WithDbContext]
-    public class AuthenticatingDbContextController : AuthenticatingController
+    [AuthRequired]
+    public class AuthenticatingDbContextController : BaseDbContextController
     {
 
-        public DBContext Context { get; set; }
     }
 
     [WithDbContext]

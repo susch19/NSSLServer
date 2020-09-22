@@ -1,1 +1,0 @@
-<Playlist Version="1.0"><Add Test="NSSLServer.Tests.UserTests.CreateUser" /><Add Test="NSSLServer.Tests.UserTests.LoginEmail" /><Add Test="NSSLServer.Tests.UserTests.LoginUsername" /><Add Test="NSSLServer.Tests.UserTests.Info" /></Playlist>

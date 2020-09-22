@@ -9,7 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ExampleUpdater_Scripts\1.0.0.001.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ExampleUpdater_Scripts\1.0.0.001.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
   </ItemGroup>
 
 </Project>

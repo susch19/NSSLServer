@@ -17,12 +17,24 @@ namespace NSSLServer.Tests
         {
             var now = DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
             now = now.Replace(':', '-');
-            var user = UserSync.Create("test-user_" + now, "test-user_" + now + "@testmail.testmail", "123456").Result;
+            var user = await UserSync.Create("test-user_" + now, "test-user_" + now + "@testmail.testmail", "123456");
             Assert.IsTrue(user.Success);
             Assert.IsNotNull(user.Id);
             Assert.IsNotNull(user.EMail);
             Assert.IsNotNull(user.Username);
             File.WriteAllLines("TestUser\\test-user_" + now + ".txt", new string[] { user.Id.ToString(), user.EMail, user.Username });
+        }
+
+        [TestMethod]
+        public async Task CreateTestContributor()
+        {
+            var now = DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
+            now = now.Replace(':', '-');
+            var user = await UserSync.Create("test-user_03.02.2018_13-11", "test-user_03.02.2018_13-11@testmail.testmail", "123456");
+            Assert.IsTrue(user.Success);
+            Assert.IsNotNull(user.Id);
+            Assert.IsNotNull(user.EMail);
+            Assert.IsNotNull(user.Username);
         }
 
         [TestMethod]

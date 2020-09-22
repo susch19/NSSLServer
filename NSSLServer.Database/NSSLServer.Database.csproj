@@ -5,6 +5,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.1.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.2.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.3.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.4.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.5.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.6.sql" />
+    <None Remove="Updater\FrameworkDbUpdater_Scripts\1.0.0.7.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Updater\FrameworkDbUpdater_Scripts\1.0.0.1.sql" />
+    <EmbeddedResource Include="Updater\FrameworkDbUpdater_Scripts\1.0.0.2.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.1.20451.13" />
     <PackageReference Include="Npgsql" Version="5.0.0-alpha1" />

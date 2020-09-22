@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using NLog.Web;
+using System.Reflection;
 
 namespace NSSLServer
 {
@@ -32,15 +33,16 @@ namespace NSSLServer
 
         //dotnet restore
         //dotnet publish -r ubuntu.16.04-arm
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var logFactory = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config");
             System.Threading.ThreadPool.SetMaxThreads(500, 500);
             Deviax.QueryBuilder.QueryExecutor.DefaultExecutor = new Deviax.QueryBuilder.PostgresExecutor();
             PluginLoader = new PluginLoader();
-            
             PluginLoader.LoadAssemblies();
             PluginLoader.InitializePlugins(logFactory);
+            await PluginLoader.RunDbUpdates();
+
 
             var host = new WebHostBuilder()
                 .UseKestrel()
@@ -69,24 +71,17 @@ namespace NSSLServer
         {
             FirebaseApp.Create(new AppOptions { Credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromFile("external/service_account.json")});
 
-            Registry.RegisterTypeToTable<Product, ProductsTable>();
-            Registry.RegisterTypeToTable<GtinEntry, GtinsTable>();
-            Registry.RegisterTypeToTable<ProductsGtins, ProductsGtinsTable>();
-            Registry.RegisterTypeToTable<ListItem, ListItemTable>();
-            Registry.RegisterTypeToTable<Contributor, ContributorTable>();
-            Registry.RegisterTypeToTable<User, UserTable>();
-            Registry.RegisterTypeToTable<ShoppingList, ShoppingListTable>();
-            Registry.RegisterTypeToTable<TokenUserId, TokenUserTable>();
-            using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
-            {
-                c.Connection.Close();
-                var asd = Q.From(ShoppingList.T).InnerJoin(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).ToList<ListItem>(c.Connection);
-                //var query = Q.Create(ShoppingList.T)
-                //    .Column(x => x.Id).Type("int").Null()
-                //    .FK(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).On((x, y) => x.Name.Eq(y.Name))
-                //    .Column(x => x.Name).Type("varchar(199)").NotNull()
-                //    .Execute(c.Connection);
-            }
+    
+            //using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
+            //{
+            //    c.Connection.Close();
+            //    var asd = Q.From(ShoppingList.T).InnerJoin(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).ToList<ListItem>(c.Connection);
+            //    //var query = Q.Create(ShoppingList.T)
+            //    //    .Column(x => x.Id).Type("int").Null()
+            //    //    .FK(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).On((x, y) => x.Name.Eq(y.Name))
+            //    //    .Column(x => x.Name).Type("varchar(199)").NotNull()
+            //    //    .Execute(c.Connection);
+            //}
             //I like my do Stuff methods :)
 
       

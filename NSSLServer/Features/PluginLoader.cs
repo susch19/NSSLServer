@@ -4,6 +4,7 @@ using NLog;
 
 using NSSLServer.Core.Extension;
 using NSSLServer.Core.HelperMethods;
+using NSSLServer.Database.Updater;
 
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace NSSLServer.Features
     public class PluginLoader
     {
         public List<Type> ControllerTypes { get; } = new List<Type>();
+        public List<IDbUpdater> DbUpdater { get; } = new List<IDbUpdater>();
 
         private List<IPlugin> plugins = new List<IPlugin>();
         private ILogger logger = LogManager.GetLogger(nameof(PluginLoader));
@@ -25,17 +27,48 @@ namespace NSSLServer.Features
         internal void LoadPlugins(Assembly ass)
         {
             var allOfThemTypes = ass.GetTypes();
-
+            var updaterLoadTasks = new List<Task>();
             foreach (var type in allOfThemTypes)
             {
-                if (typeof(IPlugin).IsAssignableFrom(type))
+                if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
                 {
                     logger.Info($"Loading Plugin {type.Name} from Assembly {ass.FullName}");
                     plugins.Add(PluginCreator<IPlugin>.GetInstance(type));
                 }
-                if (typeof(BaseController).IsAssignableFrom(type))
+                else if (typeof(BaseController).IsAssignableFrom(type))
                 {
                     ControllerTypes.Add(type);
+                }
+                else if (typeof(IDbUpdater).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                {
+                    var updater = PluginCreator<IDbUpdater>.GetInstance(type);
+                    DbUpdater.Add(updater);
+                    updater.LoadDesiredVersion();
+                    updaterLoadTasks.Add(updater.LoadCurrentVersion());
+                    updater.RegisterTypes();
+                }
+            }
+            foreach (var loadTasks in updaterLoadTasks)
+            {
+                if (!loadTasks.IsCompleted)
+                {
+                    loadTasks.Wait();
+                    loadTasks.Dispose();
+                }
+            }
+
+        }
+
+        internal async Task RunDbUpdates()
+        {
+            foreach (var updater in DbUpdater.OrderBy(x => x.Priority))
+            {
+                try
+                {
+                    await updater.RunUpdates();
+                }
+                catch (Exception ex)
+                {
                 }
             }
         }
