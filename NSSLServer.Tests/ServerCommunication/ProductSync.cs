@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using static NSSL.ServerCommunication.HelperMethods;
-using static Shared.ResultClasses;
-using static Shared.RequestClasses;
 using NSSL.Models;
+using static NSSLServer.Shared.ResultClasses;
+using static NSSLServer.Shared.RequestClasses;
 
 namespace NSSLServer.Tests.ServerCommunication
 {

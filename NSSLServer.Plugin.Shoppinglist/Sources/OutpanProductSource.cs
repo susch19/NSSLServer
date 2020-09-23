@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Shared;
 using NSSLServer.Database;
 
 namespace NSSLServer.Plugin.Shoppinglist.Sources

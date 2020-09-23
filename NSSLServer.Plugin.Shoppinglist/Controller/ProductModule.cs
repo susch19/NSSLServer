@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using NSSLServer.Models.DatabaseConnection;
 using Microsoft.AspNetCore.Mvc;
-using static Shared.RequestClasses;
 using NSSLServer.Plugin.Shoppinglist.Manager;
+using static NSSLServer.Shared.RequestClasses;
 
 namespace NSSLServer.Plugin.Shoppinglist.Controller
 {

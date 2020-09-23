@@ -3,7 +3,6 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSSLServer.Tests.ServerCommunication;
 using NSSLServer.Shared;
-using Shared;
 using NSSL.Models;
 using System.Threading.Tasks;
 

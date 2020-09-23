@@ -6,7 +6,8 @@
     <AssemblyName>NSSLServer</AssemblyName>
     <OutputType>Exe</OutputType>
     <DebugType>portable</DebugType>
-    <PackageId>NSSLServer</PackageId>
+    <PackageId>NSSLServer.Runtime</PackageId>
+    <description>The runtime for hosting a nssl server. Loads plugins and additional controllers.</description>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj" />
     <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
     <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
     <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />

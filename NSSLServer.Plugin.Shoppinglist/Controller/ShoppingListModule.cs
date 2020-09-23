@@ -10,9 +10,9 @@ using NSSLServer.Plugin.Userhandling.Manager;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using static Shared.RequestClasses;
-using static Shared.ResultClasses;
 
+using static NSSLServer.Shared.RequestClasses;
+using static NSSLServer.Shared.ResultClasses;
 
 namespace NSSLServer.Plugin.Shoppinglist.Controller
 {

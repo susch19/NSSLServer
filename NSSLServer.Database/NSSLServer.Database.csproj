@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <PackageId>NSSLServer.Database</PackageId>
+    <description>For creating a nssl server plugin, which uses the database.</description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,11 +26,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.1.20451.13" />
     <PackageReference Include="Npgsql" Version="5.0.0-alpha1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0-rc1" />
+    <PackageReference Include="NSSL.Deviax.QueryBuilder.Postgres" Version="0.2.1.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\querybuilder\src\Deviax.QueryBuilder.Postgres\Deviax.QueryBuilder.Postgres.csproj" />
     <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
   </ItemGroup>
+
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
 
 </Project>

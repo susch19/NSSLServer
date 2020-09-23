@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Shared
+namespace NSSLServer.Shared
 {
     /// <summary>
     /// Provides methods for encoding and decoding JSON Web Tokens.

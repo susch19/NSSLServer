@@ -7,11 +7,11 @@ using static NSSLServer.Models.User;
 using NSSLServer.Models;
 using System.Data.Common;
 using System.Threading.Tasks;
-using static Shared.ResultClasses;
 using System.IO;
 using Deviax.QueryBuilder.ChangeTracking;
 using NSSLServer.Core.Authentication;
 using static NSSLServer.Plugin.Userhandling.Manager.PasswordRecovery;
+using static NSSLServer.Shared.ResultClasses;
 
 namespace NSSLServer.Plugin.Userhandling.Manager
 {

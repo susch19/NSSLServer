@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using static Shared.RequestClasses;
-using static Shared.ResultClasses;
+using static NSSLServer.Shared.RequestClasses;
+using static NSSLServer.Shared.ResultClasses;
 using Microsoft.AspNetCore.Mvc;
 using Deviax.QueryBuilder;
 using NSSLServer.Models;

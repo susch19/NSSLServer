@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared
+namespace NSSLServer.Shared
 {
     public class RequestClasses
     {

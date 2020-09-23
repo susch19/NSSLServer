@@ -8,7 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static Shared.ResultClasses;
+
+using static NSSLServer.Shared.ResultClasses;
 
 namespace NSSLServer.Plugin.Shoppinglist.Manager
 {

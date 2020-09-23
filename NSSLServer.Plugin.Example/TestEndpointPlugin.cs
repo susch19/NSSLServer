@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using static Shared.ResultClasses;
 
 namespace NSSLServer.Plugin.Example
 {

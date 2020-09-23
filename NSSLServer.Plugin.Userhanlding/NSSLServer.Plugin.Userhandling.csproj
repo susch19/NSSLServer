@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <PackageId>NSSLServer.Plugin.Userhandling</PackageId>
+    <description>Extension Plugin for nssl server for user handling functionality.</description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,4 +22,6 @@
     <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(NsslServer)\bin\net5.0\NSSLServer.Plugin.Userhandling.dll&quot;" />
   </Target>
 
+
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
 </Project>

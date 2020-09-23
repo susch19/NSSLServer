@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static NSSL.ServerCommunication.HelperMethods;
-using static Shared.RequestClasses;
-using static Shared.ResultClasses;
+using static NSSLServer.Shared.RequestClasses;
+using static NSSLServer.Shared.ResultClasses;
+
 
 namespace NSSLServer.Tests.ServerCommunication
 {

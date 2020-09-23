@@ -1,14 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <PackageId>NSSLServer.Core</PackageId>
+    <description>Core dll for creating a nssl server plugin.</description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LitGit" Version="0.2.0.18-alpha">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+  
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0-rc.1.20451.17" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
@@ -19,19 +18,7 @@
     <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Database\" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="NSSLServer.Core.Nuget.props.template" />
-    <LitGitTemplateReference Include="NSSLServer.Core.Nuget.props.template" />
-
-    <None Update="NSSLServer.Core.Nuget.props" Condition="Exists('NSSLServer.Core.Nuget.props')">
-      <DependentUpon>NSSLServer.Core.Nuget.props.template</DependentUpon>
-    </None>
-
-  </ItemGroup>
-  <Import Project="NSSLServer.Core.Nuget.props" Condition="Exists('NSSLServer.Core.Nuget.props')" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
 
 </Project>
