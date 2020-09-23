@@ -15,7 +15,7 @@
     <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(NsslServer)\bin\net5.0\NSSLServer.Plugin.Shoppinglist.dll&quot;" />
   </Target>
 

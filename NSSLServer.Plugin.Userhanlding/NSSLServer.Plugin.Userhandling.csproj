@@ -16,7 +16,7 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(NsslServer)\bin\net5.0\NSSLServer.Plugin.Userhandling.dll&quot;" />
   </Target>
 
