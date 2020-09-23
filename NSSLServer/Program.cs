@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using NLog.Web;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using System.Reflection;
 
 namespace NSSLServer
 {
@@ -26,8 +28,6 @@ namespace NSSLServer
             PluginLoader.InitializeDbUpdater();
 
             await PluginLoader.RunDbUpdates();
-
-
 
             var host = new WebHostBuilder()
                 .UseKestrel()

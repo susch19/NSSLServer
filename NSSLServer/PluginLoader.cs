@@ -85,6 +85,20 @@ namespace NSSLServer.Features
 
         public void LoadAssemblies()
         {
+            var workdir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            if (Directory.Exists(Path.Combine(workdir, "plugins")))
+            {
+                var plugins = Directory.GetFiles(Path.Combine(workdir, "plugins"), "*.dll");
+                foreach (var plugin in plugins)
+                {
+                    var filename = Path.GetFileName(plugin);
+                    logger.Info($"Copying Plugin Assembly {filename}");
+
+                    File.Copy(plugin, Path.Combine(workdir, filename), true);
+                }
+            }
+
             var paths = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll");
 
             foreach (var path in paths)

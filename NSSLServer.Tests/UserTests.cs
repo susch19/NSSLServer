@@ -17,7 +17,7 @@ namespace NSSLServer.Tests
         {
             var now = DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
             now = now.Replace(':', '-');
-            var user = await UserSync.Create("test-user_" + now, "test-user_" + now + "@testmail.testmail", "123456");
+            var user = await UserSync.Create("test-user_" + now, "mail+test-user_" + now + "@susch.eu", "123456");
             Assert.IsTrue(user.Success);
             Assert.IsNotNull(user.Id);
             Assert.IsNotNull(user.EMail);
