@@ -22,7 +22,17 @@ namespace NSSLServer.Plugin.InitializationHelper
 
             CreateServiceAccountForFirebase();
 
+            GetEmailCert();
+
             return true;
+        }
+
+        private void GetEmailCert()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "external", "emailcert");
+            if (File.Exists(filePath))
+                return;
+            File.WriteAllLines(filePath, new[] { "test", "test" });
         }
 
         private void CreateServiceAccountForFirebase()
@@ -73,6 +83,8 @@ namespace NSSLServer.Plugin.InitializationHelper
 
         private bool AskForPostgres()
         {
+            if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "external", "connectionstring")))
+                return true;
             Console.WriteLine("Do you have Postresql installed? ((y)es, no)");
             var res = Console.ReadLine();
 
