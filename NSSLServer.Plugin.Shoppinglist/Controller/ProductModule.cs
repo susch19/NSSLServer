@@ -8,8 +8,9 @@ using System.Threading;
 using NSSLServer.Models.DatabaseConnection;
 using Microsoft.AspNetCore.Mvc;
 using static Shared.RequestClasses;
+using NSSLServer.Plugin.Shoppinglist.Manager;
 
-namespace NSSLServer.Module
+namespace NSSLServer.Plugin.Shoppinglist.Controller
 {
     [Route("products")]
     public class ProductModule : AuthenticatingController

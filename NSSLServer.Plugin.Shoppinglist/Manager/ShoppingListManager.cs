@@ -10,11 +10,12 @@ using Deviax.QueryBuilder.ChangeTracking;
 using Deviax.QueryBuilder.Parts;
 
 using NSSLServer.Models;
+using NSSLServer.Plugin.Shoppinglist;
 
 using static Shared.ResultClasses;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-namespace NSSLServer
+namespace NSSLServer.Plugin.Shoppinglist.Manager
 {
     public static class ShoppingListManager
     {

@@ -1,6 +1,7 @@
 ﻿using NSSLServer.Models;
 using NSSLServer.Models.Products;
-using NSSLServer.Sources;
+using NSSLServer.Plugin.Shoppinglist.Sources;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Shared.ResultClasses;
 
-namespace NSSLServer
+namespace NSSLServer.Plugin.Shoppinglist.Manager
 {
     public static class ProductSourceManager
     {
@@ -28,14 +29,14 @@ namespace NSSLServer
             return new ProductResult { Success = false, Error = "Product was not found" };
         }
 
-        internal static async Task<List<Product>> FindProductsByName(string name, int page = 1)
+        internal static async Task<List<IDatabaseProduct>> FindProductsByName(string name, int page = 1)
         {
             if (name == null)
-                return new List<Product>();
+                return new List<IDatabaseProduct>();
             page = page < 1 ? 1 : page;
 
             name = name.ToLower();
-            List<Product> products = new List<Product>();
+            List<IDatabaseProduct> products = new List<IDatabaseProduct>();
 
             var p = await source.FindProductsByName(name, page);
             if (p != null && p.Items?.Count > 0)

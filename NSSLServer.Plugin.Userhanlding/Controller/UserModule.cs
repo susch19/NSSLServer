@@ -9,8 +9,9 @@ using System.Net;
 using System;
 using NSSLServer.Database.Attributes;
 using NSSLServer.Database;
+using NSSLServer.Plugin.Userhandling.Manager;
 
-namespace NSSLServer.Module
+namespace NSSLServer.Plugin.Userhandling.Controller
 {
     [Route("users")]
     public class UserModule : AuthenticatingDbContextController

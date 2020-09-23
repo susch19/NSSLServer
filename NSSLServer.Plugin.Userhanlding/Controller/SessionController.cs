@@ -1,5 +1,7 @@
 ﻿using Deviax.QueryBuilder;
 using Microsoft.AspNetCore.Mvc;
+
+using NSSLServer.Plugin.Userhandling.Manager;
 using NSSLServer.Shared;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.RequestClasses;
 using static Shared.ResultClasses;
-namespace NSSLServer.Features
+namespace NSSLServer.Plugin.Userhandling.Controller
 {
     [Route("session")]
     public class SessionController : BaseController

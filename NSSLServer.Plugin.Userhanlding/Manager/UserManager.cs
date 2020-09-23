@@ -11,11 +11,11 @@ using static Shared.ResultClasses;
 using System.IO;
 using Deviax.QueryBuilder.ChangeTracking;
 using NSSLServer.Core.Authentication;
-using static NSSLServer.Features.PasswordRecovery;
+using static NSSLServer.Plugin.Userhandling.Manager.PasswordRecovery;
 
-namespace NSSLServer
+namespace NSSLServer.Plugin.Userhandling.Manager
 {
-    static class UserManager
+    public static class UserManager
     {
 
         private static string mailUser; 

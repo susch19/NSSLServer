@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NSSLServer.Sources
+namespace NSSLServer.Plugin.Shoppinglist.Sources
 {
     //public static class SourceDatabaseManager
     //{

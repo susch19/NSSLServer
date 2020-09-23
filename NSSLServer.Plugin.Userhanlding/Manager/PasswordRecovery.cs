@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Mail;
 
-namespace NSSLServer.Features
+namespace NSSLServer.Plugin.Userhandling.Manager
 {
     public class PasswordRecovery
     {

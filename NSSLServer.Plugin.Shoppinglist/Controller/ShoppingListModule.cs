@@ -4,13 +4,17 @@ using NSSLServer.Database;
 using NSSLServer.Database.Attributes;
 using NSSLServer.Models;
 using NSSLServer.Models.DatabaseConnection;
+using NSSLServer.Plugin.Shoppinglist.Manager;
+using NSSLServer.Plugin.Userhandling.Manager;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static Shared.RequestClasses;
 using static Shared.ResultClasses;
 
-namespace NSSLServer.Features
+
+namespace NSSLServer.Plugin.Shoppinglist.Controller
 {
     [Route("shoppinglists"), WithDbContext]
     public class ShoppingListModule : AuthenticatingDbContextController

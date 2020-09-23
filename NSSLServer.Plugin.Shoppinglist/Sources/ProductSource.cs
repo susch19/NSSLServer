@@ -9,16 +9,17 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NSSLServer.Sources
+namespace NSSLServer.Plugin.Shoppinglist.Sources
 {
-    class ProductSource
+    public class ProductSource : IProductSource
     {
         public bool Islocal { get; } = true;
 
-        public async Task<Product> FindProductByCode(string code)
+        public async Task<IDatabaseProduct> FindProductByCode(string code)
         {
             using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
@@ -55,7 +56,7 @@ namespace NSSLServer.Sources
             }
         }
 
-        public async Task<Paged<Product>> FindProductsByName(string name, int page = 1)
+        public async Task<Paged<IDatabaseProduct>> FindProductsByName(string name, int page = 1)
         {
             using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
@@ -73,8 +74,9 @@ namespace NSSLServer.Sources
                 var items2 = q.OrderBy(a => Q.Lower(a.Name).Asc(), a => a.Fitness.Desc()).Limit(perPage, (page - 1) * perPage);
                 var items = await items2.Select(new RawSql("distinct on (lower(pt.name)) *")).ToList<Product>(con.Connection);
 
+
                 con.Connection.Close();
-                return items.Paged(total, page, perPage);
+                return items.Select(x=>(IDatabaseProduct)x).ToList().Paged(total, page, perPage);
 
             }
         }

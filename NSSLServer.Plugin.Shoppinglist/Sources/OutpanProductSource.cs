@@ -11,9 +11,9 @@ using Newtonsoft.Json.Linq;
 using Shared;
 using NSSLServer.Database;
 
-namespace NSSLServer.Sources
+namespace NSSLServer.Plugin.Shoppinglist.Sources
 {
-    class OutpanProductSource : IProductSource
+    public class OutpanProductSource : IProductSource
     {
         public bool Islocal { get; } = false;
         public long Total { get; set; } = 0;
