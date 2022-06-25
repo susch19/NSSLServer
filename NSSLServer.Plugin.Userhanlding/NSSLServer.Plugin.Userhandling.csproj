@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>NSSLServer.Plugin.Userhandling</PackageId>
     <description>Extension Plugin for nssl server for user handling functionality.</description>
   </PropertyGroup>
@@ -17,11 +17,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(NsslServer)\bin\net5.0\NSSLServer.Plugin.Userhandling.dll&quot;" />
-  </Target>
-
 
   <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
 </Project>

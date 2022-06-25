@@ -2,20 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="ExampleUpdater_Scripts\1.0.0.001.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="ExampleUpdater_Scripts\1.0.0.001.sql" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
     <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
   </ItemGroup>
 
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
 </Project>
