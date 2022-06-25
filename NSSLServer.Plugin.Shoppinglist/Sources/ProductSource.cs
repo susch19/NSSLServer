@@ -5,6 +5,7 @@ using NSSLServer.Database;
 using NSSLServer.Models;
 using NSSLServer.Models.DatabaseConnection;
 using NSSLServer.Models.Products;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -18,6 +19,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
     public class ProductSource : IProductSource
     {
         public bool Islocal { get; } = true;
+        public int Priority { get; } = 0;
 
         public async Task<IDatabaseProduct> FindProductByCode(string code)
         {
@@ -76,7 +78,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
 
 
                 con.Connection.Close();
-                return items.Select(x=>(IDatabaseProduct)x).ToList().Paged(total, page, perPage);
+                return items.Select(x => (IDatabaseProduct)x).ToList().Paged(total, page, perPage);
 
             }
         }

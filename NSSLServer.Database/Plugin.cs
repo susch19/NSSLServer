@@ -1,7 +1,9 @@
-﻿using NLog;
+﻿using Deviax.QueryBuilder;
+
+using NLog;
 
 using NSSLServer.Core.Extension;
-using Deviax.QueryBuilder;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,7 @@ namespace NSSLServer.Database
         public bool Initialize(LogFactory logFactory)
         {
             QueryExecutor.DefaultExecutor = new PostgresExecutor();
+
             return true;
         }
     }

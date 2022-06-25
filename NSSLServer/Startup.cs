@@ -18,11 +18,16 @@ using Newtonsoft.Json;
 
 using NSSLServer.Features;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 namespace NSSLServer
 {
     public class Startup
     {
-        public Startup(IWebHostEnvironment env)
+        public Startup(IHostingEnvironment env)
         {
 
             var builder = new ConfigurationBuilder()
@@ -45,6 +50,7 @@ namespace NSSLServer
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            
             // Add framework services.
             //services.AddApplicationInsightsTelemetry(Configuration);
             services
@@ -102,7 +108,7 @@ namespace NSSLServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //#if DEBUG
             //            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -138,9 +144,10 @@ namespace NSSLServer
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                routes.MapControllerRoute(
+                    "default",
+                    "{controller=Home}/{action=Index}");
             });
-
         }
     }
 }

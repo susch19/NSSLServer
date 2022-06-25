@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Initializ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Recipes", "NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj", "{13757F72-95D3-42C8-BFE7-286CA7947423}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.OpenFoodFacts", "NSSLServer.Plugin.OpenFoodFacts\NSSLServer.Plugin.OpenFoodFacts.csproj", "{4E1CE84B-5544-4F17-B027-C5EDE3351928}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Products.Core", "NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj", "{4F9ACA82-85A8-44AE-9428-64E483075465}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,14 @@ Global
 		{13757F72-95D3-42C8-BFE7-286CA7947423}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13757F72-95D3-42C8-BFE7-286CA7947423}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13757F72-95D3-42C8-BFE7-286CA7947423}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E1CE84B-5544-4F17-B027-C5EDE3351928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E1CE84B-5544-4F17-B027-C5EDE3351928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E1CE84B-5544-4F17-B027-C5EDE3351928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E1CE84B-5544-4F17-B027-C5EDE3351928}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F9ACA82-85A8-44AE-9428-64E483075465}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F9ACA82-85A8-44AE-9428-64E483075465}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F9ACA82-85A8-44AE-9428-64E483075465}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F9ACA82-85A8-44AE-9428-64E483075465}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

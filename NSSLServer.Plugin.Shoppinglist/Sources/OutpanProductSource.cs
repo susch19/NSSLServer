@@ -1,4 +1,9 @@
-﻿using NSSLServer.Models;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using NSSLServer.Database;
+using NSSLServer.Models;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,9 +11,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NSSLServer.Database;
 
 namespace NSSLServer.Plugin.Shoppinglist.Sources
 {
@@ -16,6 +18,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
     {
         public bool Islocal { get; } = false;
         public long Total { get; set; } = 0;
+        public int Priority { get; } = 1000;
 
         //public async static Task AddProduct(string name, string gtin)
         //{
@@ -25,7 +28,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
         {
             string url = "https://" + $"api.outpan.com/v2/products/{code}?apikey=1e0dea2842c3bd80559b9ef0a8df187b";
             var request = WebRequest.Create(url);
-            Stream responseStream = (await  request.GetResponseAsync()).GetResponseStream();
+            Stream responseStream = (await request.GetResponseAsync()).GetResponseStream();
             using (StreamReader sr = new StreamReader(responseStream))
             {
                 JObject o = JObject.Parse(sr.ReadToEnd());
@@ -37,8 +40,8 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
 
                 //LocalCacheProductSource.AddProduct(name, gtin);
 
-                BasicProduct p = new BasicProduct { Name = name, Gtin = gtin};
-               
+                BasicProduct p = new BasicProduct { Name = name, Gtin = gtin };
+
                 return p;
             }
         }
