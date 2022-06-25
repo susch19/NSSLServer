@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28902.138
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32611.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65527620-5DCC-4BD5-9D5E-E00E34858168}"
 	ProjectSection(SolutionItems) = preProject
@@ -27,6 +27,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Userhandling", "NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj", "{10CA2DD3-F880-4FF0-83AC-75A7EFF6BD30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.InitializationHelper", "NSSLServer.Plugin.InitializationHelper\NSSLServer.Plugin.InitializationHelper.csproj", "{9BCE9C39-6D97-4F7D-8096-AA4CCEAD82C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSSLServer.Plugin.Recipes", "NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj", "{13757F72-95D3-42C8-BFE7-286CA7947423}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,10 @@ Global
 		{9BCE9C39-6D97-4F7D-8096-AA4CCEAD82C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BCE9C39-6D97-4F7D-8096-AA4CCEAD82C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BCE9C39-6D97-4F7D-8096-AA4CCEAD82C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13757F72-95D3-42C8-BFE7-286CA7947423}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13757F72-95D3-42C8-BFE7-286CA7947423}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13757F72-95D3-42C8-BFE7-286CA7947423}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13757F72-95D3-42C8-BFE7-286CA7947423}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

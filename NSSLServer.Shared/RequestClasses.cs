@@ -42,6 +42,11 @@ namespace NSSLServer.Shared
         {
             public string Name { get; set; }
         }
+        public class AddRecipeArgs
+        {
+            public string IdOrUrl { get; set; }
+        }
+
         public class BatchProductArgs
         {
             public List<int> ProductIds { get; set; }
