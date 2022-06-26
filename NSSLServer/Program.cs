@@ -16,6 +16,12 @@ namespace NSSLServer
     {
         internal static PluginLoader PluginLoader;
 
+#if DEBUG
+        private const int Port = 4344;
+#else
+        private const int Port = 80;
+#endif
+
         public static async Task Main(string[] args)
         {
             var logFactory = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config");
@@ -30,12 +36,7 @@ namespace NSSLServer
             await PluginLoader.RunDbUpdates();
 
             var host = new WebHostBuilder()
-                .UseKestrel()
-#if DEBUG
-                .UseUrls("http://[::1]:4344", "http://192.168.49.22:4344")
-#else
-                .UseUrls("http://+:80")
-#endif
+                .UseKestrel(ks => ks.ListenAnyIP(Port))
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .ConfigureLogging(logging =>
                 {
