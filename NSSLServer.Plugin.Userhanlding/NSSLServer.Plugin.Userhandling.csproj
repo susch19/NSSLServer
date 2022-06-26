@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>NSSLServer.Plugin.Userhandling</PackageId>
     <description>Extension Plugin for nssl server for user handling functionality.</description>
   </PropertyGroup>
