@@ -28,12 +28,12 @@ namespace NSSLServer.Plugin.Recipes.Controller
         }
 
         [HttpPost, Route(nameof(CreateShoppingListForRecipe))]
-        public async Task<IActionResult> CreateShoppingListForRecipe([FromBody] AddRecipeArgs urlOrId, string? optionalListName = null, int? amountOfPeople = 4)
+        public async Task<IActionResult> CreateShoppingListForRecipe([FromBody] AddRecipeArgs idOrUrl, string? optionalListName = null, int? amountOfPeople = 4)
         {
-            var recipe = await DownloadRecipe(urlOrId.IdOrUrl);
+            var recipe = await DownloadRecipe(idOrUrl.IdOrUrl);
 
             if (recipe is null)
-                return NotFound(urlOrId.IdOrUrl);
+                return NotFound(idOrUrl.IdOrUrl);
 
             var recipeName = recipe.Title;
 
@@ -47,12 +47,12 @@ namespace NSSLServer.Plugin.Recipes.Controller
         }
 
         [HttpPost, Route(nameof(AddRecipeToList))]
-        public async Task<IActionResult> AddRecipeToList([FromBody] AddRecipeArgs urlOrId, int listId, int? amountOfPeople = 4)
+        public async Task<IActionResult> AddRecipeToList([FromBody] AddRecipeArgs idOrUrl, int listId, int? amountOfPeople = 4)
         {
-            var recipe = await DownloadRecipe(urlOrId.IdOrUrl);
+            var recipe = await DownloadRecipe(idOrUrl.IdOrUrl);
 
             if (recipe is null)
-                return NotFound(urlOrId.IdOrUrl);
+                return NotFound(idOrUrl.IdOrUrl);
 
             var list = await ShoppingListManager.LoadShoppingList(listId, false, Session.Id);
 
@@ -86,9 +86,9 @@ namespace NSSLServer.Plugin.Recipes.Controller
             return Json(await ShoppingListManager.LoadShoppingList(listId, false, Session.Id));
         }
 
-        private async Task<Recipe?> DownloadRecipe(string urlOrId)
+        private async Task<Recipe?> DownloadRecipe(string idOrUrl)
         {
-            var match = IdRegex.Match(urlOrId);
+            var match = IdRegex.Match(idOrUrl);
 
             if (!match.Success)
                 return default;
