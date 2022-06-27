@@ -33,6 +33,6 @@
     <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
   </ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
 </Project>
