@@ -19,6 +19,6 @@
   </ItemGroup>
 
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets')" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(DockerBuild)!=True" />
 
 </Project>

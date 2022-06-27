@@ -15,10 +15,10 @@ COPY ["lib/querybuilder/src/Deviax.QueryBuilder.Postgres/Deviax.QueryBuilder.Pos
 RUN dotnet restore "NSSLServer/NSSLServer.Runtime.csproj"
 COPY . .
 WORKDIR "/src/NSSLServer"
-RUN dotnet build "NSSLServer.Runtime.csproj" -c Release -o /app/build
+RUN dotnet build "NSSLServer.Runtime.csproj" -c Release -o /app/build /p:"IsDockerBuild=true"
 
 FROM build AS publish
-RUN dotnet publish "NSSLServer.Runtime.csproj" -c Release -o /app/publish
+RUN dotnet publish "NSSLServer.Runtime.csproj" -c Release -o /app/publish /p:"IsDockerBuild=true"
 
 FROM base AS final
 WORKDIR /app
