@@ -8,6 +8,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(DockerBuild)!=True" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
 </Project>

@@ -12,5 +12,5 @@
     <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
   </ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(DockerBuild)!=True" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 </Project>
