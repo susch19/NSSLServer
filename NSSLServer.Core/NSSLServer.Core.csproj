@@ -1,32 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <PackageId>NSSLServer.Core</PackageId>
-    <description>Core dll for creating a nssl server plugin.</description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<PackageId>NSSLServer.Core</PackageId>
+		<description>Core dll for creating a nssl server plugin.</description>
+	</PropertyGroup>
 
-  <ItemGroup>
-  
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.6" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="5.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LitGit" Version="0.2.0.56-alpha">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.6" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="NLog" Version="5.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
-  </ItemGroup>
+	<Import Project="..\NSSLServer.Litgit.Nuget.props" Condition="$(IsDockerBuild)!=true" />
 
+	<ItemGroup>
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+	</ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
-
-
-  <ItemGroup>
-    <PackageReference Update="LitGit" Version="0.2.0.55-alpha">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
 </Project>

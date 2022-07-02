@@ -30,7 +30,6 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: | 
-          5.0.x
           6.0.x
     - name: Get Git Submodules
       run: git submodule update --init --recursive
@@ -42,4 +41,4 @@ jobs:
     - name: Deploy Nuget Package
       run: dotnet nuget push ./artifacts/'*.nupkg' -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
       shell: bash
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest-disabled'

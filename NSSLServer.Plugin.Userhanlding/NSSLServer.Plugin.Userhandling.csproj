@@ -1,29 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <PackageId>NSSLServer.Plugin.Userhandling</PackageId>
-    <description>Extension Plugin for nssl server for user handling functionality.</description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<PackageId>NSSLServer.Plugin.Userhandling</PackageId>
+		<description>Extension Plugin for nssl server for user handling functionality.</description>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-    <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Static\passwordreset.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Static\passwordreset.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
+	<Import Project="..\NSSLServer.Litgit.Nuget.props" Condition="$(IsDockerBuild)!=true" />
 
-  <ItemGroup>
-    <PackageReference Update="LitGit" Version="0.2.0.55-alpha">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LitGit" Version="0.2.0.56-alpha">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>
