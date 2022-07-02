@@ -9,7 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static NSSLServer.Shared.RequestClasses;
+//using static NSSLServer.Shared.RequestClasses;
 
 namespace NSSLServer.Plugin.Recipes.Controller
 {
@@ -20,11 +20,11 @@ namespace NSSLServer.Plugin.Recipes.Controller
 
         private static readonly Regex IdRegex = new(@"(\d{10,})", RegexOptions.IgnoreCase);
 
-        private readonly HttpClient _httpClient;
+        private static readonly HttpClient _httpClient;
 
-        public RecipeController(HttpClient httpClient)
+        static RecipeController()
         {
-            _httpClient = httpClient;
+            _httpClient = new HttpClient();
         }
 
         [HttpPost, Route(nameof(CreateShoppingListForRecipe))]
