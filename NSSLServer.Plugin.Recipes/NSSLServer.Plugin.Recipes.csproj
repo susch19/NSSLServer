@@ -1,35 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="libs\**" />
-    <EmbeddedResource Remove="libs\**" />
-    <None Remove="libs\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="libs\**" />
+		<EmbeddedResource Remove="libs\**" />
+		<None Remove="libs\**" />
+	</ItemGroup>
 
-
-
-
-
-  <ItemGroup>
-    <LitGitTemplateReference Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
-  </ItemGroup>
+	<ItemGroup>
+		<LitGitTemplateReference Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
+	</ItemGroup>
 
 
 
-  <ItemGroup>
-    <None Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
+	</ItemGroup>
 
 
 
-  <ItemGroup>
-    <PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.8" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.8" />
+	</ItemGroup>
 
 
 </Project>
