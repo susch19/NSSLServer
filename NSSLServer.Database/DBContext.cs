@@ -19,7 +19,7 @@ namespace NSSLServer
 
         public DbConnection Connection;
         private bool _disposeConnection;
-   
+
 
         public DBContext(DbConnection con, bool disposeConnection)
         {
@@ -37,7 +37,7 @@ namespace NSSLServer
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(NsslEnvironment.ConnectionString);
-            
+
             base.OnConfiguring(optionsBuilder);
         }
     }

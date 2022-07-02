@@ -1,5 +1,4 @@
-﻿using Deviax.QueryBuilder;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,22 +7,23 @@ using NSSLServer.Models;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.IO;
-using Deviax.QueryBuilder.ChangeTracking;
 using NSSLServer.Core.Authentication;
 using static NSSLServer.Plugin.Userhandling.Manager.PasswordRecovery;
 using static NSSLServer.Shared.ResultClasses;
+using Deviax.QueryBuilder;
+using Deviax.QueryBuilder.ChangeTracking;
 
 namespace NSSLServer.Plugin.Userhandling.Manager
 {
     public static class UserManager
     {
 
-        private static string mailUser; 
+        private static string mailUser;
         private static string mailUserPwd;
 
         public static void ReadLoginInformation()
         {
-           
+
             mailUser = File.ReadAllLines(@"external/emailcert")[0];
             mailUserPwd = File.ReadAllLines(@"external/emailcert")[1];
         }
@@ -34,6 +34,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             var exists = await FindUserByName(cont.Connection, username);
             if (exists != null)
             {
+
                 //await ChangePassword(exists.Id, "2", pwdhash);
                 return new CreateResult { Success = false, Error = "Username already taken" };
             }
@@ -45,7 +46,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             var saltedpw = Salting(pwdhash, minedsalt);
             User c = new User(username.TrimEnd(), saltedpw, email.TrimEnd(), minedsalt);
             await Q.InsertOne(cont.Connection, c);
-
+            cont.Connection.Close();
             return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
 
         }
@@ -59,12 +60,14 @@ namespace NSSLServer.Plugin.Userhandling.Manager
                 var ctc = ChangeTrackingContext.StartWith(k);
                 k.PasswordHash = Salting(n, k.Salt);
                 await ctc.Commit(c.Connection);
+                c.Connection.Close();
             }
             else
             {
                 c.Connection.Close();
                 return new Result { Success = false, Error = "old password was incorrect" };
             }
+
             return new Result { Success = true };
         }
 
@@ -78,10 +81,17 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             if (exists == null)
             {
                 if (email == null)
+                {
+                    con.Connection.Close();
                     return new LoginResult { Success = false, Error = "user could not be found" };
+                }
                 exists = await FindUserByEmail(con.Connection, email);
                 if (exists == null)
+                {
+
+                    con.Connection.Close();
                     return new LoginResult { Success = false, Error = "user could not be found" };
+                }
             }
             if (!Salting(passwordhash, exists.Salt).SequenceEqual(exists.PasswordHash))
             {
@@ -95,6 +105,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
                     { "Id", exists.Id},
                     {"Created", DateTime.UtcNow }
                 };
+            con.Connection.Close();
             return new LoginResult { Success = true, Error = "", Token = JsonWebToken.Encode(new Dictionary<string, object>(), payload, JwtKeyProvider.SecretKey, JsonWebToken.JwtHashAlgorithm.HS256), Id = exists.Id, EMail = exists.Email, Username = exists.Username };
         }
         public static async Task<Result> SendPasswortResetEmail(string email)
@@ -107,7 +118,10 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             {
                 exists = await FindUserByEmail(con.Connection, email);
                 if (exists == null)
+                {
+                    con.Connection.Close();
                     return new Result { Success = false, Error = "user could not be found" };
+                }
             }
 
             var sender = new OutlookDotComMail(mailUser, mailUserPwd);
@@ -131,6 +145,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
 "If you did not forget your password, please ignore this email. Thank you.\r\n\r\n" +
 "Kind Regards,\r\n" +
 "NSSL Team");
+            con.Connection.Close();
             return new Result { Success = true, Error = "" };
         }
         public static async Task<Result> ResetPassword(string token, string n)
@@ -158,6 +173,8 @@ If it wasn't you, than this might be an indicator, that someone has access to yo
 
 Kind Regards,
 NSSL Team");
+
+            c.Connection.Close();
             return new Result { Success = true };
         }
 

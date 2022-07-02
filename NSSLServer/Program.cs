@@ -1,14 +1,15 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using NLog.Web;
 
 using NSSLServer.Features;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
+
+using System;
+using System.IO;
 using System.Threading.Tasks;
-using NLog.Web;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-using System.Reflection;
 
 namespace NSSLServer
 {
@@ -29,6 +30,7 @@ namespace NSSLServer
 
             PluginLoader = new PluginLoader();
             PluginLoader.LoadAssemblies();
+
             PluginLoader.InitializePlugins(logFactory);
 
             PluginLoader.InitializeDbUpdater();

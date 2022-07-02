@@ -1,5 +1,7 @@
-﻿using NSSLServer.Models;
+﻿using NSSLServer.Database;
+using NSSLServer.Models;
 using NSSLServer.Models.Products;
+using NSSLServer.Plugin.Products.Core;
 using NSSLServer.Plugin.Shoppinglist.Sources;
 
 using System;
@@ -16,15 +18,23 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
     public static class ProductSourceManager
     {
 
-        static ProductSource source = new ProductSource();
+        //static ProductSource source = new ProductSource();
 
         public static async Task<ProductResult> FindProductByCode(string code)
         {
             if (code == null)
                 return new ProductResult { Success = false, Error = "Code was not given" };
 
-            var product = await source.FindProductByCode(code);
-            if (product != null)
+            IDatabaseProduct product = default;
+
+            foreach (var source in ProductSources.Instance)
+            {
+                product = await source.FindProductByCode(code);
+                if (product is not null)
+                    break;
+            }
+
+            if (product is not null)
                 return new ProductResult { Success = true, Gtin = code, Name = product.Name, Quantity = product.Quantity, Unit = product.Unit };
 
             return new ProductResult { Success = false, Error = "Product was not found" };
@@ -39,9 +49,13 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             name = name.ToLower();
             List<IDatabaseProduct> products = new List<IDatabaseProduct>();
 
-            var p = await source.FindProductsByName(name, page);
-            if (p != null && p.Items?.Count > 0)
-                products.AddRange(p.Items);
+            foreach (var source in ProductSources.Instance)
+            {
+                var p = await source.FindProductsByName(name, page);
+                if (p != null && p.Items?.Count > 0)
+                    products.AddRange(p.Items);
+            }
+
             return products;
         }
 

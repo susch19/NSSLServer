@@ -3,6 +3,11 @@
 using NLog;
 
 using NSSLServer.Core.Extension;
+using NSSLServer.Core.HelperMethods;
+using NSSLServer.Database;
+using NSSLServer.Models;
+using NSSLServer.Plugin.Products.Core;
+using NSSLServer.Plugin.Shoppinglist.Sources;
 
 using System;
 using System.Collections.Generic;
@@ -22,12 +27,11 @@ namespace NSSLServer.Plugin.Shoppinglist
             if (File.Exists("external/service_account.json"))
             {
                 FirebaseApp.Create(new AppOptions { Credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromFile("external/service_account.json") });
-                return true;
             }
-            else
-            {
-                return false;
-            }
+
+            ProductSources.Instance.AddNewSource(new ProductSource());
+            ProductSources.Instance.AddNewSource(new OutpanProductSource());
+            return true;
 
         }
     }

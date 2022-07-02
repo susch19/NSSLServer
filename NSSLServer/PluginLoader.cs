@@ -27,7 +27,7 @@ namespace NSSLServer.Features
         internal void LoadPlugins(Assembly ass)
         {
             var allOfThemTypes = ass.GetTypes();
-      
+
             foreach (var type in allOfThemTypes)
             {
                 if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
@@ -43,8 +43,8 @@ namespace NSSLServer.Features
                 {
                     var updater = PluginCreator<IDbUpdater>.GetInstance(type);
                     DbUpdater.Add(updater);
-                
                 }
+
             }
         }
 
@@ -60,7 +60,7 @@ namespace NSSLServer.Features
 
             foreach (var loadTasks in updaterLoadTasks)
             {
-              
+
                 if (!loadTasks.IsCompleted)
                 {
                     loadTasks.Wait();

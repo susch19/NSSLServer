@@ -1,23 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<PackageId>NSSLServer.Plugin.Shoppinglist</PackageId>
-		<description>Extension Plugin for nssl server for shoppinglist functionality.</description>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="2.3.0" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
 		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-		<ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
-		<ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
 	</ItemGroup>
-
 	<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />
 
 	<ItemGroup>
@@ -26,4 +17,5 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+
 </Project>
