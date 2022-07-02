@@ -8,10 +8,10 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
 
-	<Import Project="..\NSSLServer.Litgit.Nuget.props" Condition="$(IsDockerBuild)!=true" />
+	<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />
 
 	<ItemGroup>
-		<PackageReference Include="LitGit" Version="0.2.0.56-alpha">
+		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

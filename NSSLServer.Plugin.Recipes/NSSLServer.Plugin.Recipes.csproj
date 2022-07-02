@@ -12,17 +12,6 @@
 		<None Remove="libs\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<LitGitTemplateReference Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
-	</ItemGroup>
-
-
-
-	<ItemGroup>
-		<None Remove="C:\Users\susch\source\repos\NSSLServer\\NSSLServer.Litgit.Nuget.props.template" />
-	</ItemGroup>
-
-
 
 	<ItemGroup>
 		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.8" />

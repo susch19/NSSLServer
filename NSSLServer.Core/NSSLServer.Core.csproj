@@ -17,10 +17,10 @@
 		<PackageReference Include="NLog" Version="5.0.1" />
 	</ItemGroup>
 
-	<Import Project="..\NSSLServer.Litgit.Nuget.props" Condition="$(IsDockerBuild)!=true" />
+	<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />
 
 	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"  Condition="$(IsDockerBuild)!=true"/>
 	</ItemGroup>
 
 
