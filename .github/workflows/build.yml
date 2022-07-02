@@ -19,6 +19,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+      if: matrix.os == 'ubuntu-latest'
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+      if: matrix.os != 'ubuntu-latest'
     - name: Setup dotnet
       uses: actions/setup-dotnet@v2
       with:
@@ -31,6 +38,7 @@ jobs:
       run: dotnet build --configuration Release
     - name: Create Nuget Package
       run: dotnet pack -c Release -o ./artifacts
+      if: matrix.os == 'ubuntu-latest'
     - name: Deploy Nuget Package
       run: dotnet nuget push ./artifacts/'*.nupkg' -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
       shell: bash
