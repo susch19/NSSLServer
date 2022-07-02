@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="LitGit" Version="0.2.0.56-alpha">
+		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -20,7 +20,7 @@
 	<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />
 
 	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"  Condition="$(IsDockerBuild)!=true"/>
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"/>
 	</ItemGroup>
 
 
