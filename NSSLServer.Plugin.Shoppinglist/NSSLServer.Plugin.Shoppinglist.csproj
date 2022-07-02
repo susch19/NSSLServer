@@ -13,6 +13,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
 		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+		<ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
 		<ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
 		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
 	</ItemGroup>

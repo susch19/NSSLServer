@@ -4,9 +4,6 @@
 		<TargetFramework>net6.0</TargetFramework>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\bin\</OutputPath>
-	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />

@@ -30,8 +30,8 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             foreach (var source in ProductSources.Instance)
             {
                 product = await source.FindProductByCode(code);
-                if (product is null)
-                    continue;
+                if (product is not null)
+                    break;
             }
 
             if (product is not null)

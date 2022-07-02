@@ -144,7 +144,7 @@ namespace NSSLServer
 
             app.UseEndpoints(endpoints =>
             {
-                routes.MapControllerRoute(
+                endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}");
             });
