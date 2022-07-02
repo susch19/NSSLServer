@@ -20,7 +20,6 @@ namespace NSSLServer.Plugin.Userhandling.Manager
 
         private static string mailUser;
         private static string mailUserPwd;
-        private const string test = "";
 
         public static void ReadLoginInformation()
         {
