@@ -22,7 +22,12 @@ namespace NSSLServer.Features
         public List<IDbUpdater> DbUpdater { get; } = new List<IDbUpdater>();
 
         private List<IPlugin> plugins = new List<IPlugin>();
-        private ILogger logger = LogManager.GetLogger(nameof(PluginLoader));
+        private readonly ILogger logger;
+
+        public PluginLoader(LogFactory logFactory)
+        {
+            logger = logFactory.GetCurrentClassLogger();
+        }
 
         internal void LoadPlugins(Assembly ass)
         {
@@ -89,6 +94,16 @@ namespace NSSLServer.Features
 
             if (Directory.Exists(Path.Combine(workdir, "plugins")))
             {
+                var toRemove = new FileInfo(Path.Combine(workdir, "plugins", "ToRemove.txt"));
+                if (toRemove.Exists)
+                {
+                    foreach (var path in File.ReadAllLines(toRemove.FullName))
+                    {
+                        logger.Info($"Deleting existing file {path}");
+                        File.Delete(path);
+                    }
+                }
+
                 var plugins = Directory.GetFiles(Path.Combine(workdir, "plugins"), "*.dll");
                 foreach (var plugin in plugins)
                 {
@@ -97,7 +112,20 @@ namespace NSSLServer.Features
 
                     File.Copy(plugin, Path.Combine(workdir, filename), true);
                 }
+
+                var thirdParty = Directory
+                    .GetFiles(Path.Combine(workdir, "plugins"))
+                    .Where(x => !x.EndsWith(".dll", StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (var plugin in thirdParty)
+                {
+                    var filename = Path.GetFileName(plugin);
+                    logger.Info($"Copying Third Party File {filename}");
+
+                    File.Copy(plugin, Path.Combine(workdir, filename), true);
+                }
             }
+
 
             var paths = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll");
 
