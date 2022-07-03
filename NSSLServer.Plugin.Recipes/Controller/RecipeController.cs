@@ -27,6 +27,17 @@ namespace NSSLServer.Plugin.Recipes.Controller
             _httpClient = new HttpClient();
         }
 
+        /// <summary>
+        /// Checks if the given id or url is valid for recipe lookup
+        /// </summary>
+        /// <param name="idOrUrl">The id or url object</param>
+        /// <returns>Is the given object valid for recipe lookup</returns>
+        [HttpPost, Route(nameof(IsValidIdOrUrl))]
+        public IActionResult IsValidIdOrUrl([FromBody] AddRecipeArgs idOrUrl)
+        {
+            return new JsonResult(IdRegex.Match(idOrUrl.IdOrUrl).Success);
+        }
+
         [HttpPost, Route(nameof(CreateShoppingListForRecipe))]
         public async Task<IActionResult> CreateShoppingListForRecipe([FromBody] AddRecipeArgs idOrUrl, string? optionalListName = null, int? amountOfPeople = 4)
         {
