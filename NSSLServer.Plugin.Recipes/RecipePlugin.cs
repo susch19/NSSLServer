@@ -7,11 +7,11 @@ namespace NSSLServer.Plugin.Recipes
     {
         public string Name => nameof(RecipePlugin);
 
-        private Logger? logger;
+        internal static Logger Logger { get; private set; }
 
         public bool Initialize(LogFactory factory)
         {
-            logger = factory?.GetCurrentClassLogger();
+            Logger = factory.GetCurrentClassLogger();
 
             return true;
         }

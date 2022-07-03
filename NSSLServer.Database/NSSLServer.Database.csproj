@@ -32,6 +32,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
 	</ItemGroup>
+	
 	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />-->
 	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 

@@ -105,7 +105,7 @@ namespace NSSLServer
         {
             var session = ExtractJwtSessionFilterAttribute.FromItems(context.HttpContext);
 
-            if (session == null || session.Expires < DateTime.Now)
+            if (session == null || session.Expires < DateTime.UtcNow)
             {
                 context.Result = new UnauthorizedResult();
                 return;
