@@ -12,10 +12,13 @@
 		<None Remove="libs\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
+	  <PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.31" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
+		<ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+	</ItemGroup>
 
 	<!--<ItemGroup>
 		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.30" />

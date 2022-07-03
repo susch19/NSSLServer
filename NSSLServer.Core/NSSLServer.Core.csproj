@@ -20,9 +20,10 @@
 	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />-->
 	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
-	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"/>
-	</ItemGroup>
 
+
+	<ItemGroup>
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+	</ItemGroup>
 
 </Project>
