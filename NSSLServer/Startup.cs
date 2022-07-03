@@ -1,55 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-
+using Microsoft.OpenApi.Models;
 
 namespace NSSLServer
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
+            Configuration = configuration;
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
-            //if (env.IsEnvironment("Development"))
-            //{
-            // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-            //builder.AddApplicationInsightsSettings(developerMode: true);
-            //}
 
             builder.AddEnvironmentVariables();
-            Configuration = builder.Build();
+            builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            // Add framework services.
-            //services.AddApplicationInsightsTelemetry(Configuration);
+            var pluginWithControllerAssemblies = Program
+                .PluginLoader
+                .ControllerTypes
+                .Select(x => x.Assembly)
+                .Distinct()
+                .ToArray();
+
             services
                 .AddMvc()
                 .ConfigureApplicationPartManager(manager =>
               {
-                  foreach (var assembly in Program.PluginLoader.ControllerTypes.Select(x => x.Assembly).Distinct())
+                  foreach (var assembly in pluginWithControllerAssemblies)
                   {
                       var partFactory = ApplicationPartFactory.GetApplicationPartFactory(assembly);
                       foreach (var applicationPart in partFactory.GetApplicationParts(assembly))
@@ -67,10 +61,26 @@ namespace NSSLServer
             services.AddResponseCompression();
             services.AddHttpClient();
 
-#if DEBUG
             services.AddSwaggerGen(configuration =>
             {
-                configuration.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NSSLServer.xml"));
+                // Try get all documentation .xml files from plugins with controllers
+                foreach (var pluginWithControllerAssembly in pluginWithControllerAssemblies)
+                {
+                    // Check plugin exists
+                    var fileInfo = new FileInfo(pluginWithControllerAssembly.Location);
+                    if (!fileInfo.Exists)
+                        continue;
+
+                    // Check documentation file exists
+                    var file = fileInfo.FullName;
+                    var docu = new FileInfo($"{file[..file.LastIndexOf(fileInfo.Extension)]}.xml");
+
+                    if (!docu.Exists)
+                        continue;
+
+                    configuration.IncludeXmlComments(docu.FullName, true);
+                }
+
                 configuration.SwaggerDoc("v1", new OpenApiInfo { Title = "NSSL API", Version = "v1" });
                 configuration.AddSecurityDefinition("X-Token", new OpenApiSecurityScheme()
                 {
@@ -95,25 +105,16 @@ namespace NSSLServer
                     }
                 });
             });
-#endif
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //#if DEBUG
-            //            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            //            loggerFactory.AddDebug();
-            //#endif
-
-#if DEBUG
             app.UseSwagger();
             app.UseSwaggerUI(configuration =>
             {
                 configuration.SwaggerEndpoint("/swagger/v1/swagger.json", "NSSL API V1");
             });
-#endif
 
             app.UseResponseCompression();
             app.UseStaticFiles();

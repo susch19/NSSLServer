@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NLog.Web;
 
 using NSSLServer.Features;
-
-using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NSSLServer
@@ -25,8 +23,8 @@ namespace NSSLServer
 
         public static async Task Main(string[] args)
         {
-            var logFactory = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config");
-            System.Threading.ThreadPool.SetMaxThreads(500, 500);
+            var logFactory = NLogBuilder.ConfigureNLog("nlog.config");
+            ThreadPool.SetMaxThreads(500, 500);
 
             PluginLoader = new PluginLoader();
             PluginLoader.LoadAssemblies();
@@ -37,39 +35,23 @@ namespace NSSLServer
 
             await PluginLoader.RunDbUpdates();
 
-            var host = new WebHostBuilder()
-                .UseKestrel(ks => ks.ListenAnyIP(Port))
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                    logging.AddDebug();
-                })
-                .UseNLog()
-                .UseStartup<Startup>()
-                .Build();
-            DoStuff();
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
+            {
+                Args = args,
+                ContentRootPath = Directory.GetCurrentDirectory(),
+            });
 
-            host.Run();
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+            builder.WebHost.UseKestrel(ks => ks.ListenAnyIP(Port));
+            builder.WebHost.UseNLog();
+
+            var startup = new Startup(builder.Configuration, builder.Environment);
+            startup.ConfigureServices(builder.Services);
+
+            var app = builder.Build();
+            startup.Configure(app, app.Environment);
+            app.Run();
         }
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        private async static void DoStuff()
-        {
-            //using (var c = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
-            //{
-            //    c.Connection.Close();
-            //    var asd = Q.From(ShoppingList.T).InnerJoin(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).ToList<ListItem>(c.Connection);
-            //    //var query = Q.Create(ShoppingList.T)
-            //    //    .Column(x => x.Id).Type("int").Null()
-            //    //    .FK(ListItem.T).On((x, y) => x.Id.Eq(y.ListId)).On((x, y) => x.Name.Eq(y.Name))
-            //    //    .Column(x => x.Name).Type("varchar(199)").NotNull()
-            //    //    .Execute(c.Connection);
-            //}
-            //I like my do Stuff methods :)
-        }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
-
-
-
 }
