@@ -6,6 +6,11 @@
 		<description>Core dll for creating a nssl server plugin.</description>
 	</PropertyGroup>
 
+	<Target Name="Test" BeforeTargets="BeforeBuild">
+		<Warning Text="Runs on CI or in Debug" Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''"></Warning>
+	</Target>
+
+
 	<ItemGroup>
 		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true">
 			<PrivateAssets>all</PrivateAssets>
@@ -21,9 +26,9 @@
 	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
 
-	
+
 	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"/>
+		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
 	</ItemGroup>
 
 </Project>
