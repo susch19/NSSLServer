@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-
+using Microsoft.OpenApi.Models;
 
 namespace NSSLServer
 {
@@ -107,13 +107,13 @@ namespace NSSLServer
             //            loggerFactory.AddDebug();
             //#endif
 
-#if DEBUG
+//#if DEBUG
             app.UseSwagger();
             app.UseSwaggerUI(configuration =>
             {
                 configuration.SwaggerEndpoint("/swagger/v1/swagger.json", "NSSL API V1");
             });
-#endif
+//#endif
 
             app.UseResponseCompression();
             app.UseStaticFiles();

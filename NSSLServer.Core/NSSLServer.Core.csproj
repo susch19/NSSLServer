@@ -17,7 +17,8 @@
 		<PackageReference Include="NLog" Version="5.0.1" />
 	</ItemGroup>
 
-	<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />
+	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />-->
+	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
 	<ItemGroup>
 		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj"/>

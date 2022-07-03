@@ -12,10 +12,14 @@
 		<None Remove="libs\**" />
 	</ItemGroup>
 
-
 	<ItemGroup>
-		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.8" />
+	  <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
 	</ItemGroup>
+
+
+	<!--<ItemGroup>
+		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.30" />
+	</ItemGroup>-->
 
 
 </Project>
