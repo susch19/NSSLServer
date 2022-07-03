@@ -10,7 +10,11 @@
 		<OutputPath>..\bin\</OutputPath>
 	</PropertyGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
+	  <PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.31" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
 	  <ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
 	</ItemGroup>
 

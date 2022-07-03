@@ -5,9 +5,14 @@
 	</PropertyGroup>
 
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
 		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
 		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
+		<PackageReference Include="NSSLServer.Core" Version="0.0.1.31" />
+		<PackageReference Include="NSSLServer.Database" Version="0.0.1.31" />
 	</ItemGroup>
 	
 	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />-->  
