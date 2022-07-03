@@ -405,12 +405,11 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             if (!order.HasValue)
                 order = (int)(await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId)).Select(x => Q.Count(x.Id)).FirstOrDefault<DbFunctionModel>(c.Connection)).Count +1;
 
-            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId, SortOrder = order.Value, Created = DateTime.Now };
+            var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId, SortOrder = order.Value, Created = DateTime.UtcNow };
             await Q.InsertOne(c.Connection, li);
             //TODO Same name and same gtin <-- WTF?
 
             string action = "NewItemAdded";
-
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, li.Id, li.Name, li.Gtin, li.Amount, li.SortOrder, action });
             return new AddListItemResult { Success = true, Gtin = li.Gtin, Name = name, ProductId = li.Id };
         }
