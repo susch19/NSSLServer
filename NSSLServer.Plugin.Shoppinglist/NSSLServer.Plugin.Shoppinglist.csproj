@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>NSSLServer.Plugin.Shoppinglist</PackageId>
 		<description>Extension Plugin for nssl server for shoppinglist functionality.</description>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
