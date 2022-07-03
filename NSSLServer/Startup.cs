@@ -67,7 +67,6 @@ namespace NSSLServer
             services.AddResponseCompression();
             services.AddHttpClient();
 
-#if DEBUG
             services.AddSwaggerGen(configuration =>
             {
                 configuration.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NSSLServer.xml"));
@@ -95,7 +94,6 @@ namespace NSSLServer
                     }
                 });
             });
-#endif
 
         }
 
@@ -107,13 +105,11 @@ namespace NSSLServer
             //            loggerFactory.AddDebug();
             //#endif
 
-//#if DEBUG
             app.UseSwagger();
             app.UseSwaggerUI(configuration =>
             {
                 configuration.SwaggerEndpoint("/swagger/v1/swagger.json", "NSSL API V1");
             });
-//#endif
 
             app.UseResponseCompression();
             app.UseStaticFiles();
