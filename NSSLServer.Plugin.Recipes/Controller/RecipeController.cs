@@ -5,11 +5,11 @@ using NSSLServer.Plugin.Recipes.Model;
 using NSSLServer.Plugin.Shoppinglist.Manager;
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-//using static NSSLServer.Shared.RequestClasses;
 
 namespace NSSLServer.Plugin.Recipes.Controller
 {
@@ -20,11 +20,11 @@ namespace NSSLServer.Plugin.Recipes.Controller
 
         private static readonly Regex IdRegex = new(@"(\d{10,})", RegexOptions.IgnoreCase);
 
-        private static readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
-        static RecipeController()
+        public RecipeController(HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
         }
 
         /// <summary>
@@ -104,9 +104,8 @@ namespace NSSLServer.Plugin.Recipes.Controller
             if (!match.Success)
                 return default;
 
-            var res = await _httpClient.GetFromJsonAsync<Recipe>($"{BaseUrl}{match.Value}");
-
-            return res;
+            return await _httpClient.GetFromJsonAsync<Recipe>($"{BaseUrl}{match.Value}");
+            
         }
     }
 }

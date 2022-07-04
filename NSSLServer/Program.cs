@@ -26,7 +26,7 @@ namespace NSSLServer
             var logFactory = NLogBuilder.ConfigureNLog("nlog.config");
             ThreadPool.SetMaxThreads(500, 500);
 
-            PluginLoader = new PluginLoader();
+            PluginLoader = new PluginLoader(logFactory);
             PluginLoader.LoadAssemblies();
 
             PluginLoader.InitializePlugins(logFactory);
