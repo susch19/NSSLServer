@@ -103,7 +103,6 @@ namespace NSSLServer.Plugin.Recipes.Controller
 
             if (!match.Success)
                 return default;
-            RecipePlugin.Logger.Info("UserAgent added");
 
             return await _httpClient.GetFromJsonAsync<Recipe>($"{BaseUrl}{match.Value}");
             
