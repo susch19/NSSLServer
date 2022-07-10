@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +21,8 @@ namespace NSSLServer.Core.Extension
         public string Name { get; }
 
         bool Initialize(NLog.LogFactory logFactory);
+
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment environment) { }
+        public virtual void ConfigureServices(IServiceCollection services) { }
     }
 }

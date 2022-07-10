@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,54 +26,57 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
         public int Priority { get; } = 10;
 
         private Regex regex = new Regex("[^a-zA-Z -]");
+        private HttpClient _httpClient;
 
-        //public async static Task AddProduct(string name, string gtin)
-        //{
-        //    // TODO Implement Adding Products to Outpan
-        //}
+        public OpenFoodFactsSource(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
         async Task<IDatabaseProduct?> IProductSource.FindProductByCode(string code)
         {
             if (cache.TryGetValue(code, out var product))
                 return product;
-
-            string url = @$"https://world.openfoodfacts.org/api/v0/product/{code}.json";
-            var request = WebRequest.Create(url);
-            var res = await request.GetResponseAsync();
-            Stream responseStream = res.GetResponseStream();
-            using StreamReader sr = new StreamReader(responseStream);
-
-            var o = JsonConvert.DeserializeObject<Rootobject>(sr.ReadToEnd());
-
-            if (o.Status != 1)
-                return null;
-
-            var name = o.Product.Product_name;
-            var brands = o.Product.Brands;
-            if (!string.IsNullOrWhiteSpace(brands) && brands.Contains(","))
-                brands = brands.Split(",").First();
-
-            var gtin = o.Code;
-            var quant = o.Product.Product_quantity;
-            var unit = o.Product.Quantity; //extract g, ml, etc. pp.
-
-            if (string.IsNullOrWhiteSpace(name))
-                return null;
-
-            decimal.TryParse(quant, out var quantity);
-
-            if (!string.IsNullOrWhiteSpace(unit))
+            try
             {
-                var newUnit = regex.Replace(unit, "");
-                var quantityForUnit = unit.Replace(newUnit, "");
-                unit = newUnit;
+                string url = @$"https://world.openfoodfacts.org/api/v0/product/{code}.json";
+                var o = await _httpClient.GetFromJsonAsync<ProductSearchResult>(url);
 
-                if (decimal.TryParse(quantityForUnit, out var quantForUnit))
-                    quantity = quantForUnit;
+                if (o.Status != 1)
+                    return null;
+
+                var name = o.Product.Product_name;
+                var brands = o.Product.Brands;
+                if (!string.IsNullOrWhiteSpace(brands) && brands.Contains(","))
+                    brands = brands.Split(",").First();
+
+                var gtin = o.Code;
+                var quant = o.Product.Product_quantity;
+                var unit = o.Product.Quantity; //extract g, ml, etc. pp.
+
+                if (string.IsNullOrWhiteSpace(name))
+                    return null;
+
+                decimal.TryParse(quant, out var quantity);
+
+                if (!string.IsNullOrWhiteSpace(unit))
+                {
+                    var newUnit = regex.Replace(unit, "");
+                    var quantityForUnit = unit.Replace(newUnit, "");
+                    unit = newUnit;
+
+                    if (decimal.TryParse(quantityForUnit, out var quantForUnit))
+                        quantity = quantForUnit;
+                }
+
+                BasicProduct p = new BasicProduct { Name = $"{name} {brands}", Gtin = gtin, Quantity = quantity == 0m ? null : quantity, Unit = string.IsNullOrWhiteSpace(unit) ? null : unit };
+                cache[code] = p;
+                return p;
             }
-
-            BasicProduct p = new BasicProduct { Name = $"{name} {brands}" , Gtin = gtin, Quantity = quantity, Unit = unit };
-            cache[code] = p;
-            return p;
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -82,7 +87,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
 
-        private class Rootobject
+        private class ProductSearchResult
         {
             public string Code { get; set; }
             public Product? Product { get; set; }
