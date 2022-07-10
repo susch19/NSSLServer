@@ -26,23 +26,30 @@ namespace NSSLServer.Plugin.Shoppinglist.Sources
         //}
         async Task<IDatabaseProduct> IProductSource.FindProductByCode(string code)
         {
-            string url = "https://" + $"api.outpan.com/v2/products/{code}?apikey=1e0dea2842c3bd80559b9ef0a8df187b";
-            var request = WebRequest.Create(url);
-            Stream responseStream = (await request.GetResponseAsync()).GetResponseStream();
-            using (StreamReader sr = new StreamReader(responseStream))
+            try
             {
-                JObject o = JObject.Parse(sr.ReadToEnd());
-                var name = o["name"].ToString();
-                var gtin = o["gtin"].ToString();
+                string url = "https://" + $"api.outpan.com/v2/products/{code}?apikey=1e0dea2842c3bd80559b9ef0a8df187b";
+                var request = WebRequest.Create(url);
+                Stream responseStream = (await request.GetResponseAsync()).GetResponseStream();
+                using (StreamReader sr = new StreamReader(responseStream))
+                {
+                    JObject o = JObject.Parse(sr.ReadToEnd());
+                    var name = o["name"].ToString();
+                    var gtin = o["gtin"].ToString();
 
-                if (string.IsNullOrWhiteSpace(name))
-                    return null;
+                    if (string.IsNullOrWhiteSpace(name))
+                        return null;
 
-                //LocalCacheProductSource.AddProduct(name, gtin);
+                    //LocalCacheProductSource.AddProduct(name, gtin);
 
-                BasicProduct p = new BasicProduct { Name = name, Gtin = gtin };
+                    BasicProduct p = new BasicProduct { Name = name, Gtin = gtin };
 
-                return p;
+                    return p;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
