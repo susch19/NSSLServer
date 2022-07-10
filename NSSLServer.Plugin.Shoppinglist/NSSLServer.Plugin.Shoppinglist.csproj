@@ -25,13 +25,13 @@
 		<PackageReference Include="NSSLServer.Database" Version="0.0.1.31" />
 		<PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.31" />
 		<PackageReference Include="NSSLServer.Plugin.Userhandling" Version="0.0.1.31" />
-		<PackageReference Include="NSSLServer.Shared" Version="0.0.1.31" />
+		<PackageReference Include="NSSLServer.Shared" Version="0.0.1.36" />
 	</ItemGroup>
-	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true" />-->
+	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''" />-->
 	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
 
 	<ItemGroup>
-		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true">
+		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
