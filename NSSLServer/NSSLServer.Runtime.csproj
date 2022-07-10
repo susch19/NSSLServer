@@ -52,6 +52,7 @@
 		<ProjectReference Include="..\NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj" />
 		<ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
 		<ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
+		<ProjectReference Include="..\NSSLServer.Plugin.Webapp\NSSLServer.Plugin.Webapp.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

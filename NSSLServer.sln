@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.OpenFoodF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Products.Core", "NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj", "{4F9ACA82-85A8-44AE-9428-64E483075465}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Plugin.Webapp", "NSSLServer.Plugin.Webapp\NSSLServer.Plugin.Webapp.csproj", "{5E6C7393-B1AB-4D4D-83BB-B3B7D2351FDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{4F9ACA82-85A8-44AE-9428-64E483075465}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F9ACA82-85A8-44AE-9428-64E483075465}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F9ACA82-85A8-44AE-9428-64E483075465}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E6C7393-B1AB-4D4D-83BB-B3B7D2351FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E6C7393-B1AB-4D4D-83BB-B3B7D2351FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E6C7393-B1AB-4D4D-83BB-B3B7D2351FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E6C7393-B1AB-4D4D-83BB-B3B7D2351FDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
