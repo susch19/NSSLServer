@@ -40,7 +40,13 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                 if (!alreadyBought)
                     list.Products = await tempQuery.Where(l => l.Amount.Neq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
                 else
+                {
                     list.Products = await tempQuery.Where(l => l.Amount.Eq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
+                    foreach (var item in list.Products)
+                    {
+                        item.Amount = item.BoughtAmount;
+                    }
+                }
 
                 //list.Products = await Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id))
                 //        .OrderBy(t => t.Id.Asc())
@@ -239,7 +245,10 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                 {
                     ctc.Track(product);
                     if (product.Amount + change <= 0 || change == 0)
+                    {
+                        product.BoughtAmount = product.Amount;
                         product.Amount = 0;
+                    }
                     else
                         product.Amount += change;
                     hash += product.Amount + product.Id;
