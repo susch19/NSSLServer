@@ -48,10 +48,13 @@ namespace NSSLServer
 
             var startup = new Startup(builder.Configuration, builder.Environment);
             startup.ConfigureServices(builder.Services);
+            PluginLoader.InitializeConfigureServices(builder.Services);
 
             var app = builder.Build();
             startup.Configure(app, app.Environment);
+            PluginLoader.InitializeConfigure(app, app.Environment);
             app.Run();
+            
         }
     }
 }

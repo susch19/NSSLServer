@@ -1,5 +1,9 @@
 ﻿using FirebaseAdmin.Messaging;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+
 using NLog;
 
 using NSSLServer.Core.Extension;
@@ -51,6 +55,20 @@ namespace NSSLServer.Features
                 }
 
             }
+        }
+
+        internal void InitializeConfigure(IApplicationBuilder app, IWebHostEnvironment environment)
+        {
+            foreach (var item in plugins)
+                item.Configure(app, environment);
+
+        }
+
+        internal void InitializeConfigureServices(IServiceCollection services)
+        {
+            foreach (var item in plugins)
+                item.ConfigureServices(services);
+
         }
 
         internal void InitializeDbUpdater()
