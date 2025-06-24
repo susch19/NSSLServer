@@ -33,8 +33,8 @@ jobs:
       run: dotnet build --configuration Release
     - name: Create Nuget Package
       run: dotnet pack -c Release -o ./artifacts
-      if: matrix.os == 'ubuntu-latest' && github.event_name != 'pull_request'
+      if: matrix.os == 'ubuntu-latest' && github.event_name == 'workflow_dispatch'
     - name: Deploy Nuget Package
       run: dotnet nuget push ./artifacts/'*.nupkg' -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
       shell: bash
-      if: matrix.os == 'ubuntu-latest' && github.event_name != 'pull_request'
+      if: matrix.os == 'ubuntu-latest' && github.event_name == 'workflow_dispatch'
