@@ -6,6 +6,7 @@ using NSSLServer.Models;
 using NSSLServer.Models.DatabaseConnection;
 using NSSLServer.Plugin.Shoppinglist.Manager;
 using NSSLServer.Plugin.Userhandling.Manager;
+using NSSLServer.Core;
 
 using System;
 using System.Linq;
@@ -16,7 +17,7 @@ using static NSSLServer.Shared.ResultClasses;
 
 namespace NSSLServer.Plugin.Shoppinglist.Controller
 {
-    [Route("shoppinglists"), WithDbContext]
+    [Route("shoppinglists"), WithDbContext, ExtractDeviceToken]
     public class ShoppingListModule : AuthenticatingDbContextController
     {
         //[HttpGet, Route("products/{identifier}")]
@@ -62,17 +63,18 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         }
 
         [HttpPost, Route("{listId}/contributors")]
-        public async Task<IActionResult> AddContributor(int listId, [FromBody]AddContributorArgs args)
+        public async Task<IActionResult> AddContributor(int listId, [FromBody] AddContributorArgs args)
         {
             if (listId == 0 || string.IsNullOrWhiteSpace(args.Name))
                 return Json(new AddContributorResult { Error = "Wrong arguments" });// new Response { StatusCode = HttpStatusCode.BadRequest };
 
-            User u = await UserManager.FindUserByName(Context.Connection, args.Name); ;
+            User u = await UserManager.FindUserByName(Context.Connection, args.Name);
+            ;
 
             if (u == null)
                 return Json(new AddContributorResult { Error = "User not found" });
 
-            return Json(await ShoppingListManager.AddContributor(Context, listId, Session.Id, u));
+            return Json(await ShoppingListManager.AddContributor(Context, listId, Session.Id, u, HttpContext.GetDeviceToken()));
         }
 
         [HttpGet, Route("{listId}/contributors")]
@@ -84,19 +86,19 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         }
 
         [HttpPut, Route("{listId}/products/{productId}")]
-        public async Task<IActionResult> ChangeProduct(int listId, int productId, [FromBody]ChangeProductArgs args)
+        public async Task<IActionResult> ChangeProduct(int listId, int productId, [FromBody] ChangeProductArgs args)
         {
             if (listId == 0 || productId == 0 || (!args.Change.HasValue && string.IsNullOrWhiteSpace(args.NewName)))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.HasValue ? args.Change.Value : 0, args.Order, args.NewName)));
+            return Json((await ShoppingListManager.ChangeProduct(Context, listId, Session.Id, productId, args.Change.HasValue ? args.Change.Value : 0, args.Order, args.NewName, HttpContext.GetDeviceToken())));
         }
-        
+
         [HttpPut, Route("{listId}")]
-        public async Task<IActionResult> RenameList(int listId, [FromBody]ChangeListNameArgs args)
+        public async Task<IActionResult> RenameList(int listId, [FromBody] ChangeListNameArgs args)
         {
             if (listId == 0 || string.IsNullOrWhiteSpace(args.Name))
                 return Json(new Result { Success = false, Error = "ListID is wrong or name is empty" });
-            return Json(await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name));
+            return Json(await ShoppingListManager.ChangeListname(Context, listId, Session.Id, args.Name, HttpContext.GetDeviceToken()));
         }
 
         [HttpDelete, Route("{listId}")]
@@ -104,12 +106,17 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         {
             if (listId == 0)
                 return Json(new Result { Error = "No list id was provided", Success = false });
-            return Json((await ShoppingListManager.DeleteList(Context, listId, Session.Id)));
+            return Json((await ShoppingListManager.DeleteList(Context, listId, Session.Id, HttpContext.GetDeviceToken())));
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddList([FromBody]AddListArgs args)
-        => Json((await ShoppingListManager.AddList(Context, args.Name, Session.Id)));
+        public async Task<IActionResult> AddList([FromBody] AddListArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(args.Name))
+                return new BadRequestResult();
+
+            return Json((await ShoppingListManager.AddList(Context, args.Name, Session.Id)));
+        }
 
 
         [HttpDelete, Route("{listId}/products/{productId}")]
@@ -117,29 +124,39 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         {
             if (listId == 0 || productId == 0)
                 return new BadRequestResult();
-            return Json(await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId));
+            return Json(await ShoppingListManager.DeleteProduct(Context, listId, Session.Id, productId, HttpContext.GetDeviceToken()));
         }
 
         [HttpPost, Route("{listId}/products/batchaction/{command}")]
-        public async Task<IActionResult> BatchAction(int listId, string command, [FromBody]BatchProductArgs args)
+        public async Task<IActionResult> BatchAction(int listId, string command, [FromBody] BatchProductArgs args)
         {
             if (listId == 0 || args.ProductIds.Count == 0 || string.IsNullOrWhiteSpace(command))
                 return new BadRequestResult();
             switch (command.ToLower())
             {
-                case "delete": return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds));
-                case "change": return Json(await ShoppingListManager.ChangeProducts(Context, listId, Session.Id, args.ProductIds, args.Amount));
-                case "order": return Json(await ShoppingListManager.ReorderProducts(Context, listId, Session.Id, args.ProductIds));
-                default: return Json(new Result { Error = "action could not be found", Success = false });
+                case "delete":
+                    return Json(await ShoppingListManager.DeleteProducts(Context, listId, Session.Id, args.ProductIds, HttpContext.GetDeviceToken()));
+                case "change":
+                    return Json(await ShoppingListManager.ChangeProducts(Context, listId, Session.Id, args.ProductIds, args.Amount, HttpContext.GetDeviceToken()));
+                case "order":
+                    return Json(await ShoppingListManager.ReorderProducts(Context, listId, Session.Id, args.ProductIds, HttpContext.GetDeviceToken()));
+                default:
+                    return Json(new Result { Error = "action could not be found", Success = false });
             }
         }
 
         [HttpPost, Route("{listId}/products")]
-        public async Task<IActionResult> AddProduct(int listId, [FromBody]AddProductArgs args)
+        public async Task<IActionResult> AddProduct(int listId, [FromBody] AddProductArgs args)
         {
-            if (listId == 0 || (string.IsNullOrWhiteSpace(args.Gtin) && string.IsNullOrWhiteSpace(args.ProductName)))
+            Plugin.Logger.Warn($"Adding product with name \"{args.ProductName}\" and gtin \"{args.Gtin}\" to list {listId}");
+            if (listId == 0
+                || ((string.IsNullOrWhiteSpace(args.Gtin) 
+                        || !ulong.TryParse(args.Gtin, out _)) 
+                    && string.IsNullOrWhiteSpace(args.ProductName)
+                    ))
                 return new BadRequestResult();
-            return Json((await ShoppingListManager.AddProduct(Context, listId, Session.Id, args.ProductName, args.Gtin, args.Amount.Value, args.Order)));
+
+            return Json((await ShoppingListManager.AddProduct(Context, listId, Session.Id, args.ProductName, args.Gtin, args.Amount.Value, args.Order, HttpContext.GetDeviceToken())));
         }
     }
 }

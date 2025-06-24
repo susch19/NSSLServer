@@ -25,6 +25,10 @@ namespace NSSLServer.Plugin.Webapp
             return true;
         }
 
+        void IPlugin.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)
+        {
+        }
+
         void IPlugin.Configure(IApplicationBuilder app, IWebHostEnvironment environment)
         {
             app.UseFileServer(new FileServerOptions()

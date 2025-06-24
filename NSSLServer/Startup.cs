@@ -39,6 +39,7 @@ namespace NSSLServer
                 .Distinct()
                 .ToArray();
 
+            services.AddCors();
             services
                 .AddMvc()
                 .ConfigureApplicationPartManager(manager =>
@@ -110,6 +111,7 @@ namespace NSSLServer
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(o => o.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseSwagger();
             app.UseSwaggerUI(configuration =>
             {
@@ -121,7 +123,7 @@ namespace NSSLServer
             app.UseRouting();
             app.Use(async (ctx, f) =>
             {
-                ctx.Response.Headers["Access-Control-Allow-Origin"] = ctx.Request.Headers.TryGetValue("Origin", out StringValues originValues) ? originValues[0] : "*";
+                ctx.Response.Headers["Access-Control-Allow-Origin"] = "*";// ctx.Request.Headers.TryGetValue("Origin", out StringValues originValues) ? originValues[0] : "*";
                 ctx.Response.Headers["Access-Control-Allow-Credentials"] = "true";
                 if (ctx.Request.Method == "OPTIONS")
                 {

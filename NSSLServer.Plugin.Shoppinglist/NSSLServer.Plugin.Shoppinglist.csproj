@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<PackageId>NSSLServer.Plugin.Shoppinglist</PackageId>
 		<description>Extension Plugin for nssl server for shoppinglist functionality.</description>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="2.3.0" />
+		<PackageReference Include="FirebaseAdmin" Version="3.2.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
@@ -21,11 +21,11 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
-		<PackageReference Include="NSSLServer.Core" Version="0.0.1.31" />
-		<PackageReference Include="NSSLServer.Database" Version="0.0.1.31" />
-		<PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.31" />
-		<PackageReference Include="NSSLServer.Plugin.Userhandling" Version="0.0.1.31" />
-		<PackageReference Include="NSSLServer.Shared" Version="0.0.1.36" />
+		<PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
+		<PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
+		<PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.*" />
+		<PackageReference Include="NSSLServer.Plugin.Userhandling" Version="0.0.1.*" />
+		<PackageReference Include="NSSLServer.Shared" Version="0.0.1.*" />
 	</ItemGroup>
 	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''" />-->
 	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />

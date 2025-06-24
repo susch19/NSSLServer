@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NSSLServer.Plugin.Recipes.Controller
 {
-    [Route("recipe"), WithDbContext]
+    [Route("recipe"), WithDbContext, ExtractDeviceToken]
     public class RecipeController : AuthenticatingDbContextController
     {
         private const string BaseUrl = "https://api.chefkoch.de/v2/recipes/";
@@ -91,7 +91,7 @@ namespace NSSLServer.Plugin.Recipes.Controller
                 var amount = item.Amount == 0 ? "" : item.Amount.ToString();
 
                 await ShoppingListManager.AddProduct(Context, listId, Session.Id,
-                    $"{item.Name} {amount} {item.Unit}{item.UsageInfo}".Trim(), null, 1, null);
+                    $"{item.Name} {amount} {item.Unit}{item.UsageInfo}".Trim(), null, 1, null, HttpContext.GetDeviceToken());
             }
 
             return Json(await ShoppingListManager.LoadShoppingList(listId, false, Session.Id));
@@ -105,7 +105,7 @@ namespace NSSLServer.Plugin.Recipes.Controller
                 return default;
 
             return await _httpClient.GetFromJsonAsync<Recipe>($"{BaseUrl}{match.Value}");
-            
+
         }
     }
 }

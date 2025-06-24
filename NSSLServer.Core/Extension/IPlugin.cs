@@ -11,10 +11,10 @@ namespace NSSLServer.Core.Extension
 {
 
     /// <summary>
-    /// 
+    /// Interface for plugins 
     /// </summary>
     /// <remarks>
-    ///  Has to contain emtpy ctor, otherwise not loaded
+    ///  Has to contain empty ctor, otherwise not loaded
     /// </remarks>
     public interface IPlugin
     {

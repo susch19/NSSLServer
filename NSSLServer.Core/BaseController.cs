@@ -5,8 +5,7 @@ using Microsoft.Extensions.Primitives;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-
-
+using NSSLServer;
 using NSSLServer.Core.Authentication;
 using NSSLServer.Shared;
 
@@ -66,6 +65,19 @@ namespace NSSLServer
         }
     }
 
+    public class ExtractDeviceTokenAttribute : Attribute, IAsyncResourceFilter
+    {
+        internal const string ItemDicKey = "device_token";
+
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+        {
+            if (context.HttpContext.Request.Headers.TryGetValue("DeviceToken", out StringValues sv) && sv.Count > 0)
+                context.HttpContext.Items[ItemDicKey] = sv.First();
+
+            await next.Invoke();
+        }
+    }
+
 
     public class ExtractJwtSessionFilterAttribute : Attribute, IAsyncResourceFilter
     {
@@ -84,7 +96,7 @@ namespace NSSLServer
                 if (JsonWebToken.Decode<NsslSession>(sv[0], JwtKeyBytes, true, out NsslSession s))
                     context.HttpContext.Items[ItemDicKey] = s;
             }
-            
+
             await next.Invoke();
         }
 
@@ -123,5 +135,15 @@ namespace NSSLServer
     public class AuthenticatingController : BaseController
     {
 
+    }
+}
+
+public static class HttpContextExtension
+{
+    public static string GetDeviceToken(this HttpContext context)
+    {
+        if (context.Items.TryGetValue(ExtractDeviceTokenAttribute.ItemDicKey, out var token) && token is string t)
+            return t;
+        return "";
     }
 }
