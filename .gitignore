@@ -263,3 +263,5 @@ ModelManifest.xml
 /NSSLServer/WebRequest.los
 /NSSLServer/external/*
 /NSSLServer/Static
+/NSSLServer
+/Plugins

@@ -1,31 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+	</PropertyGroup>
 
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
-    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
-    <PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
-    <PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+		<PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
+		<PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
+	</ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
+	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
 
-  <ItemGroup>
-    <PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
-  <Target Name="LocalToolRestore" BeforeTargets="restore ">
-    <Message Text="Restore" Importance="High" />
-  </Target>
+	<Target Name="LocalToolRestore" BeforeTargets="restore ">
+		<Message Text="Restore" Importance="High" />
+	</Target>
+
+	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="##### Copy Dlls for $(ProjectName)#####" Importance="high" />
+		<ItemGroup>
+			<PluginDlls Include="$(TargetDir)\$(ProjectName).dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PluginDlls)" DestinationFiles="@(PluginDlls->'$(SolutionDir)Plugins\%(Filename)%(Extension)')" />
+	</Target>
 
 </Project>

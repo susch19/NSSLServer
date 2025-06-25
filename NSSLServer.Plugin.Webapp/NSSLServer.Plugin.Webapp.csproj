@@ -1,18 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
-    <PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+		<PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
-    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+	</ItemGroup>
+
+	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="##### Copy Dlls for $(ProjectName)#####" Importance="high" />
+		<ItemGroup>
+			<PluginDlls Include="$(TargetDir)\$(ProjectName).dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PluginDlls)" DestinationFiles="@(PluginDlls->'$(SolutionDir)Plugins\%(Filename)%(Extension)')" />
+	</Target>
 
 </Project>

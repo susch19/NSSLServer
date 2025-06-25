@@ -18,4 +18,12 @@
     <ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
   </ItemGroup>
 
+	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="##### Copy Dlls for $(ProjectName)#####" Importance="high" />
+		<ItemGroup>
+			<PluginDlls Include="$(TargetDir)\$(ProjectName).dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PluginDlls)" DestinationFiles="@(PluginDlls->'$(SolutionDir)Plugins\%(Filename)%(Extension)')" />
+	</Target>
+
 </Project>
