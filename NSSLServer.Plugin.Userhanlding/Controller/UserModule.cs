@@ -61,6 +61,8 @@ namespace NSSLServer.Plugin.Userhandling.Controller
         }
     }
 
+
+
    
     [Route("password")]
     public class ResetPassword : BaseController
@@ -120,4 +122,28 @@ namespace NSSLServer.Plugin.Userhandling.Controller
         }
     }
 
+
+    [Route("data")]
+    public class DataController : BaseController
+    {
+        //public class Token
+        //{
+        //    public string token { get; set; }
+        //}
+
+        [HttpGet, Route("removal")]
+        // [Produces("text/html")]
+        public ContentResult ResetPasswordWebsite([FromQuery] string token)
+        {
+            var path = "Static/request_removal.html";
+            var content = System.IO.File.ReadAllText(path);
+
+            return new ContentResult
+            {
+                ContentType = "text/html",
+                StatusCode = (int)HttpStatusCode.OK,
+                Content = content
+            };
+        }
+    }
 }

@@ -1,24 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="libs\**" />
-    <EmbeddedResource Remove="libs\**" />
-    <None Remove="libs\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="libs\**" />
+		<EmbeddedResource Remove="libs\**" />
+		<None Remove="libs\**" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
-    <PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
-    <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+		<ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+	</ItemGroup>
 
+	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="##### Copy Dlls for $(ProjectName)#####" Importance="high" />
+		<ItemGroup>
+			<PluginDlls Include="$(TargetDir)\$(ProjectName).dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PluginDlls)" DestinationFiles="@(PluginDlls->'$(SolutionDir)Plugins\%(Filename)%(Extension)')" />
+	</Target>
 </Project>
