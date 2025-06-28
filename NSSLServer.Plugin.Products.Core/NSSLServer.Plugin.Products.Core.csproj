@@ -1,38 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
 
 
-	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
-		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
-		<PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
-		<PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
-	</ItemGroup>
-	
-	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''" />-->  
-	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+    <PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
+    <PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-	<Target Name="LocalToolRestore" BeforeTargets="restore ">
-		<Message Text="Restore" Importance="High" />
-	</Target>
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
 
-	<!--<Target Name="LocalToolRestore2" BeforeTargets="_GenerateRestoreProjectSpec">
-		<Message Text="Restore 2" Importance="High" />
-	</Target>
-	<Target Name="LocalToolRestore" BeforeTargets="_CheckCompileDesignTimePrerequisite">
-		<Message Text="Restore 3" Importance="High" />
-	</Target>-->
+  <ItemGroup>
+    <PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="LocalToolRestore" BeforeTargets="restore ">
+    <Message Text="Restore" Importance="High" />
+  </Target>
 
 </Project>

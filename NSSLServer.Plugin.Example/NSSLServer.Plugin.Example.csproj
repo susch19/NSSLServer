@@ -1,27 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<IsPackable>false</IsPackable>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Remove="ExampleUpdater_Scripts\1.0.0.001.sql" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Remove="ExampleUpdater_Scripts\*.*" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="ExampleUpdater_Scripts\1.0.0.001.sql" />
-	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ExampleUpdater_Scripts\*.*" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
-		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-	</ItemGroup>
-	
-	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
-		<PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
-		<PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+    <PackageReference Include="NSSLServer.Core" Version="0.0.1.*" />
+    <PackageReference Include="NSSLServer.Database" Version="0.0.1.*" />
+  </ItemGroup>
 
 </Project>

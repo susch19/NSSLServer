@@ -2,12 +2,9 @@
 using Deviax.QueryBuilder.ChangeTracking;
 using Deviax.QueryBuilder.Parts;
 using NSSLServer.Models;
-using NSSLServer.Plugin.Shoppinglist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using static NSSLServer.Shared.ResultClasses;
 

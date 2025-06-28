@@ -3,11 +3,8 @@
 using NLog;
 
 using NSSLServer.Core.Extension;
-using NSSLServer.Database;
 using NSSLServer.Plugin.Products.Core;
 using NSSLServer.Plugin.Shoppinglist.Sources;
-
-using System;
 
 namespace NSSLServer.Plugin.OpenFoodFacts
 {

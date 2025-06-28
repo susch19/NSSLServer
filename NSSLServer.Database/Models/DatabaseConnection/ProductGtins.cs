@@ -1,11 +1,4 @@
-﻿using Deviax.QueryBuilder;
-using Deviax.QueryBuilder.Parts;
-using NSSLServer.Models.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NSSLServer.Models.DatabaseConnection
 {

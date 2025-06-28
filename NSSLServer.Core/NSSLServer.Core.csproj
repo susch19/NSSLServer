@@ -1,29 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<PackageId>NSSLServer.Core</PackageId>
-		<description>Core dll for creating a nssl server plugin.</description>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <PackageId>NSSLServer.Core</PackageId>
+    <description>Core dll for creating a nssl server plugin.</description>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="LitGit" Version="0.2.0.56-alpha" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.6" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="NLog" Version="6.0.0" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="6.0.0" />
+  </ItemGroup>
 
-	<!--<Import Project="..\NSSLServer.Nuget.Litgit.props" Condition="$(IsDockerBuild)!=true AND '$(CI)' != ''" />-->
-	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND $(IsDockerBuild)!=true" />
+  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
 
-
-
-	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+  </ItemGroup>
 
 </Project>

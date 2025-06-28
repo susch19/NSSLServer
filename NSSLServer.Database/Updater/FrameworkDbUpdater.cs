@@ -5,11 +5,6 @@ using NSSLServer.Database.Models;
 using NSSLServer.Models;
 using NSSLServer.Models.Products;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace NSSLServer.Database.Updater
 {

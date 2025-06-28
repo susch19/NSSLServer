@@ -1,66 +1,49 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<Project Sdk="Microsoft.NET.Sdk.Web">
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<AssemblyName>NSSLServer</AssemblyName>
-		<OutputType>Exe</OutputType>
-		<DebugType>portable</DebugType>
-		<PackageId>NSSLServer.Runtime</PackageId>
-		<description>The runtime for hosting a nssl server. Loads plugins and additional controllers.</description>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<IsPackable>false</IsPackable>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>TRACE;DEBUG</DefineConstants>
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DocumentationFile></DocumentationFile>
-		<OutputPath>..\bin\</OutputPath>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Remove="connectionstring" />
-		<None Remove="connectionstring_docker" />
-		<None Remove="emailcert" />
-		<None Remove="firebase.key" />
-		<None Remove="LastUpdate.log" />
-		<None Remove="secretkey" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\.editorconfig" Link=".editorconfig" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="3.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.3.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
-		<PackageReference Include="NLog" Version="6.0.0" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="6.0.0" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
-	</ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>NSSLServer</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <DebugType>portable</DebugType>
+    <PackageId>NSSLServer.Runtime</PackageId>
+    <description>The runtime for hosting a nssl server. Loads plugins and additional controllers.</description>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-		<ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
-		<ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
-	</ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile></DocumentationFile>
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
 
-	<ItemGroup Condition="$(Configuration) == 'Debug'">
-		<ProjectReference Include="..\NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj" />
-		<ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
-		<ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
-		<ProjectReference Include="..\NSSLServer.Plugin.Webapp\NSSLServer.Plugin.Webapp.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="3.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
+    <PackageReference Include="NLog" Version="6.0.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="6.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<Resource Include="LastUpdate.log" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="Views;Areas\**\Views">
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</None>
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+    <ProjectReference Include="..\NSSLServer.Shared\NSSLServer.Shared.csproj" />
+    <ProjectReference Include="..\NSSLServer.Database\NSSLServer.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(Configuration) == 'Debug'">
+    <ProjectReference Include="..\NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.Webapp\NSSLServer.Plugin.Webapp.csproj" />
+  </ItemGroup>
+
 </Project>

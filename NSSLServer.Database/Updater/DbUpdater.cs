@@ -1,7 +1,4 @@
 ﻿using Deviax.QueryBuilder;
-using Deviax.QueryBuilder.Parts;
-
-using Microsoft.Extensions.FileProviders.Embedded;
 
 using NLog;
 
@@ -12,8 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NSSLServer.Database.Updater

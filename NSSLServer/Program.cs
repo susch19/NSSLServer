@@ -1,13 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
-
-using NLog.Web;
+﻿using NLog.Web;
 
 using NSSLServer.Features;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NSSLServer
 {

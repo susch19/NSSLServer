@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace NSSLServer.Models
+﻿namespace NSSLServer.Models
 {
     public class DbFunctionModel
     {

@@ -2,8 +2,6 @@
 
 using NSSLServer.Core.Extension;
 
-using System;
-
 namespace NSSLServer.Plugin.Products.Core
 {
     public class ProductsPlugin : IPlugin

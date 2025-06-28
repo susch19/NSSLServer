@@ -1,22 +1,10 @@
-﻿using FirebaseAdmin.Messaging;
-
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-
-using NLog;
+﻿using NLog;
 
 using NSSLServer.Core.Extension;
 using NSSLServer.Core.HelperMethods;
 using NSSLServer.Database.Updater;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading.Tasks;
 
 namespace NSSLServer.Features
 {
@@ -26,7 +14,7 @@ namespace NSSLServer.Features
         public List<IDbUpdater> DbUpdater { get; } = new List<IDbUpdater>();
 
         private List<IPlugin> plugins = new List<IPlugin>();
-        private readonly ILogger logger;
+        private readonly NLog.ILogger logger;
 
         public PluginLoader(LogFactory logFactory)
         {

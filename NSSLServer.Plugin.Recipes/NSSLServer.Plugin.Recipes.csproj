@@ -1,29 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<IsPackable>false</IsPackable>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Remove="libs\**" />
-		<EmbeddedResource Remove="libs\**" />
-		<None Remove="libs\**" />
-	</ItemGroup>
+  <ItemGroup>
+    <Compile Remove="libs\**" />
+    <EmbeddedResource Remove="libs\**" />
+    <None Remove="libs\**" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
-	  <PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.*" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+    <PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.*" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
-		<ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
-	</ItemGroup>
-
-	<!--<ItemGroup>
-		<PackageReference Include="NSSLServer.Plugin.Shoppinglist" Version="0.0.1.30" />
-	</ItemGroup>-->
-
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+    <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -2,8 +2,6 @@
 
 using NSSLServer.Core.Extension;
 
-using System;
-
 namespace NSSLServer.Plugin.Example
 {
     public class ExamplePlugin : IPlugin
