@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 using NSSLServer.Database;
 using NSSLServer.Database.Attributes;
 using NSSLServer.Models;
@@ -143,7 +143,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         [HttpPost, Route("{listId}/products")]
         public async Task<IActionResult> AddProduct(int listId, [FromBody] AddProductArgs args)
         {
-            Plugin.Logger.Warn($"Adding product with name \"{args.ProductName}\" and gtin \"{args.Gtin}\" to list {listId}");
+            Plugin.Logger.LogWarning("""Adding product with name "{productName}" and gtin "{gtin}" to list {listId}""", args.ProductName, args.Gtin, listId);
             if (listId == 0
                 || ((string.IsNullOrWhiteSpace(args.Gtin) 
                         || !ulong.TryParse(args.Gtin, out _)) 

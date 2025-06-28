@@ -1,21 +1,8 @@
-﻿using NLog;
+﻿using NSSLServer.Core.Extension;
 
-using NSSLServer.Core.Extension;
+namespace NSSLServer.Plugin.Products.Core;
 
-namespace NSSLServer.Plugin.Products.Core
+public class ProductsPlugin : IPlugin
 {
-    public class ProductsPlugin : IPlugin
-    {
-        private Logger logger;
-
-        public string Name { get; }
-
-        public bool Initialize(LogFactory factory)
-        {
-            logger = factory.GetCurrentClassLogger();
-            return true;
-        }
-
-
-    }
+    public string Name { get; } = "Products Core Plugin";
 }
