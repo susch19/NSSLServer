@@ -1,14 +1,7 @@
-﻿using NSSLServer.Database;
-using NSSLServer.Models;
-using NSSLServer.Models.Products;
+﻿using NSSLServer.Models;
 using NSSLServer.Plugin.Products.Core;
 using NSSLServer.Plugin.Shoppinglist.Sources;
-
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 using static NSSLServer.Shared.ResultClasses;

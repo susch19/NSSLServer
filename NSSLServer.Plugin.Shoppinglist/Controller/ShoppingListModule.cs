@@ -3,13 +3,8 @@
 using NSSLServer.Database;
 using NSSLServer.Database.Attributes;
 using NSSLServer.Models;
-using NSSLServer.Models.DatabaseConnection;
 using NSSLServer.Plugin.Shoppinglist.Manager;
 using NSSLServer.Plugin.Userhandling.Manager;
-using NSSLServer.Core;
-
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using static NSSLServer.Shared.RequestClasses;

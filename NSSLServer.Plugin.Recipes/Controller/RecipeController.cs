@@ -5,7 +5,6 @@ using NSSLServer.Plugin.Recipes.Model;
 using NSSLServer.Plugin.Shoppinglist.Manager;
 using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;

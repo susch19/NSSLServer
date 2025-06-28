@@ -3,18 +3,9 @@
 using NLog;
 
 using NSSLServer.Core.Extension;
-using NSSLServer.Core.HelperMethods;
-using NSSLServer.Database;
-using NSSLServer.Models;
 using NSSLServer.Plugin.Products.Core;
 using NSSLServer.Plugin.Shoppinglist.Sources;
-
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NSSLServer.Plugin.Shoppinglist
 {

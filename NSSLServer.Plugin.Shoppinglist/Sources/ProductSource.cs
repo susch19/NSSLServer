@@ -3,15 +3,10 @@ using Deviax.QueryBuilder.Parts;
 
 using NSSLServer.Database;
 using NSSLServer.Models;
-using NSSLServer.Models.DatabaseConnection;
 using NSSLServer.Models.Products;
 
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NSSLServer.Plugin.Shoppinglist.Sources

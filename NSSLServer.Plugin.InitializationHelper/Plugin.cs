@@ -2,8 +2,6 @@
 using System.IO;
 
 using NLog;
-
-using NSSLServer.Core;
 using NSSLServer.Core.Extension;
 
 namespace NSSLServer.Plugin.InitializationHelper

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Deviax.QueryBuilder;
 using NSSLServer.Models;
 using System.Net;
-using System;
 using NSSLServer.Database.Attributes;
 using NSSLServer.Database;
 using NSSLServer.Plugin.Userhandling.Manager;
