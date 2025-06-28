@@ -1,33 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using NLog;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 using NSSLServer.Core.Extension;
 using NSSLServer.Plugin.Products.Core;
 using NSSLServer.Plugin.Shoppinglist.Sources;
 
-namespace NSSLServer.Plugin.OpenFoodFacts
+namespace NSSLServer.Plugin.OpenFoodFacts;
+
+public class Plugin : IPlugin
 {
-    public class Plugin : IPlugin
+    /// <inheritdoc/>
+    public string Name { get; } = "OpenFood Facts API Plugin";
+
+    /// <inheritdoc/>
+    public void Configure(WebApplication app)
     {
-        private Logger logger;
-
-        public string Name => "OpenFood Facts API Plugin";
-
-        internal ServiceProvider ServiceProvider { get; private set; }
-
-        public bool Initialize(LogFactory factory)
-        {
-            logger = factory.GetCurrentClassLogger();
-
-
-            return true;
-        }
-
-        void IPlugin.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)
-        {
-            ServiceProvider = services.BuildServiceProvider();
-            ProductSources.Instance.AddNewSource(ActivatorUtilities.CreateInstance<OpenFoodFactsSource>(ServiceProvider));
-        }
+        ProductSources.Instance.AddNewSource(ActivatorUtilities.CreateInstance<OpenFoodFactsSource>(app.Services));
     }
 }

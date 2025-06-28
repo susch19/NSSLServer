@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65527620-5DCC-4BD5-9D5E-E00E34858168}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSSLServer.Runtime", "NSSLServer\NSSLServer.Runtime.csproj", "{492180CB-E065-4E9B-A7CD-9B6CA3BA1FA4}"

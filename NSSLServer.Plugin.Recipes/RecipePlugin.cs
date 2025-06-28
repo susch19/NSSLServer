@@ -1,19 +1,10 @@
-﻿using NLog;
-using NSSLServer.Core.Extension;
+﻿using NSSLServer.Core.Extension;
 
-namespace NSSLServer.Plugin.Recipes
+namespace NSSLServer.Plugin.Recipes;
+
+/// <inheritdoc/>
+public class RecipePlugin : IPlugin
 {
-    public class RecipePlugin : IPlugin
-    {
-        public string Name => nameof(RecipePlugin);
-
-        internal static Logger Logger { get; private set; }
-
-        public bool Initialize(LogFactory factory)
-        {
-            Logger = factory.GetCurrentClassLogger();
-
-            return true;
-        }
-    }
+    /// <inheritdoc/>
+    public string Name { get; } = nameof(RecipePlugin);
 }

@@ -1,20 +1,18 @@
 ﻿using Deviax.QueryBuilder;
-
-using NLog;
+using Microsoft.AspNetCore.Builder;
 
 using NSSLServer.Core.Extension;
 
-namespace NSSLServer.Database
+namespace NSSLServer.Database;
+
+public class Plugin : IPlugin
 {
-    public class Plugin : IPlugin
+    /// <inheritdoc/>
+    public string Name { get; } = "Database Core Plugin";
+
+    /// <inheritdoc/>
+    public void Configure(WebApplication app)
     {
-        public string Name { get; } = "Database Core Plugin";
-
-        public bool Initialize(LogFactory logFactory)
-        {
-            QueryExecutor.DefaultExecutor = new PostgresExecutor();
-
-            return true;
-        }
+        QueryExecutor.DefaultExecutor = new PostgresExecutor();
     }
 }

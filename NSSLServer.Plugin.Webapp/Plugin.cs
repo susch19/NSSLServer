@@ -1,42 +1,28 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
-
-using NLog;
 
 using NSSLServer.Core.Extension;
 
 using System.IO;
 
-namespace NSSLServer.Plugin.Webapp
+namespace NSSLServer.Plugin.Webapp;
+
+public class Plugin : IPlugin
 {
-    public class Plugin : IPlugin
+    /// <inheritdoc/>
+    public string Name { get; } = "WebappPlugin";
+
+    /// <inheritdoc/>
+    public void Configure(WebApplication app)
     {
-        public string Name => "WebappPlugin";
+        var path = Path.Combine(app.Environment.ContentRootPath, "Static", "web");
+        Directory.CreateDirectory(path);
 
-        internal static Logger Logger { get; private set; }
-
-        public bool Initialize(LogFactory factory)
+        app.UseFileServer(new FileServerOptions()
         {
-            Logger = factory.GetCurrentClassLogger();
-
-            return true;
-        }
-
-        void IPlugin.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)
-        {
-        }
-
-        void IPlugin.Configure(IApplicationBuilder app, IWebHostEnvironment environment)
-        {
-            app.UseFileServer(new FileServerOptions()
-            {
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(environment.ContentRootPath, "Static", "web")),
-                RequestPath = new PathString("/webapp")
-            });
-        }
-
+            FileProvider = new PhysicalFileProvider(path),
+            RequestPath = new PathString("/webapp")
+        });
     }
 }
