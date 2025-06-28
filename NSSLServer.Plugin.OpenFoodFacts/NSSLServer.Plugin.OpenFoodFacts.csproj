@@ -1,22 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<IsPackable>false</IsPackable>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\bin\</OutputPath>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Release' AND '$(CI)' == ''">
-	  <PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.*" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(CI)' == ''">
+    <PackageReference Include="NSSLServer.Plugin.Products.Core" Version="0.0.1.*" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(CI)' != ''">
-	  <ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
-	</ItemGroup>
-
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(CI)' != ''">
+    <ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
+  </ItemGroup>
 
 </Project>
