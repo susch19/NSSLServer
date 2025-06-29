@@ -1,23 +1,27 @@
 ﻿using Deviax.QueryBuilder;
+using NSSLServer.Models;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NSSLServer
 {
+    [Table("list_item")] //This should be migrated to end with s
     public class ListItem
     {
+        [PrimaryKey]
         public int Id { get; set; }
         public string Gtin { get; set; }
         public string Name { get; set; }
         public int ListId { get; set; }
       //[Column("quantity")]
-        public int Amount { get; set; }
-        public int BoughtAmount { get; set; }
+        public int? Amount { get; set; }
+        public int? BoughtAmount { get; set; }
         public int SortOrder { get; set; }
-        public DateTime Changed { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime? Changed { get; set; }
+        public DateTime? Created { get; set; }
 
-        //[ForeignKey(nameof(ListId))]
-        //public virtual ShoppingList ShoppingList {get;set;}
+        [ForeignKey(nameof(ListId))]
+        public virtual ShoppingList ShoppingList { get; set; }
         public ListItem() { }
         //public ListItem(int listid, string gtin = null,string name = null,int amount = 1 )
         //{

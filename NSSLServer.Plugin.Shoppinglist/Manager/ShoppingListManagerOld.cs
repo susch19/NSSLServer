@@ -1,61 +1,61 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Deviax.QueryBuilder;
+using Deviax.QueryBuilder.ChangeTracking;
+using Deviax.QueryBuilder.Parts;
 using NSSLServer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static NSSLServer.Shared.ResultClasses;
-using static NSSLServer.Shared.ResultClasses.GetContributorsResult;
-using static NSSLServer.Shared.ResultClasses.ListsResult;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 namespace NSSLServer.Plugin.Shoppinglist.Manager
 {
-    public static class ShoppingListManager
+    public static class ShoppingListManagerOld
     {
         public static async Task<ShoppingList> LoadShoppingList(DBContext c, int listId, bool alreadyBought, int userId)
         {
-            c.ChangeTracker.LazyLoadingEnabled = false;
-            c.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var list = c.Contributors
-                .Include(x => x.ShoppingList)
-                .FirstOrDefault(x => x.UserId == userId && x.ListId == listId)
-                ?.ShoppingList;
-
-            if (list == null)
-                return new ShoppingList { }; //TODO Nicht leere Liste zurückgeben
-
-            list.Products = c
-                .ListItems
-                .Where(x => x.ListId == list.Id
-                    && ((!alreadyBought && x.Amount != 0)
-                        || (alreadyBought && x.Amount == 0)))
-                .OrderByDescending(x => x.SortOrder)
-                .ThenBy(x => x.Id)
-                .ToList();
-
-            if (alreadyBought)
+            using (var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), true))
             {
-                foreach (var item in list.Products)
+                var list = await Q.From(Contributor.T)
+                    .InnerJoin(ShoppingList.T).On((c, sl) => c.ListId.Eq(sl.Id))
+                    .Where(
+                        (c, sl) => c.UserId.EqV(userId),
+                        (c, sl) => sl.Id.EqV(listId)
+                    )
+                    .Select(new RawSql(ShoppingList.T.TableAlias + ".*")).Limit(1)
+                    .FirstOrDefault<ShoppingList>(con.Connection);
+
+                if (list == null)
+                    return new ShoppingList { }; //TODO Nicht leere Liste zurückgeben
+
+                var tempQuery = Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id)).OrderBy(t => t.Id.Asc());
+
+                if (!alreadyBought)
+                    list.Products = await tempQuery.Where(l => l.Amount.Neq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
+                else
                 {
-                    item.Amount = item.BoughtAmount;
+                    list.Products = await tempQuery.Where(l => l.Amount.Eq(Q.P("a", 0))).ToList<ListItem>(con.Connection);
+                    foreach (var item in list.Products)
+                    {
+                        item.Amount = item.BoughtAmount;
+                    }
                 }
+
+                //list.Products = await Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id))
+                //        .OrderBy(t => t.Id.Asc())
+                //        .Where(l => l.Amount.Neq(Q.P("a", 0)))
+                //        .ToList<ListItem>(con.Connection);
+                con.Connection.Close();
+                return list;
             }
-
-
-            //list.Products = await Q.From(ListItem.T).Where(l => l.ListId.EqV(list.Id))
-            //        .OrderBy(t => t.Id.Asc())
-            //        .Where(l => l.Amount.Neq(Q.P("a", 0)))
-            //        .ToList<ListItem>(con.Connection);
-            //con.Connection.Close();
-            return list;
-
         }
 
         public static async Task<Result> ChangeRights(DBContext c, int listId, int requesterId, int changeUserId)
         {
+            //var list = await Q.From(ShoppingList.T).Where(x => x.UserId.EqV(requesterId), x => x.Id.EqV(listId)).FirstOrDefault<ShoppingList>(c.Connection);
 
-            var contributors = c.Contributors.Where(x => x.ListId == listId && (x.UserId == requesterId || x.UserId == changeUserId)).ToList();
+            var contributors = await Q.From(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.InV(new[] { requesterId, changeUserId })).ToList<Contributor>(c.Connection);// list.Contributors.FirstOrDefault(x => x.UserId == requesterId);
 
             var requester = contributors.FirstOrDefault(x => x.UserId == requesterId);
             var changeUser = contributors.FirstOrDefault(x => x.UserId == changeUserId);
@@ -66,69 +66,77 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             if (!Contributor.Permissions.CanChange(requester.Permission, changeUser.Permission))
                 return new Result { Error = "You are not an admin or you wanted to demote the owner" };
 
+            ChangeTrackingContext ctc = new ChangeTrackingContext();
+            ctc.Track(changeUser);
             changeUser.Permission = Contributor.Permissions.IsAdmin(changeUser.Permission) ? Contributor.Permissions.User : Contributor.Permissions.Admin;
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
             return new Result { Success = true };
         }
 
         public static async Task<Result> DeleteContributor(DBContext c, int listId, int adminId, int contributorId)
         {
-            c.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var contributors = c.Contributors
-                .Where(x => x.ListId == listId && (x.UserId == adminId || x.UserId == contributorId))
-                .ToList();
-            var requester = contributors.FirstOrDefault(x => x.UserId == adminId);
-            var changeUser = contributors.FirstOrDefault(x => x.UserId == contributorId);
-            if (requester is null || changeUser is null || requester.Permission < changeUser.Permission)
-                return new Result { Success = false, Error = "insufficient rights" };
-            c.Contributors.Remove(changeUser);
-            c.SaveChanges();
+            var list = await Q.From(ShoppingList.T)
+                .Where(x => x.Id.EqV(listId))
+                .Where(x => Q.Exists(Q.From(Contributor.T)
+                    .Where(a => a.ListId.Eq(x.Id),
+                        a => a.UserId.EqV(adminId),
+                        a => a.Permission.Gte(Q.From(new Contributor.ContributorTable("c2"))
+                            .Where(d => d.UserId.EqV(contributorId, "contributorId"),
+                                d => d.ListId.Eq(x.Id))
+                            .Select(d => d.Permission)))
+                .Select(new RawSql("null")))).FirstOrDefault<ShoppingList>(c.Connection);
 
+            if (list == null)
+                return new Result { Success = false, Error = "insufficient rights" };
+            await Q.DeleteFrom(Contributor.T).Where(x => x.UserId.EqV(contributorId), x => x.ListId.EqV(listId)).Execute(c.Connection); //TODO WTF?!?!?!
             return new Result { Success = true };
         }
 
         public static async Task<AddContributorResult> AddContributor(DBContext c, int listId, int userId, User contributor, string deviceToken)
         {
-            c.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var list = await Q.From(ShoppingList.T).Where(x => x.Id.EqV(listId)).Where(x => Q.Exists(Q.From(Contributor.T).Where(a => a.ListId.Eq(x.Id), a => a.UserId.EqV(userId), a => a.Permission.GteV(Contributor.Permissions.Admin)).Select(new RawSql("null")))).FirstOrDefault<ShoppingList>(c.Connection);
 
-            var admin = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == userId);
-            if (admin is null || admin.Permission < Contributor.Permissions.Admin)
+            if (list == null)
                 return new AddContributorResult { Success = false, Error = "insufficient rights" };
 
-            var existingContributor = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == contributor.Id);
-            if (existingContributor is not null)
+            var existingContributor = await Q.From(Contributor.T).Where(x => x.UserId.EqV(contributor.Id), x => x.ListId.EqV(listId)).FirstOrDefault<Contributor>(c.Connection);
+            if (existingContributor != null)
                 return new AddContributorResult { Success = false, Error = "user is already contributor" };
-
-
             var con = new Contributor
             {
                 UserId = contributor.Id,
                 Permission = Contributor.Permissions.User,
                 ListId = listId
             };
-            c.Contributors.Add(con);
-            c.SaveChanges();
+            await Q.InsertOne(c.Connection, con);
 
-            var list = await LoadShoppingList(c, listId, false, contributor.Id);
+            List<ListItem> items;
+            items = await Q.From(ListItem.T).Where(li => li.ListId.EqV(listId), li => li.Amount.NeqV(0)).ToList<ListItem>(c.Connection);
 
 
             FirebaseCloudMessaging.TopicMessage($"{contributor.Username}userTopic", "You were added to the list " + list.Name, null);
-            FirebaseCloudMessaging.TopicMessage($"{contributor.Username}userTopic", new { userId, listId, list.Name, deviceToken });
+            FirebaseCloudMessaging.TopicMessage($"{contributor.Username}userTopic", new { userId, listId, list.Name, items, deviceToken });
 
             return new AddContributorResult { Success = true, Id = contributor.Id, Name = contributor.Username };
         }
 
         public static async Task<GetContributorsResult> GetContributors(DBContext c, int listId, int userId)
         {
-            c.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var cont = c.Contributors
-                .Where(x => x.ListId == listId)
-                .Include(x => x.User)
-                .ToList()
-                .Select(x => new ContributorResult { Name = x.User.Username, UserId = x.UserId, IsAdmin = x.Permission >= Contributor.Permissions.Admin })
-                .ToList();
+            var cont = await Q.From(Contributor.T)
+                .Where(a => a.ListId.EqV(listId))
+                .Where(a => Q.Exists(
+                    Q.From(Contributor.T)
+                    .InnerJoin(ShoppingList.T)
+                    .On((d, s) => s.Id.Eq(d.ListId))
+                    .Where((d, s) => d.UserId.EqV(userId))
+                    .Select(new RawSql("null")))
+                ).InnerJoin(User.T).On((co, u) => co.UserId.Eq(u.Id)).Select(
+                    (x, y) => x.UserId,
+                    (x, y) => y.Username.As("name"),
+                    (x, y) => x.Permission.GteV(Contributor.Permissions.Admin).As("is_admin"))
+                .ToList<GetContributorsResult.ContributorResult>(c.Connection);
 
-            if (cont.Count == 0 || !cont.Any(x => x.UserId == userId))
+            if (cont == null)
                 return new GetContributorsResult { Success = false, Error = "User is not part of the list" };
             return new GetContributorsResult
             {
@@ -139,26 +147,22 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
 
         public static async Task<ChangeListItemResult> ChangeProduct(DBContext c, int listId, int userId, int productId, int change, int? order, string newName, string deviceToken)
         {
-            if (!c.Contributors.Any(x => x.UserId == userId && x.ListId == listId))
-                return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
-
-
-            var product = c.ListItems.FirstOrDefault(x => x.Id == productId && x.ListId == listId);
-
             //var cont = await Q.From(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
             //if (cont == null)
             //    return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
-            //var query = Q.From(ListItem.T)
-            //    .InnerJoin(Contributor.T)
-            //    .On((l, c) => l.ListId.Eq(c.ListId))
-            //    .Where((l, c) => l.Id.EqV(productId), (l, c) => l.ListId.EqV(listId), (l, c) => c.UserId.EqV(userId))
-            //    .Select((l, c) => new RawSql(l.TableAlias + ".*"));
-            //var product = await query
-            //    .FirstOrDefault<ListItem>(c.Connection);
-            if (product is null)
+            var query = Q.From(ListItem.T)
+                .InnerJoin(Contributor.T)
+                .On((l, c) => l.ListId.Eq(c.ListId))
+                .Where((l, c) => l.Id.EqV(productId), (l, c) => l.ListId.EqV(listId), (l, c) => c.UserId.EqV(userId))
+                .Select((l, c) => new RawSql(l.TableAlias + ".*"));
+            var product = await query
+                .FirstOrDefault<ListItem>(c.Connection);
+            if (product == null)
                 return new ChangeListItemResult { Success = false, Error = "Product not found" };
 
             string action;
+            var ctc = new ChangeTrackingContext();
+            ctc.Track(product);
             if (change != 0)
             {
                 if (product.Amount + change <= 0 || change == 0)
@@ -196,13 +200,13 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                 action = "OrderChanged";
                 FirebaseCloudMessaging.TopicMessage($"{product.ListId}shoppingListTopic", new { userId, product.ListId, product.Id, product.SortOrder, action, deviceToken });
             }
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
             return new ChangeListItemResult
             {
                 Success = true,
                 Id = product.Id,
                 Name = product.Name,
-                Amount = product.Amount ?? 0,
+                Amount = product.Amount??0,
                 Order = product.SortOrder,
                 Changed = product.Changed ?? DateTime.MinValue,
                 ListId = product.ListId
@@ -214,16 +218,16 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             if (productIds.Count != changes.Count)
                 return new Result { Success = false, Error = "Length of product ids doesn't match with length of change list" };
 
-            if (!c.Contributors.Any(x => x.UserId == userId && x.ListId == listId))
-                return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
+            var products = await Q.From(ListItem.T).InnerJoin(Contributor.T).On((x, y) => x.ListId.Eq(y.ListId))
+                .Where((a, s) => a.ListId.EqV(listId), (a, s) => s.UserId.EqV(userId)).ToList<ListItem>(c.Connection);
+            if (products == null)
+                return new Result { Success = false, Error = "User is not allowed to access this list" };
 
-            var products = c.ListItems
-                .Where(x => x.ListId == listId && productIds.Contains(x.Id))
-                .ToList();
             //var shoppinglist = await c.ShoppingLists.Include(x => x.Contributors).Include(x => x.Products).FirstOrDefaultAsync(x => x.Id == listId);
 
             var notFoundIds = new List<int>();
             int hash = 0;
+            var ctc = new ChangeTrackingContext();
             for (int i = 0; i < productIds.Count; i++)
             {
                 var id = productIds[i];
@@ -233,6 +237,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                     notFoundIds.Add(id);
                 else
                 {
+                    ctc.Track(product);
                     if (product.Amount + change <= 0 || change == 0)
                     {
                         product.BoughtAmount = product.Amount;
@@ -240,10 +245,10 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                     }
                     else
                         product.Amount += change;
-                    hash += (product.Amount ?? 0) + product.Id;
+                    hash += product.Amount ?? 0 + product.Id;
                 }
             }
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
             string action = "Refresh";
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action, deviceToken });
 
@@ -255,29 +260,28 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
 
         public static async Task<Result> ReorderProducts(DBContext c, int listId, int userId, List<int> productIds, string deviceToken)
         {
-
-            if (!c.Contributors.Any(x => x.UserId == userId && x.ListId == listId))
-                return new ChangeListItemResult { Success = false, Error = "User is not allowed to access this list" };
-
-            var products = c.ListItems
-                .Where(x => x.ListId == listId && productIds.Contains(x.Id))
-                .ToList();
+            var products = await Q.From(ListItem.T).InnerJoin(Contributor.T).On((x, y) => x.ListId.Eq(y.ListId))
+               .Where((a, s) => a.ListId.EqV(listId), (a, s) => s.UserId.EqV(userId)).Select((x,y)=>new RawSql(x.TableAlias + ".*")).ToList<ListItem>(c.Connection);
+            if (products == null)
+                return new Result { Success = false, Error = "User is not allowed to access this list" };
 
             var notFoundIds = new List<int>();
             int hash = 0;
+            var ctc = new ChangeTrackingContext();
             for (int i = 1; i <= productIds.Count; i++)
             {
-                var id = productIds[i - 1];
+                var id = productIds[i-1];
                 var product = products.FirstOrDefault(x => x.Id == id);
                 if (product == null)
                     notFoundIds.Add(id);
                 else
                 {
+                    ctc.Track(product);
                     product.SortOrder = i;
                     hash += product.Id * i;
                 }
             }
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
             string action = "Refresh";
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action, deviceToken });
 
@@ -289,13 +293,10 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
 
         public static async Task<ChangeListNameResult> ChangeListname(DBContext c, int id, int userId, string newName, string deviceToken)
         {
-            var list = c.ShoppingLists
-                .Where(x => x.Id == id
-                && x.Contributors.Any(y => y.UserId == userId && y.Permission >= Contributor.Permissions.Admin))
-                .FirstOrDefault();
-
+            var list = await Q.From(ShoppingList.T).Where(x => x.Id.EqV(id)).Where(x => Q.Exists(Q.From(Contributor.T).Where(a => a.ListId.Eq(x.Id), a => a.UserId.EqV(userId), a => a.Permission.GteV(Contributor.Permissions.Admin)).Select(new RawSql("null")))).FirstOrDefault<ShoppingList>(c.Connection);
             if (list == null)
                 return new ChangeListNameResult { Success = false, Error = "Insufficient rights" };
+            var ctc = ChangeTrackingContext.StartWith(list);
 
             list.Name = newName;
             var listId = list.Id;
@@ -303,27 +304,31 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
             string action = "ListRename";
             FirebaseCloudMessaging.TopicMessage($"{list.Id}shoppingListTopic", new { userId, listId, list.Name, action, deviceToken });
 
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
             return new ChangeListNameResult { Success = true, ListId = list.Id, Name = list.Name };
         }
 
         public static async Task<Result> DeleteList(DBContext c, int listId, int userId, string deviceToken)
         {
-            var cont = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == userId);
+            var cont = await Q.From(Contributor.T).Where(a => a.ListId.EqV(listId), a => a.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
 
-            if (cont is null)
+            if (cont == null)
                 return new Result { Success = false, Error = "The List could not be found or you are not a contributor." };
 
             if (cont.Permission == Contributor.Permissions.Owner)
             {
-                var list= c.ShoppingLists.FirstOrDefault(x => x.Id == listId);
-                c.ShoppingLists.Remove(list);
-                c.SaveChanges();
+                using (var tx = c.Connection.BeginTransaction())
+                {
+                    await Q.DeleteFrom(ListItem.T).Where(x => x.ListId.EqV(listId)).Execute(c.Connection, tx);
+                    await Q.DeleteFrom(Contributor.T).Where(x => x.ListId.EqV(listId)).Execute(c.Connection, tx);
+                    await Q.DeleteFrom(ShoppingList.T).Where(x => x.Id.EqV(listId)).Execute(c.Connection, tx);
+                    tx.Commit();
+                }
             }
             else
             {
-                c.Contributors.Remove(cont);
-                c.SaveChanges();
+                //Q.Create(Contributor.T).Column(x => x.Permission).Type("asd");
+                //await Q.DeleteFrom(Contributor.T).Where(x => x.ListId.EqV(listId), x => x.UserId.EqV(userId)).Execute(c.Connection);
             }
 
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId });
@@ -332,49 +337,49 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
 
         public static async Task<AddListResult> AddList(DBContext c, string listName, int userId)
         {
-
-            var user = c.Users.FirstOrDefault(x => x.Id == userId);
+            var user = await Q.From(User.T).Where(x => x.Id.EqV(userId)).FirstOrDefault<User>(c.Connection);// c.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return new AddListResult { Success = false, Error = "User not found" };
 
             var shoppingList = new ShoppingList { Name = listName };
-            c.ShoppingLists.Add(shoppingList);
-            c.SaveChanges();
-
+            await Q.InsertOne(c.Connection, shoppingList);
             var cont = new Contributor { ListId = shoppingList.Id, Permission = Contributor.Permissions.Owner, UserId = userId };
-            c.Contributors.Add(cont);
-            c.SaveChanges();
+            await Q.InsertOne(c.Connection, cont);
+
             return new AddListResult { Success = true, Id = shoppingList.Id, Name = shoppingList.Name };
         }
 
         public static async Task<Result> DeleteProduct(DBContext c, int listId, int userId, int productId, string deviceToken)
         {
-            var cont = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == userId);
+            var cont = await Q.From(Contributor.T).Where(a => a.ListId.EqV(listId), a => a.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
 
             if (cont == null)
                 return new Result { Success = false, Error = "You are not a contributor" };
-            var p = c.ListItems.FirstOrDefault(x => x.ListId == listId && x.Id == productId);
+            var p = await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId), x => x.Id.EqV(productId)).FirstOrDefault<ListItem>(c.Connection);// list.Products.FirstOrDefault(x => x.Id == productId);
             if (p == null)
                 return new Result { Success = false, Error = "Product was not found" };
+            var ctc = ChangeTrackingContext.StartWith(p);
             p.BoughtAmount = p.Amount;
             p.Amount = 0;
-            c.SaveChanges();
             string action = "ItemDeleted";
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, p.Id, action, deviceToken });
+            await ctc.Commit(c.Connection);
             return new Result { Success = true };
         }
 
         public static async Task<Result> DeleteProducts(DBContext c, int listId, int userId, List<int> productIds, string deviceToken)
         {
-            var cont = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == userId);
+            var cont = await Q.From(Contributor.T).Where(a => a.ListId.EqV(listId), a => a.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
 
             if (cont == null)
                 return new Result { Success = false, Error = "You are not a contributor " };
             var notFoundIds = new List<int>();
-            var p = c.ListItems.Where(x => x.ListId == listId && productIds.Contains(x.Id));
+            var p = await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId), x => x.Id.InV(productIds)).ToList<ListItem>(c.Connection);
+            var ctc = new ChangeTrackingContext();
 
             foreach (var product in p)
             {
+                ctc.Track(product);
                 if (product == null)
                     notFoundIds.Add(product.Id);
                 else
@@ -383,7 +388,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
                     product.Amount = 0;
                 }
             }
-            c.SaveChanges();
+            await ctc.Commit(c.Connection);
 
             string action = "Refresh";
             FirebaseCloudMessaging.TopicMessage($"{listId}shoppingListTopic", new { userId, listId, action, deviceToken });
@@ -396,16 +401,15 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
 
         public static async Task<AddListItemResult> AddProduct(DBContext c, int listId, int userId, string name, string gtin, int amount, int? order, string deviceToken)
         {
-            var cont = c.Contributors.FirstOrDefault(x => x.ListId == listId && x.UserId == userId);
+            var cont = await Q.From(Contributor.T).Where(a => a.ListId.EqV(listId), a => a.UserId.EqV(userId)).FirstOrDefault<Contributor>(c.Connection);
             if (cont == null)
                 return new AddListItemResult { Success = false, Error = "You are not a contributor" };
 
             if (!order.HasValue)
-                order = c.ListItems.Where(x => x.ListId == listId).Count() + 1;
+                order = (int)(await Q.From(ListItem.T).Where(x => x.ListId.EqV(listId)).Select(x => Q.Count(x.Id)).FirstOrDefault<DbFunctionModel>(c.Connection)).Count +1;
 
             var li = new ListItem { Gtin = gtin, Name = name, Amount = amount, ListId = listId, SortOrder = order.Value, Created = DateTime.UtcNow };
-            c.ListItems.Add(li);
-            c.SaveChanges();
+            await Q.InsertOne(c.Connection, li);
             //TODO Same name and same gtin <-- WTF?
 
             string action = "NewItemAdded";
@@ -416,24 +420,21 @@ namespace NSSLServer.Plugin.Shoppinglist.Manager
         //private static async Task<ShoppingList> FindListById(int id) =>
         //    await Q.From(ShoppingList.SLT).Where(ShoppingList.SLT.Id.Eq(Q.P("id", id))).FirstOrDefault<ShoppingList>(await DBConnection.OpenConnection());
 
-        internal static async Task<ListsResult> LoadShoppingLists(DBContext c, int userId)
+
+
+        internal static async Task<ListsResult> LoadShoppingLists(DBContext con, int userId)
         {
-            c.ChangeTracker.LazyLoadingEnabled = false;
-            c.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var lists = c.ShoppingLists
-                .Include(x=>x.Contributors)
-                .Where(x => x.Contributors.Any(y => y.UserId == userId))
-                .Select(x => new ListResultItem { Id = x.Id, Name = x.Name, IsAdmin = x.Contributors.Any(z => z.UserId == userId && z.Permission >= Contributor.Permissions.Admin) })
-                .ToList();
-            var listIds = lists.Select(x => x.Id).ToArray();
 
-            var items = c.ListItems
-                .Where(x => x.Amount > 0 && listIds.Contains(x.ListId))
-                .GroupBy(x => x.ListId)
-                .ToList();
-
-
-            foreach (var g in items)
+            var lists = await Q.From(Contributor.T)
+                .Where(x => x.UserId.EqV(userId))
+                .InnerJoin(ShoppingList.T).On((x, y) => x.ListId.Eq(y.Id))
+                .Select(
+                    (x, y) => y.Id,
+                    (x, y) => y.Name,
+                    (x, y) => x.Permission.GteV(Contributor.Permissions.Admin).As(N.Db(nameof(ListsResult.ListResultItem.IsAdmin)))
+                )
+                .ToList<ListsResult.ListResultItem>(con.Connection);
+            foreach (var g in (await Q.From(ListItem.T).Where(x => x.ListId.InV(lists.Select(y => y.Id)), x => x.Amount.GtV(0)).ToList<ListItem>(con.Connection)).GroupBy(a => a.ListId))
                 lists.First(x => x.Id == g.Key).Products = g.OrderBy(x=>x.SortOrder).ThenBy(x=>x.Id).Select(x => new ShoppingListItemResult
                 {
                     Amount = x.Amount ?? 0,

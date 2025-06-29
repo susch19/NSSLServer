@@ -64,7 +64,7 @@ namespace NSSLServer.Plugin.Recipes.Controller
             if (recipe is null)
                 return NotFound(idOrUrl.IdOrUrl);
 
-            var list = await ShoppingListManager.LoadShoppingList(listId, false, Session.Id);
+            var list = await ShoppingListManager.LoadShoppingList(Context, listId, false, Session.Id);
 
             if (list is null)
                 return NotFound(listId);
@@ -93,7 +93,7 @@ namespace NSSLServer.Plugin.Recipes.Controller
                     $"{item.Name} {amount} {item.Unit}{item.UsageInfo}".Trim(), null, 1, null, HttpContext.GetDeviceToken());
             }
 
-            return Json(await ShoppingListManager.LoadShoppingList(listId, false, Session.Id));
+            return Json(await ShoppingListManager.LoadShoppingList(Context, listId, false, Session.Id));
         }
 
         private async Task<Recipe?> DownloadRecipe(string idOrUrl)

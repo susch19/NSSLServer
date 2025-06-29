@@ -1,18 +1,20 @@
 ﻿
 using Deviax.QueryBuilder;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NSSLServer.Models
 {
     public class User
     {
+        [PrimaryKey]
         public int Id { get; set; }
         public string Username { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] Salt { get; set; }
         public string Email { get; set; }
 
-        public virtual ICollection<ShoppingList> ShoppingLists { get; set; }
+        [InverseProperty(nameof(Contributor.User))]
         public virtual ICollection<Contributor> IsContributors { get; set; }
 
         public User() { }

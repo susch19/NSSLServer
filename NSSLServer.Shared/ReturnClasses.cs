@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NSSLServer.Shared
 {
@@ -69,7 +70,7 @@ namespace NSSLServer.Shared
             public int Id { get; set; }
             public string Name { get; set; }
         }
-        public class ShoppingListItemResult
+        public class ShoppingListItemResult : IEquatable<ShoppingListItemResult>
         {
             public string Name { get; set; }
             public string Gtin { get; set; }
@@ -78,18 +79,41 @@ namespace NSSLServer.Shared
             public int Order { get; set; }
             public DateTime Changed { get; set; }
             public DateTime Created { get; set; }
+
+            public bool Equals(ShoppingListItemResult other)
+            {
+                return
+other.Name == Name &&
+other.Gtin == Gtin &&
+other.Amount == Amount &&
+other.Id == Id &&
+other.Order == Order &&
+other.Changed == Changed &&
+other.Created == Created;
+
+            }
         }
-        public class ListsResult
+        public class ListsResult : IEquatable<ListsResult>
         {
-            public class ListResultItem
+            public class ListResultItem : IEquatable<ListResultItem>
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
                 public bool IsAdmin { get; set; }
                 public List<ShoppingListItemResult> Products { get; set; }
+
+                public bool Equals(ListResultItem other)
+                {
+                    return other.Id == Id && other.Name == Name && other.IsAdmin == IsAdmin && other.Products.SequenceEqual(Products);
+                }
             }
 
             public List<ListResultItem> Lists { get; set; }
+
+            public bool Equals(ListsResult other)
+            {
+                return other.Lists.SequenceEqual(Lists);
+            }
         }
         public class InfoResult
         {

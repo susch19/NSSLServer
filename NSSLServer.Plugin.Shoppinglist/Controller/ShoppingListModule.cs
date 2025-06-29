@@ -29,7 +29,7 @@ namespace NSSLServer.Plugin.Shoppinglist.Controller
         [HttpGet]
         [Route("{listId}/{alreadyBought}")]
         public async Task<IActionResult> GetList(int listId, bool alreadyBought)
-            => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(listId, alreadyBought, Session.Id))) : new BadRequestResult();
+            => listId != 0 ? (IActionResult)(Json(await ShoppingListManager.LoadShoppingList(Context, listId, alreadyBought, Session.Id))) : new BadRequestResult();
 
         [HttpGet]
         [Route("batchaction/"), Route("")]

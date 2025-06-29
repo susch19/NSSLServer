@@ -1,38 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <PackageId>NSSLServer.Database</PackageId>
-    <description>For creating a nssl server plugin, which uses the database.</description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<PackageId>NSSLServer.Database</PackageId>
+		<description>For creating a nssl server plugin, which uses the database.</description>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Updater\FrameworkDbUpdater_Scripts\*.*" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Updater\FrameworkDbUpdater_Scripts\*.*" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Updater\FrameworkDbUpdater_Scripts\*.*" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Updater\FrameworkDbUpdater_Scripts\*.*" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-    <PackageReference Include="Npgsql" Version="9.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="NSSL.Deviax.QueryBuilder.Postgres" Version="0.2.1.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.6" />
+		<PackageReference Include="Npgsql" Version="9.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+		<PackageReference Include="NSSL.Deviax.QueryBuilder.Postgres" Version="0.2.1.11" />
+		<PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NSSLServer.Core\NSSLServer.Core.csproj" />
+	</ItemGroup>
 
-  <Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
+	<Import Project="..\NSSLServer.Litgit.targets" Condition="Exists('..\NSSLServer.Litgit.targets') AND '$(IsDockerBuild)' != 'true'" />
 
-  <ItemGroup>
-    <PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LitGit" Version="0.2.0.58-alpha" Condition="'$(IsDockerBuild)' != 'true' AND '$(CI)' != ''">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>

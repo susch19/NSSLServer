@@ -10,13 +10,17 @@ namespace NSSLServer
 
         public DbSet<BasicProduct> Products { get; set; }
         public DbSet<ShoppingList> ShoppingLists { get; set; }
-        public DbSet<ListItem> ShoppingItems { get; set; }
+        public DbSet<ListItem> ListItems { get; set; }
         public DbSet<Contributor> Contributors { get; set; }
         public DbSet<User> Users { get; set; }
 
         public DbConnection Connection;
         private bool _disposeConnection;
 
+        public DBContext()
+        {
+
+        }
 
         public DBContext(DbConnection con, bool disposeConnection)
         {
@@ -27,13 +31,16 @@ namespace NSSLServer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BasicProduct>().HasNoKey();
-            modelBuilder.Entity<User>();
+            //modelBuilder.Entity<User>();
             base.OnModelCreating(modelBuilder);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(NsslEnvironment.ConnectionString);
+            optionsBuilder
+                .UseLazyLoadingProxies()
+                .UseNpgsql(NsslEnvironment.ConnectionString)
+                .UseSnakeCaseNamingConvention();
 
             base.OnConfiguring(optionsBuilder);
         }
