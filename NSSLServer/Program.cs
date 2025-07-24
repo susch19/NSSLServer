@@ -6,22 +6,24 @@ using Serilog;
 
 ThreadPool.SetMaxThreads(500, 500);
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
-    .WriteTo.File("external/logs/log.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7)
-    .WriteTo.Console()
-    .Enrich.FromLogContext()
-    .CreateLogger();
-
-using var factory = new Serilog.Extensions.Logging.SerilogLoggerFactory();
-
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 {
     Args = args,
     ContentRootPath = Directory.GetCurrentDirectory(),
 });
 
-builder.Services.AddSerilog();
+// Two-step initialization bootstrapping Serilog
+// https://github.com/serilog/serilog-aspnetcore?tab=readme-ov-file#two-stage-initialization
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+using var factory = new Serilog.Extensions.Logging.SerilogLoggerFactory();
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 var PluginLoader = new PluginLoader(factory.CreateLogger<ILogger<PluginLoader>>());
 PluginLoader.LoadAssemblies();

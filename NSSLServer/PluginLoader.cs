@@ -38,7 +38,7 @@ public class PluginLoader
                 logger.LogInformation("Loading Plugin {typeName} from Assembly {assemblyName}", type.Name, ass.FullName);
                 plugins.Add(PluginCreator<IPlugin>.GetInstance(type));
             }
-            // TODO: each plugin should itself to the controllers
+            // TODO: each plugin should add itself to the controllers
             else if (typeof(BaseController).IsAssignableFrom(type))
             {
                 ControllerTypes.Add(type);
