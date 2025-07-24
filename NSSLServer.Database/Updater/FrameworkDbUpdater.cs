@@ -1,6 +1,6 @@
 ﻿
 using Deviax.QueryBuilder;
-
+using Microsoft.Extensions.Logging;
 using NSSLServer.Database.Models;
 using NSSLServer.Models;
 using NSSLServer.Models.Products;
@@ -8,7 +8,7 @@ using NSSLServer.Models.Products;
 
 namespace NSSLServer.Database.Updater
 {
-    public class FrameworkDbUpdater : DbUpdater
+    public class FrameworkDbUpdater(ILogger logger) : DbUpdater(logger)
     {
         public override int Priority { get; } = 1;
 

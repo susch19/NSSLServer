@@ -45,7 +45,7 @@ public class PluginLoader
             }
             else if (typeof(IDbUpdater).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
             {
-                var updater = PluginCreator<IDbUpdater>.GetInstance(type);
+                var updater = PluginCreator<IDbUpdater>.GetInstance(type, logger);
                 DbUpdater.Add(updater);
             }
         }
