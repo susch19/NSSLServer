@@ -11,6 +11,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,13 +25,14 @@
     <PackageReference Include="FirebaseAdmin" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
-    <PackageReference Include="NLog" Version="6.0.0" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,8 +42,12 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(Configuration) == 'Debug'">
+    <ProjectReference Include="..\NSSLServer.Plugin.Example\NSSLServer.Plugin.Example.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.InitializationHelper\NSSLServer.Plugin.InitializationHelper.csproj" />
     <ProjectReference Include="..\NSSLServer.Plugin.Recipes\NSSLServer.Plugin.Recipes.csproj" />
     <ProjectReference Include="..\NSSLServer.Plugin.Shoppinglist\NSSLServer.Plugin.Shoppinglist.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.OpenFoodFacts\NSSLServer.Plugin.OpenFoodFacts.csproj" />
+    <ProjectReference Include="..\NSSLServer.Plugin.Products.Core\NSSLServer.Plugin.Products.Core.csproj" />
     <ProjectReference Include="..\NSSLServer.Plugin.Userhanlding\NSSLServer.Plugin.Userhandling.csproj" />
     <ProjectReference Include="..\NSSLServer.Plugin.Webapp\NSSLServer.Plugin.Webapp.csproj" />
   </ItemGroup>

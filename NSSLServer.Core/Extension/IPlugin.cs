@@ -1,23 +1,27 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace NSSLServer.Core.Extension
+namespace NSSLServer.Core.Extension;
+
+/// <summary>
+/// Interface for plugins 
+/// </summary>
+/// <remarks>
+///  Has to contain empty ctor, otherwise not loaded
+/// </remarks>
+public interface IPlugin
 {
+    /// <summary>
+    /// The name of the plugin
+    /// </summary>
+    string Name { get; }
 
     /// <summary>
-    /// Interface for plugins 
+    /// Configures the plugin during application startup.
     /// </summary>
-    /// <remarks>
-    ///  Has to contain empty ctor, otherwise not loaded
-    /// </remarks>
-    public interface IPlugin
-    {
-        public string Name { get; }
+    public void Configure(WebApplicationBuilder builder) { }
 
-        bool Initialize(NLog.LogFactory logFactory);
-
-        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment environment) { }
-        public virtual void ConfigureServices(IServiceCollection services) { }
-    }
+    /// <summary>
+    /// Configures the plugin after all services are registered.
+    /// </summary>
+    public void Configure(WebApplication app) { }
 }

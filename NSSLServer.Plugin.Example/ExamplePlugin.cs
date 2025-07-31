@@ -1,21 +1,29 @@
-﻿using NLog;
-
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NSSLServer.Core.Extension;
 
-namespace NSSLServer.Plugin.Example
+namespace NSSLServer.Plugin.Example;
+
+public class ExamplePlugin : IPlugin
 {
-    public class ExamplePlugin : IPlugin
+    private ILogger<ExamplePlugin> logger;
+
+    /// <inheritdoc/>
+    public string Name { get; } = "Example Plugin";
+
+    /// <inheritdoc/>
+    public void Configure(WebApplicationBuilder builder)
     {
-        private Logger logger;
+        // Register services here if needed.
+    }
 
-        public string Name { get; }
+    /// <inheritdoc/>
+    public void Configure(WebApplication app)
+    {
+        // Get services if needed.
 
-        public bool Initialize(LogFactory factory)
-        {
-            logger = factory.GetCurrentClassLogger();
-            return true;
-        }
-
-
+        logger = app.Services.GetRequiredService<ILogger<ExamplePlugin>>();
+        logger.LogInformation("Example Plugin loaded successfully.");
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Deviax.QueryBuilder;
-
-using NLog;
-
+using Microsoft.Extensions.Logging;
 using NSSLServer.Database.Models;
 
 using System;
@@ -21,13 +19,13 @@ namespace NSSLServer.Database.Updater
         public abstract int Priority { get; }
         public bool UpToDate => CurrentVersion == DesiredVersion;
 
-        private Logger logger;
+        private ILogger logger;
         private List<(Version version, string path)> updateScriptPathes;
 
-        public DbUpdater()
+        public DbUpdater(ILogger logger)
         {
             var type = GetType();// "MyCompany.MyProduct.MyFile.txt";
-            logger = LogManager.GetCurrentClassLogger();
+            this.logger = logger;
 
             updateScriptPathes = new List<(Version, string)>();
 
@@ -55,7 +53,7 @@ namespace NSSLServer.Database.Updater
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, $"Error loading current db version for {Name}, setting {nameof(CurrentVersion)} to default");
+                logger.LogWarning(ex, "Error loading current db version for {name}, setting {currentVersion} to default", Name, nameof(CurrentVersion));
             }
             if (dbVersion is null)
             {
@@ -127,7 +125,7 @@ namespace NSSLServer.Database.Updater
                         catch (Exception ex)
                         {
                             trans.Rollback();
-                            logger.Error(ex, $"Error in {Name} for {updateScript.version}");
+                            logger.LogError(ex, "Error in {name} for {version}", Name, updateScript.version);
                             break;
                         }
                     }
