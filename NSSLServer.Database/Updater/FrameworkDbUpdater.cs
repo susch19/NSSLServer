@@ -21,7 +21,7 @@ namespace NSSLServer.Database.Updater
             Registry.RegisterTypeToTable<Contributor, Contributor.ContributorTable>();
             Registry.RegisterTypeToTable<User, User.UserTable>();
             Registry.RegisterTypeToTable<ShoppingList, ShoppingList.ShoppingListTable>();
-            Registry.RegisterTypeToTable<TokenUserId, TokenUserId.TokenUserTable>();
+            Registry.RegisterTypeToTable<TokenUser, TokenUser.TokenUserTable>();
             Registry.RegisterTypeToTable<DbVersion, DbVersion.DbVersionTable>();
         }
     }

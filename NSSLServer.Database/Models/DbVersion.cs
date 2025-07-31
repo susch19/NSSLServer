@@ -1,7 +1,9 @@
 ﻿using Deviax.QueryBuilder;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NSSLServer.Database.Models
 {
+    [Table("dbversion")]
     public class DbVersion
     {
         public string Name { get; set; }

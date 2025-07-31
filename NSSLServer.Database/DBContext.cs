@@ -13,7 +13,8 @@ namespace NSSLServer
         public DbSet<ListItem> ListItems { get; set; }
         public DbSet<Contributor> Contributors { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<TokenUser> TokenUser { get; set; }
+        
         public DbConnection Connection;
         private bool _disposeConnection;
 

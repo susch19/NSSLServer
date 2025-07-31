@@ -4,6 +4,7 @@ namespace NSSLServer.Models.Products
 {
     public class GtinEntry
     {
+        [PrimaryKey]
         public string Gtin { get; set; }
         public int Id { get; set; }
         

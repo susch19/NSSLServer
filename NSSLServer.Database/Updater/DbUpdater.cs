@@ -1,5 +1,4 @@
-﻿using Deviax.QueryBuilder;
-
+﻿using Microsoft.EntityFrameworkCore;
 using NLog;
 
 using NSSLServer.Database.Models;
@@ -49,9 +48,8 @@ namespace NSSLServer.Database.Updater
             DbVersion dbVersion = null;
             try
             {
-                using (var conn = await NsslEnvironment.OpenConnectionAsync())
-                    dbVersion = await Q.From(DbVersion.T).Where(x => x.Name.Like(Name)).FirstOrDefault<DbVersion>(conn);
-
+                using var ctx = new DBContext();
+                dbVersion = await ctx.Set<DbVersion>().FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, Name));
             }
             catch (Exception ex)
             {
@@ -91,48 +89,48 @@ namespace NSSLServer.Database.Updater
                 return;
             bool isNew = CurrentVersion.Major == 0 && CurrentVersion.Minor == 0 && CurrentVersion.Build == 0 && CurrentVersion.Revision == 0;
             var ass = Assembly.GetAssembly(GetType());
-            using (var conn = await NsslEnvironment.OpenConnectionAsync())
+            using var ctx = new DBContext();
+            DbVersion dbVersion;
+
+            foreach (var updateScript in updateScriptPathes.OrderBy(x => x.version))
             {
-                DbVersion dbVersion;
+                if (updateScript.version <= CurrentVersion)
+                    continue;
 
-                foreach (var updateScript in updateScriptPathes.OrderBy(x=>x.version))
+                using var trans = ctx.Connection.BeginTransaction();
+
+                using (var reader = new StreamReader(ass.GetManifestResourceStream(updateScript.path)))
                 {
-                    if (updateScript.version <= CurrentVersion)
-                        continue;
 
-                    var transTask = conn.BeginTransactionAsync();
-                    var command = conn.CreateCommand();
-
-                    using (var reader = new StreamReader(ass.GetManifestResourceStream(updateScript.path)))
+                    try
                     {
-                        command.CommandText = reader.ReadToEnd();
-                    }
+                        ctx.Database.ExecuteSqlRaw(reader.ReadToEnd());
+                        var dbSet = ctx.Set<DbVersion>();
+                        if (isNew)
+                        {
+                            dbVersion = new DbVersion() { Name = Name, Version = updateScript.version.ToString() };
+                            dbSet.Add(dbVersion);
+                        }
+                        else
+                        {
+                            dbVersion = dbSet.FirstOrDefault(x => EF.Functions.ILike(x.Name, Name));
 
-                    using (var trans = await transTask)
-                    {
-                        try
-                        {
-                            await command.ExecuteNonQueryAsync();
-                            if (isNew)
-                            {
-                                dbVersion = new DbVersion() { Name = Name, Version = updateScript.version.ToString() };
-                                await Q.InsertOne(trans.Connection, trans, dbVersion);
-                            }
-                            else
-                            {
-                                await Q.Update(DbVersion.T).Set(x => x.Version.SetV(updateScript.version.ToString())).Where(x => x.Name.EqV(Name)).Execute(trans.Connection, trans);
-                            }
-                            trans.Commit();
+                            dbVersion.Version = updateScript.version.ToString();
                         }
-                        catch (Exception ex)
-                        {
-                            trans.Rollback();
-                            logger.Error(ex, $"Error in {Name} for {updateScript.version}");
-                            break;
-                        }
+                        ctx.SaveChanges();
+                        trans.Commit();
                     }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        logger.Error(ex, $"Error in {Name} for {updateScript.version}");
+                        break;
+                    }
+                    //command.CommandText = reader.ReadToEnd();
                 }
+
             }
+
         }
 
         public abstract void RegisterTypes();

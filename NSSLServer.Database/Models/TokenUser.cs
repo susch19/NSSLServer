@@ -1,17 +1,19 @@
 ﻿
 using Deviax.QueryBuilder;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NSSLServer.Models
 {
-    public class TokenUserId
+    [Table("user_resettoken")]
+    public class TokenUser
     {
         public string ResetToken { get; set; }
         public int UserId { get; set; }
         public DateTime Timestamp { get; set; }
 
-        public TokenUserId() { }
-        public TokenUserId(string token, int userId)
+        public TokenUser() { }
+        public TokenUser(string token, int userId)
         {
             ResetToken = token;
             UserId = userId;
