@@ -48,8 +48,8 @@ namespace NSSLServer.Database.Updater
             DbVersion dbVersion = null;
             try
             {
-                using var ctx = new DBContext();
-                dbVersion = await ctx.Set<DbVersion>().FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, Name));
+                using var ctx = new UpdaterContext();
+                dbVersion = await ctx.DbVersions.FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, Name));
             }
             catch (Exception ex)
             {
@@ -87,48 +87,43 @@ namespace NSSLServer.Database.Updater
         {
             if (UpToDate)
                 return;
-            bool isNew = CurrentVersion.Major == 0 && CurrentVersion.Minor == 0 && CurrentVersion.Build == 0 && CurrentVersion.Revision == 0;
             var ass = Assembly.GetAssembly(GetType());
-            using var ctx = new DBContext();
+            using var ctx = new UpdaterContext();
             DbVersion dbVersion;
 
             foreach (var updateScript in updateScriptPathes.OrderBy(x => x.version))
             {
                 if (updateScript.version <= CurrentVersion)
                     continue;
+                bool isNew = CurrentVersion.Major == 0 && CurrentVersion.Minor == 0 && CurrentVersion.Build == 0 && CurrentVersion.Revision == 0;
 
-                using var trans = ctx.Connection.BeginTransaction();
+                using var trans = ctx.Database.BeginTransaction();
+                using var reader = new StreamReader(ass.GetManifestResourceStream(updateScript.path));
 
-                using (var reader = new StreamReader(ass.GetManifestResourceStream(updateScript.path)))
+                try
                 {
-
-                    try
+                    ctx.Database.ExecuteSqlRaw(reader.ReadToEnd());
+                    if (isNew)
                     {
-                        ctx.Database.ExecuteSqlRaw(reader.ReadToEnd());
-                        var dbSet = ctx.Set<DbVersion>();
-                        if (isNew)
-                        {
-                            dbVersion = new DbVersion() { Name = Name, Version = updateScript.version.ToString() };
-                            dbSet.Add(dbVersion);
-                        }
-                        else
-                        {
-                            dbVersion = dbSet.FirstOrDefault(x => EF.Functions.ILike(x.Name, Name));
-
-                            dbVersion.Version = updateScript.version.ToString();
-                        }
                         ctx.SaveChanges();
-                        trans.Commit();
+                        dbVersion = new DbVersion() { Name = Name, Version = updateScript.version.ToString() };
+                        ctx.Add(dbVersion);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        trans.Rollback();
-                        logger.Error(ex, $"Error in {Name} for {updateScript.version}");
-                        break;
+                        dbVersion = await ctx.DbVersions.FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, Name));
+                        dbVersion.Version = updateScript.version.ToString();
                     }
-                    //command.CommandText = reader.ReadToEnd();
+                    ctx.SaveChanges();
+                    trans.Commit();
+                    CurrentVersion = updateScript.version;
                 }
-
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    logger.Error(ex, $"Error in {Name} for {updateScript.version}");
+                    break;
+                }
             }
 
         }

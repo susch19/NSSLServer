@@ -12,8 +12,9 @@ SET row_security = off;
 --
 -- Name: test_schema; Type: SCHEMA; Schema: -; Owner: shoppinglist
 --
-
-CREATE ROLE shoppinglist WITH
+DO $$BEGIN
+IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'shoppinglist')
+THEN CREATE ROLE shoppinglist WITH
 	LOGIN
 	SUPERUSER
 	CREATEDB
@@ -21,6 +22,9 @@ CREATE ROLE shoppinglist WITH
 	INHERIT
 	NOREPLICATION
 	CONNECTION LIMIT -1;
+END IF;
+END$$;
+
 
 GRANT postgres TO shoppinglist;
 

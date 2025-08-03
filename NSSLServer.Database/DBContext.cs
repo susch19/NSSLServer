@@ -1,9 +1,23 @@
 ﻿using NSSLServer.Models;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using NSSLServer.Database.Models;
 
 namespace NSSLServer
 {
+    internal class UpdaterContext : DBContext
+    {
+        public DbSet<DbVersion> DbVersions { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseNpgsql(NsslEnvironment.ConnectionString)
+                .UseSnakeCaseNamingConvention()
+                ;
+        }
+         
+    }
 
     public class DBContext : DbContext
     {
@@ -32,6 +46,7 @@ namespace NSSLServer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BasicProduct>().HasNoKey();
+            modelBuilder.Entity<TokenUser>().HasNoKey();
             //modelBuilder.Entity<User>();
             base.OnModelCreating(modelBuilder);
         }

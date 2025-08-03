@@ -1,11 +1,13 @@
 ﻿using Deviax.QueryBuilder;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NSSLServer.Database.Models
 {
-    [Table("dbversion")]
+    [Table("dbversion", Schema = "public")]
     public class DbVersion
     {
+        [Key]
         public string Name { get; set; }
         public string Version { get; set; }
 
