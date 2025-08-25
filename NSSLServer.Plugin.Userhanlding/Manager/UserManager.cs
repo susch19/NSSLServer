@@ -44,7 +44,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
 
             var minedsalt = GenerateSalt();
             var saltedpw = Salting(pwdhash, minedsalt);
-            User c = new User(username.TrimEnd(), saltedpw, email.TrimEnd(), minedsalt);
+            User c = new User(username.Trim(), saltedpw, email.Trim(), minedsalt);
             await Q.InsertOne(cont.Connection, c);
             cont.Connection.Close();
             return new CreateResult { Success = true, Id = c.Id, EMail = c.Email, Username = c.Username };
@@ -77,7 +77,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             using var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
             User exists = null;
             if (username != null)
-                exists = await FindUserByName(con.Connection, username);
+                exists = await FindUserByName(con.Connection, username.Trim());
             if (exists == null)
             {
                 if (email == null)
@@ -85,7 +85,7 @@ namespace NSSLServer.Plugin.Userhandling.Manager
                     con.Connection.Close();
                     return new LoginResult { Success = false, Error = "user could not be found" };
                 }
-                exists = await FindUserByEmail(con.Connection, email);
+                exists = await FindUserByEmail(con.Connection, email.Trim());
                 if (exists == null)
                 {
 
@@ -113,10 +113,10 @@ namespace NSSLServer.Plugin.Userhandling.Manager
             using var con = new DBContext(await NsslEnvironment.OpenConnectionAsync(), false);
             User exists = null;
             if (email != null)
-                exists = await FindUserByName(con.Connection, email);
+                exists = await FindUserByName(con.Connection, email.Trim());
             if (exists == null)
             {
-                exists = await FindUserByEmail(con.Connection, email);
+                exists = await FindUserByEmail(con.Connection, email.Trim());
                 if (exists == null)
                 {
                     con.Connection.Close();
@@ -200,11 +200,11 @@ NSSL Team");
             //    return context.Users.FirstOrDefault(x => x.Username.ToLower() == name.ToLower());
             //}
 
-            return await Q.From(T).Where(T.Username.ILike(name)).FirstOrDefault<User>(con);
+            return await Q.From(T).Where(T.Username.ILike(name.Trim())).FirstOrDefault<User>(con);
         }
 
         public static async Task<User> FindUserByEmail(DbConnection con, string email) =>
-             await Q.From(T).Where(T.Email.ILike(email)).FirstOrDefault<User>(con);
+             await Q.From(T).Where(T.Email.ILike(email.Trim())).FirstOrDefault<User>(con);
 
         public static async Task<User> FindUserById(DbConnection con, int id) =>
             await Q.From(T).Where(T.Id.EqV(id)).FirstOrDefault<User>(con);
